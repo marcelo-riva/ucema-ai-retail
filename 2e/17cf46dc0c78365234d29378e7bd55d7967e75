@@ -1,0 +1,96 @@
+simulador/src/pharmalink/simulation.py
+  s_4833c425914b3e::t_16cee7d0456dad 1-7,57-76,78-85,93-137,146-161,164,183,189-237,251-264,270-271,318-360,363-366,368,370-405
+  s_4833c425914b3e::t_e3c905afe0f429 8
+  s_4833c425914b3e::t_c9de88e87703fc 9-56,138-145
+  s_4833c425914b3e::t_0e055acfc51c6d 77
+  s_4833c425914b3e::t_3060ec9fdd98a5 86-92,162-163,165-182,184-188,282,296,311
+  s_4833c425914b3e::t_5f65dcfb0954d8 238-250,265-269,272-281,283-295,297-310,312-317,361-362,367,369
+AGENTS.md
+  s_4833c425914b3e::t_4a11062416211d 39,89-90
+  s_4833c425914b3e::t_36573795acdc90 10-38,41,57-88,105-106
+  s_4833c425914b3e::t_df78778096da00 107-109,125
+  s_4833c425914b3e::t_4bd3c6de3c52df 40,124
+  s_4833c425914b3e::t_a935a07d0c1716 45-54,104
+clases/README.md
+  s_4833c425914b3e::t_c7b7f5c10735da 1-5
+simulador/docs/variables-caso-y-ejercicios.md
+  s_4833c425914b3e::t_fe1b0229527f34 1-402
+simulador/requirements.txt
+  s_4833c425914b3e::t_16cee7d0456dad 1-3
+simulador/src/pharmalink/storage.py
+  s_4833c425914b3e::t_16cee7d0456dad 1-49
+simulador/data/raw/.gitkeep
+  s_4833c425914b3e::t_c7b7f5c10735da 1
+simulador/app/streamlit_app.py
+  s_4833c425914b3e::t_c868a093e050ba 220-223,334-335,337-343,345-347,351-358,376-401,403-447
+  s_4833c425914b3e::t_0a6bbf97dc82dd 813
+  s_4833c425914b3e::t_c6ac54de666f44 16,39-46,138,143-209
+  s_4833c425914b3e::t_06cc68e1294160 47-133
+  s_4833c425914b3e::t_1f2c685e0752c6 1-2,4-15,17-38,134-137,139-142,210-219,312-314,329-333,448-449,460-481,486-519,521-541,543-550,552-559,561-562,579-591,593-600,602-609,611-625,627-634,636-643,645-652,654-668,670-677,679-686,688-702,704-711,713-720,722-759,761-770,772-791,800,802,804-810,812,814-838
+  s_4833c425914b3e::t_ddd73c7a3d2083 363-375
+  s_4833c425914b3e::t_00b9f19758011c 542,551,560,563-578
+  s_4833c425914b3e::t_3462d6ab6c78a4 336,344,348-350,359-362,402
+  s_4833c425914b3e::t_aa2d6d027f9e12 450-459
+  s_4833c425914b3e::t_dd31651f63bf41 520
+  s_4833c425914b3e::t_977e454963fce6 482-485
+  s_4833c425914b3e::t_c743a25f0a00e0 3,224-300,310-311,315-328
+  s_4833c425914b3e::t_2d1a95cee0fe2f 592,601,610,626,635,644,653,669,678,687,703,712,721
+  s_4833c425914b3e::t_7354d79bab62ce 301-309
+  s_4833c425914b3e::t_75819990dfdd28 760,792-799,803,811
+  s_4833c425914b3e::t_805f50dd9c00cd 771
+  s_4833c425914b3e::t_39323f29efe28d 801
+.gitignore
+  s_4833c425914b3e::t_c00f3ac919a5af 15
+  s_4833c425914b3e::t_654d04044e4bc7 8
+simulador/docs/README.md
+  s_4833c425914b3e::t_4bd3c6de3c52df 9
+  s_4833c425914b3e::t_c3da8a4dcbef2a 4-8,10
+  s_4833c425914b3e::t_c7b7f5c10735da 1-3
+  s_4833c425914b3e::t_c00f3ac919a5af 11-14
+simulador/data/processed/.gitkeep
+  s_4833c425914b3e::t_c7b7f5c10735da 1
+simulador/app/README.md
+  s_4833c425914b3e::t_c7b7f5c10735da 1-5
+simulador/docs/resumen-sesion-2026-05-17.md
+  s_4833c425914b3e::t_b41608aecd6c0a 1-89
+simulador/docs/presentacion-simulador.html
+  s_4833c425914b3e::t_42e1f3e21e96c8 1-1140
+simulador/data/scenarios/README.md
+  s_4833c425914b3e::t_16cee7d0456dad 1-15
+simulador/data/scenarios/.gitkeep
+  s_4833c425914b3e::t_16cee7d0456dad 1
+simulador/tests/README.md
+  s_4833c425914b3e::t_c7b7f5c10735da 1-3
+simulador/docs/simulador-specs.md
+  s_4833c425914b3e::t_0e3b57520ee2a3 1-593,611-880
+  s_4833c425914b3e::t_c00f3ac919a5af 594-610
+simulador/escenarios/README.md
+  s_4833c425914b3e::t_c7b7f5c10735da 1-14
+simulador/referencias/planificador/README.md
+  s_4833c425914b3e::t_c7b7f5c10735da 1-18
+simulador/README.md
+  s_4833c425914b3e::t_c00f3ac919a5af 27-39
+  s_4833c425914b3e::t_c7b7f5c10735da 1-26
+simulador/src/pharmalink/__init__.py
+  s_4833c425914b3e::t_16cee7d0456dad 1-2
+simulador/src/README.md
+  s_4833c425914b3e::t_c7b7f5c10735da 1-3
+simulador/docs/analisis-referencias.md
+  s_4833c425914b3e::t_a5d27fa3118dfe 1-172
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "2e17cf46dc0c78365234d29378e7bd55d7967e75",
+  "prompts": {},
+  "sessions": {
+    "s_4833c425914b3e": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019e3765-8bde-7973-aa92-31d759c41b06",
+        "model": "gpt-5.5"
+      },
+      "human_author": "Marcelo Riva <marceloriva.sys@gmail.com>"
+    }
+  }
+}
