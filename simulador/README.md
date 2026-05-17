@@ -48,3 +48,14 @@ PYTHONPATH=src streamlit run app/streamlit_app.py
 La app queda disponible en `http://127.0.0.1:8501`.
 
 Las jugadas de los equipos se guardan como JSON locales en `data/scenarios/<equipo>/`.
+
+## Flujo de practica
+
+1. Elegir el equipo en la sidebar.
+2. Usar `Reset escenario actual` para volver el escenario en pantalla al baseline.
+3. Entrar a un laboratorio segun la clase tematica.
+4. En `Inventario` o `Pricing`, probar `Jugada A`, `Jugada B` y `Jugada C` para comparar hipotesis.
+5. Revisar siempre la progresion de 12 meses, las categorias, `Baseline vs actual` e `Iteraciones`.
+6. Guardar solo las jugadas que se quieran conservar para discusion o comparacion.
+
+El reset no borra los JSON ya guardados. Para practicar desde cero sin historial, usar otro nombre de equipo o limpiar manualmente la carpeta local.

@@ -5,15 +5,16 @@ Fecha: 2026-05-17
 
 ## 0. Estado de la especificacion
 
-Esta spec se inicio antes de construir el MVP. Luego de probar la primera version en Streamlit, se actualiza con aprendizajes de interfaz y dinamica pedagogica:
+Esta spec nacio como documento de diseno y ahora funciona como documento vivo del MVP. Luego de probar la primera version en Streamlit, se actualiza con aprendizajes de interfaz y dinamica pedagogica:
 
 - el simulador debe mostrar siempre la foto ejecutiva y la pelicula mensual de 12 meses;
 - cada jugada es un plan completo, no un avance automatico mes a mes;
-- el alumno puede elegir un **mes de decision** para leer la curva temporal;
+- el alumno puede elegir un **mes de lectura** para leer la curva temporal;
 - mover sliders recalcula el escenario; guardar solo congela la iteracion;
 - no hace falta tocar todos los laboratorios en cada jugada;
 - inventario necesita intervencion por categoria, no solo valores globales;
 - diagnostico no mueve numeros operativos: define la tesis estrategica que luego se evalua por consistencia.
+- el MVP incluye guia de 3 jugadas para inventario y pricing, comparador baseline vs actual, comparador de iteraciones y reset de escenario actual.
 
 ## 1. Objetivo
 
@@ -24,7 +25,7 @@ El simulador debe permitir que los alumnos:
 - entiendan el problema de negocio;
 - tomen decisiones sobre palancas comerciales, operativas y financieras;
 - vean el impacto sistemico de esas decisiones;
-- iteran escenarios antes de pasar al siguiente laboratorio;
+- iteren escenarios antes de pasar al siguiente laboratorio;
 - usen IA como copiloto para diagnosticar, simular, criticar y defender trade-offs;
 - lleguen a un Board Meeting final con un plan integral de turnaround.
 
@@ -81,8 +82,10 @@ La interfaz debe mantener visible un cockpit compacto con las variables madre de
 Ademas del cockpit anual, la interfaz debe mostrar una **lectura de sistema** con:
 
 - progresion mensual M01-M12;
-- KPIs del mes de decision seleccionado;
+- KPIs del mes de lectura seleccionado;
 - categorias de producto y su sensibilidad;
+- comparacion baseline vs escenario actual;
+- comparacion de iteraciones guardadas;
 - mapa de que palancas afectan que variables.
 
 El objetivo es que el alumno vea la pelicula y no solo la foto final.
@@ -97,6 +100,12 @@ Cada laboratorio debe permitir al menos 2 o 3 iteraciones:
 
 El objetivo pedagogico no es acertar en el primer intento, sino entender consecuencias.
 Guardar una iteracion no debe ser necesario para recalcular: mover una palanca recalcula el escenario actual. Guardar solo persiste una foto para comparacion posterior.
+
+La app puede ofrecer jugadas guiadas por laboratorio. Estas jugadas no son "respuestas correctas", sino protocolos de aprendizaje para comparar hipotesis:
+
+- Jugada A: explorar una decision agresiva y ver que rompe.
+- Jugada B: corregir con criterio y segmentacion.
+- Jugada C: construir una version defendible ante board.
 
 ### 2.5 Progresion por desbloqueo
 
@@ -588,13 +597,15 @@ En una version posterior:
 La app debe tener:
 
 - sidebar de navegacion por laboratorio;
-- selector de mes de decision;
+- selector de mes de lectura;
 - cockpit fijo con KPIs clave;
 - lectura del sistema con progresion mensual y categorias;
 - area central de palancas;
 - panel de impacto;
 - panel de IA;
-- gestor de escenarios.
+- gestor de escenarios;
+- reset del escenario actual;
+- jugadas guiadas por laboratorio cuando sirvan para ensenar el trade-off.
 
 ## 9.2 Cockpit fijo
 
@@ -632,7 +643,7 @@ Cada laboratorio debe tener:
 
 No debe requerirse un boton `Simular` en el MVP: Streamlit recalcula al cambiar inputs. Si en una version futura se usa un frontend con estado mas complejo, puede reaparecer un boton explicito de simulacion.
 
-### 9.3.1 Mes de decision
+### 9.3.1 Mes de lectura
 
 El selector de mes no significa que el equipo "avanza de turno" como en un juego por rondas. Representa el punto desde el cual el alumno lee el plan:
 
@@ -654,6 +665,7 @@ Cada equipo debe poder tener:
 - candidato final.
 
 Para MVP local, los escenarios pueden guardarse como JSON en disco.
+El reset rapido debe volver la iteracion actual al baseline del equipo, pero no borrar automaticamente las jugadas JSON ya guardadas. Para practicar desde cero conviene usar un `team_id` nuevo o limpiar manualmente la carpeta local.
 
 Para version compartida, guardar en SQLite, Supabase, Google Sheets o backend simple.
 
@@ -857,6 +869,9 @@ Incluye:
 - laboratorio inventario;
 - laboratorio pricing;
 - comparacion baseline vs escenario actual;
+- comparacion de iteraciones guardadas;
+- jugadas guiadas de 3 pasos para inventario y pricing;
+- reset del escenario actual;
 - guardado JSON local;
 - mock advisor.
 
@@ -874,7 +889,7 @@ Incluye:
 - Board Meeting;
 - scoring integral.
 
-Estado: iniciada. Los laboratorios existen en UI, pero falta profundizar formulas, comparacion de iteraciones y narrativa pedagogica final.
+Estado: iniciada. Los laboratorios existen en UI, pero falta profundizar formulas, consignas por clase y narrativa pedagogica final.
 
 ### Fase 4: IA real
 
@@ -924,15 +939,17 @@ El MVP se considera valido si:
 - [x] muestra progresion mensual de 12 meses;
 - [x] muestra categorias de producto;
 - [x] permite intervenir inventario por categoria;
-- [ ] compara baseline vs escenario actual en una vista dedicada;
-- [ ] compara iteraciones guardadas;
+- [x] compara baseline vs escenario actual en una vista dedicada;
+- [x] compara iteraciones guardadas;
+- [x] ofrece jugadas guiadas de aprendizaje en inventario y pricing;
+- [x] permite resetear el escenario actual;
 - [ ] tiene tests basicos para el motor.
 
 ## 17. Comando objetivo para correr local
 
 ```bash
 cd simulador
-streamlit run app/streamlit_app.py
+PYTHONPATH=src streamlit run app/streamlit_app.py
 ```
 
 Alternativa si se usa estructura de paquete:
@@ -949,12 +966,11 @@ Siguiente paso recomendado:
 
 1. Validar en una sesion corta si la dinamica de laboratorio se entiende.
 2. Ajustar las consignas por laboratorio antes de profundizar formulas.
-3. Agregar comparador de iteraciones guardadas.
-4. Agregar vista baseline vs escenario actual.
-5. Agregar tests del motor.
-6. Calibrar formulas contra el Excel base.
-7. Decidir modalidad de uso:
+3. Agregar tests del motor.
+4. Calibrar formulas contra el Excel base.
+5. Definir datasets/escenarios prearmados para el docente.
+6. Decidir modalidad de uso:
    - demo local docente;
    - local por equipos;
    - web compartida sin IA real.
-8. Recién despues evaluar IA real y despliegue multiusuario.
+7. Recién despues evaluar IA real y despliegue multiusuario.

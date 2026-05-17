@@ -32,6 +32,15 @@ Luego abrir:
 http://127.0.0.1:8501
 ```
 
+## Uso rapido del MVP
+
+1. Elegir un `Equipo` en la sidebar.
+2. Usar `Reset escenario actual` si se quiere volver al baseline.
+3. Entrar a un laboratorio, por ejemplo `Inventario` o `Pricing`.
+4. Aplicar una `Jugada A/B/C` o mover sliders manualmente.
+5. Mirar `Progresion 12 meses`, `Categorias`, `Baseline vs actual` e `Iteraciones`.
+6. Guardar una iteracion solo cuando se quiera congelar una jugada para compararla despues.
+
 ## Persistencia local
 
 Las jugadas de los equipos se guardan como JSON en:
@@ -47,3 +56,5 @@ Estos archivos no se commitean, porque son resultados locales de uso en clase.
 - `simulador/docs/simulador-specs.md` — specs funcionales y arquitectura.
 - `simulador/docs/variables-caso-y-ejercicios.md` — variables clave y palancas por laboratorio.
 - `simulador/docs/resumen-sesion-2026-05-17.md` — resumen de la primera sesion de trabajo.
+- `simulador/docs/presentacion-simulador.html` — presentacion general del simulador.
+- `simulador/docs/presentacion-interaccion-jugador.html` — presentacion sobre dinamica de jugador, meses, laboratorios e IA.

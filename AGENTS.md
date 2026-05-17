@@ -38,6 +38,8 @@ Analisis consolidado:
 - `simulador/docs/analisis-referencias.md`
 - `simulador/docs/variables-caso-y-ejercicios.md`
 - `simulador/docs/simulador-specs.md`
+- `simulador/docs/resumen-sesion-2026-05-17.md`
+- `simulador/docs/presentacion-interaccion-jugador.html`
 
 ## Estructura del proyecto
 
@@ -96,7 +98,10 @@ El mapa de variables que guian el caso y las palancas por ejercicio esta documen
 
 ## Stack
 
-> En definición — actualizar acá cuando se fije
+- Python
+- Streamlit para el MVP local
+- JSON local para persistencia de jugadas
+- Mock IA por reglas en la primera version
 
 ## Estado actual
 
@@ -107,6 +112,10 @@ El mapa de variables que guian el caso y las palancas por ejercicio esta documen
 - [x] Specs funcionales y arquitectura documentadas
 - [x] Motor inicial simplificado del simulador
 - [x] App interactiva inicial en Streamlit
+- [x] Cockpit compacto, progresion 12 meses y vistas por categoria
+- [x] Comparacion baseline vs actual e iteraciones guardadas
+- [x] Jugadas guiadas A/B/C para inventario y pricing
+- [x] Reset del escenario actual
 - [ ] Primer notebook de clase
 
 ## Convenciones
@@ -121,5 +130,5 @@ El mapa de variables que guian el caso y las palancas por ejercicio esta documen
 - Leer este archivo al inicio de cada sesión
 - Actualizar "Estado actual" cuando algo cambie
 - El simulador vive en `simulador/`, no mezclar con materiales de clase
-- Antes de construir el simulador, revisar y respetar `simulador/docs/simulador-specs.md`
+- Antes de cambiar el simulador, revisar y respetar `simulador/docs/simulador-specs.md`
 - Para correr el MVP local: `cd simulador && PYTHONPATH=src streamlit run app/streamlit_app.py`
