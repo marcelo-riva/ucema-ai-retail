@@ -1,0 +1,19 @@
+.gitignore
+  s_36cb31e604bd3c::t_43c149dad07a28 1-12
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.7",
+  "base_commit_sha": "a657f1aa0449c8807ee340f3de96224b32bd44d7",
+  "prompts": {},
+  "sessions": {
+    "s_36cb31e604bd3c": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "9eef888c-0811-45e4-b007-27e149bdfecd",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Marcelo Riva <marceloriva.sys@gmail.com>"
+    }
+  }
+}
