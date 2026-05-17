@@ -141,6 +141,145 @@ CLASS_SEQUENCE = [
     ("Cierre", "Board Meeting", "Defender el plan integral y los trade-offs."),
 ]
 
+GUIDED_PLAYS = {
+    "inventory": [
+        {
+            "name": "Jugada A — Caja agresiva",
+            "intent": "Ver cuanta caja aparece cuando bajo inventario de forma fuerte.",
+            "sliders": [
+                "Cobertura %: 0.88",
+                "Reduccion SKUs %: 0.18",
+                "DDI objetivo: 44",
+                "Medicamentos cronicos: 0.00",
+                "OTC y cuidado diario: -0.08",
+                "Dermocosmetica: -0.10",
+                "Perfumeria y belleza: -0.10",
+                "Suplementos y bienestar: -0.06",
+            ],
+            "watch": "M02-M04: caja y FCF. Categorias: quiebres en OTC y cronicos.",
+            "learning": "Aprender que liberar caja puede crear riesgo comercial si se corta disponibilidad.",
+            "month": 3,
+            "values": {
+                "inventory_coverage_pct": 0.88,
+                "inventory_sku_reduction_pct": 0.18,
+                "inventory_ddi_target": 44,
+                "inventory_category_delta_medicamentos_cronicos": 0.00,
+                "inventory_category_delta_otc_cuidado_diario": -0.08,
+                "inventory_category_delta_dermocosmetica": -0.10,
+                "inventory_category_delta_perfumeria_belleza": -0.10,
+                "inventory_category_delta_suplementos_bienestar": -0.06,
+            },
+        },
+        {
+            "name": "Jugada B — Caja cuidando cronicos",
+            "intent": "Proteger la categoria que sostiene recurrencia y bajar donde duele menos.",
+            "sliders": [
+                "Cobertura %: 0.91",
+                "Reduccion SKUs %: 0.12",
+                "DDI objetivo: 48",
+                "Medicamentos cronicos: +0.05",
+                "OTC y cuidado diario: -0.04",
+                "Dermocosmetica: -0.07",
+                "Perfumeria y belleza: -0.08",
+                "Suplementos y bienestar: -0.04",
+            ],
+            "watch": "Comparar contra Jugada A: caja perdida vs quiebres evitados.",
+            "learning": "Aprender segmentacion operativa: no todas las categorias admiten el mismo recorte.",
+            "month": 3,
+            "values": {
+                "inventory_coverage_pct": 0.91,
+                "inventory_sku_reduction_pct": 0.12,
+                "inventory_ddi_target": 48,
+                "inventory_category_delta_medicamentos_cronicos": 0.05,
+                "inventory_category_delta_otc_cuidado_diario": -0.04,
+                "inventory_category_delta_dermocosmetica": -0.07,
+                "inventory_category_delta_perfumeria_belleza": -0.08,
+                "inventory_category_delta_suplementos_bienestar": -0.04,
+            },
+        },
+        {
+            "name": "Jugada C — Conservadora defendible",
+            "intent": "Construir una decision que el equipo pueda defender ante un board.",
+            "sliders": [
+                "Cobertura %: 0.93",
+                "Reduccion SKUs %: 0.08",
+                "DDI objetivo: 52",
+                "Medicamentos cronicos: +0.03",
+                "OTC y cuidado diario: 0.00",
+                "Dermocosmetica: -0.05",
+                "Perfumeria y belleza: -0.05",
+                "Suplementos y bienestar: -0.03",
+            ],
+            "watch": "M12: caja final y consistencia. Feedback IA: preguntas de board.",
+            "learning": "Aprender que el mejor escenario pedagogico no siempre maximiza caja: maximiza explicabilidad.",
+            "month": 12,
+            "values": {
+                "inventory_coverage_pct": 0.93,
+                "inventory_sku_reduction_pct": 0.08,
+                "inventory_ddi_target": 52,
+                "inventory_category_delta_medicamentos_cronicos": 0.03,
+                "inventory_category_delta_otc_cuidado_diario": 0.00,
+                "inventory_category_delta_dermocosmetica": -0.05,
+                "inventory_category_delta_perfumeria_belleza": -0.05,
+                "inventory_category_delta_suplementos_bienestar": -0.03,
+            },
+        },
+    ],
+    "pricing": [
+        {
+            "name": "Jugada A — Margen agresivo",
+            "intent": "Subir precios para ver elasticidad y margen.",
+            "sliders": [
+                "Cambio PVP promedio: +0.06",
+                "Cambio PVP categorias sensibles: +0.04",
+                "Cambio PVP categorias premium: +0.10",
+            ],
+            "watch": "Margen bruto vs impacto volumen por categoria.",
+            "learning": "Aprender que subir todo puede mejorar margen pero destruir volumen en categorias sensibles.",
+            "month": 5,
+            "values": {
+                "pricing_avg_pvp_change_pct": 0.06,
+                "pricing_sensitive_category_change_pct": 0.04,
+                "pricing_premium_category_change_pct": 0.10,
+            },
+        },
+        {
+            "name": "Jugada B — Proteger sensibles",
+            "intent": "Diferenciar pricing entre canasta sensible y premium.",
+            "sliders": [
+                "Cambio PVP promedio: +0.02",
+                "Cambio PVP categorias sensibles: -0.03",
+                "Cambio PVP categorias premium: +0.12",
+            ],
+            "watch": "Mix de categorias y revenue.",
+            "learning": "Aprender que precio es arquitectura, no promedio.",
+            "month": 5,
+            "values": {
+                "pricing_avg_pvp_change_pct": 0.02,
+                "pricing_sensitive_category_change_pct": -0.03,
+                "pricing_premium_category_change_pct": 0.12,
+            },
+        },
+        {
+            "name": "Jugada C — Balanceada",
+            "intent": "Buscar margen defendible sin tensionar demasiado volumen.",
+            "sliders": [
+                "Cambio PVP promedio: +0.03",
+                "Cambio PVP categorias sensibles: 0.00",
+                "Cambio PVP categorias premium: +0.08",
+            ],
+            "watch": "Consistencia con foco estrategico y preguntas de board.",
+            "learning": "Aprender a defender bandas de cambio por categoria.",
+            "month": 12,
+            "values": {
+                "pricing_avg_pvp_change_pct": 0.03,
+                "pricing_sensitive_category_change_pct": 0.00,
+                "pricing_premium_category_change_pct": 0.08,
+            },
+        },
+    ],
+}
+
 
 def ensure_state() -> None:
     if "scenario" not in st.session_state:
@@ -229,6 +368,83 @@ def fmt_pct(value: float) -> str:
 
 def fmt_delta_pct(value: float) -> str:
     return f"{value * 100:+.1f}%"
+
+
+def neutral_baseline(current_month: int) -> Scenario:
+    scenario = Scenario(
+        name="Baseline sin nuevas decisiones",
+        strategic_focus="balanced",
+        current_lab="diagnostico",
+        current_month=current_month,
+    )
+    scenario.decisions["inventory"] = {
+        "coverage_pct": 0.95,
+        "sku_reduction_pct": 0.00,
+        "ddi_target": 62,
+        "category_coverage_delta": {
+            category["name"]: 0.0 for category in CATEGORY_BASELINE
+        },
+    }
+    scenario.decisions["pricing"] = {
+        "avg_pvp_change_pct": 0.0,
+        "sensitive_category_change_pct": 0.0,
+        "premium_category_change_pct": 0.0,
+    }
+    scenario.decisions["customer"] = {
+        "vip_retention_focus": 0.50,
+        "at_risk_retention_focus": 0.50,
+        "opportunistic_retention_focus": 0.00,
+        "new_customers_monthly": 50000,
+    }
+    scenario.decisions["digital"] = {
+        "delivery_mix": 0.05,
+        "pickup_mix": 0.08,
+        "hub_push": 0.02,
+    }
+    scenario.decisions["network"] = {
+        "flagship_openings": 0,
+        "hub_openings": 0,
+        "proximity_closures": 0,
+    }
+    return scenario
+
+
+def comparison_rows(current: dict, baseline: dict) -> list[dict[str, str]]:
+    metrics = [
+        ("Revenue anual", "annual_revenue", fmt_mm),
+        ("EBITDA anual", "annual_ebitda", fmt_mm),
+        ("FCF anual", "annual_fcf", fmt_mm),
+        ("Caja final", "ending_cash", fmt_mm),
+        ("CAPEX usado", "capex_used", fmt_mm),
+        ("Margen bruto", "gross_margin", fmt_pct),
+        ("DDI", "ddi", lambda value: f"{value:.0f} dias"),
+        ("Quiebres", "stockout_rate", fmt_pct),
+        ("Costo logistico", "logistics_cost_rate", fmt_pct),
+        ("Churn", "churn_rate", fmt_pct),
+        ("Consistencia", "consistency_score", lambda value: f"{value:.0f}/100"),
+    ]
+    rows = []
+    for label, key, formatter in metrics:
+        current_value = current["kpis"][key]
+        baseline_value = baseline["kpis"][key]
+        delta = current_value - baseline_value
+        rows.append(
+            {
+                "Variable": label,
+                "Actual": formatter(current_value),
+                "Baseline": formatter(baseline_value),
+                "Delta": formatter(delta) if key not in {"consistency_score", "ddi"} else f"{delta:+.0f}",
+            }
+        )
+    return rows
+
+
+def apply_guided_play(scenario: Scenario, lab: str, play: dict) -> None:
+    scenario.current_lab = lab
+    scenario.current_month = int(play.get("month", scenario.current_month))
+    for key, value in play.get("values", {}).items():
+        st.session_state[key] = value
+    scenario.name = play["name"]
 
 
 def inject_css() -> None:
@@ -343,15 +559,21 @@ def render_cockpit(result: dict) -> None:
         st.success("Sin alertas criticas en esta iteracion.")
 
 
-def render_system_context(result: dict, current_month: int) -> None:
+def render_system_context(scenario: Scenario, result: dict, baseline_result: dict) -> None:
     st.subheader("Lectura del sistema")
-    tab_months, tab_categories, tab_map = st.tabs(
-        ["Progresion 12 meses", "Categorias", "Mapa de decisiones"]
+    tab_months, tab_categories, tab_baseline, tab_iterations, tab_map = st.tabs(
+        [
+            "Progresion 12 meses",
+            "Categorias",
+            "Baseline vs actual",
+            "Iteraciones",
+            "Mapa de decisiones",
+        ]
     )
 
     with tab_months:
         monthly = result["monthly"]
-        current_idx = max(0, min(11, current_month - 1))
+        current_idx = max(0, min(11, scenario.current_month - 1))
         monthly_df = pd.DataFrame(
             {
                 "Mes": monthly["month"],
@@ -417,6 +639,40 @@ def render_system_context(result: dict, current_month: int) -> None:
         )
         st.dataframe(display_df, use_container_width=True, hide_index=True)
 
+    with tab_baseline:
+        st.caption(
+            "Compara el escenario actual contra un baseline neutral sin nuevas decisiones de inventario, pricing ni red. "
+            "Sirve para ver si la jugada crea valor o solo mueve el problema de lugar."
+        )
+        st.dataframe(
+            pd.DataFrame(comparison_rows(result, baseline_result)),
+            use_container_width=True,
+            hide_index=True,
+        )
+
+    with tab_iterations:
+        files = list_scenarios(scenario.team_id)
+        if not files:
+            st.info("Todavia no hay iteraciones guardadas. Guarda la Jugada A, B y C para compararlas aca.")
+        else:
+            rows = []
+            for path in files[:12]:
+                payload = load_scenario(path)
+                kpis = payload["results_snapshot"]["kpis"]
+                rows.append(
+                    {
+                        "Archivo": path.name,
+                        "Lab": payload["lab"],
+                        "EBITDA": fmt_mm(kpis["annual_ebitda"]),
+                        "FCF": fmt_mm(kpis["annual_fcf"]),
+                        "Caja final": fmt_mm(kpis["ending_cash"]),
+                        "CAPEX": fmt_mm(kpis["capex_used"]),
+                        "Quiebres": fmt_pct(kpis["stockout_rate"]),
+                        "Consistencia": f"{kpis['consistency_score']:.0f}/100",
+                    }
+                )
+            st.dataframe(pd.DataFrame(rows), use_container_width=True, hide_index=True)
+
     with tab_map:
         st.markdown(
             """
@@ -472,6 +728,37 @@ def render_class_sequence() -> None:
         for class_name, lab_name, purpose in CLASS_SEQUENCE:
             st.markdown(f"**{class_name}: {lab_name}**")
             st.caption(purpose)
+
+
+def render_guided_plays(scenario: Scenario, lab: str) -> None:
+    plays = GUIDED_PLAYS.get(lab)
+    if not plays:
+        return
+
+    with st.expander("Guia de 3 jugadas para practicar", expanded=True):
+        st.caption(
+            "Usa estas jugadas como protocolo de aprendizaje. En cada una cambia solo las variables indicadas, "
+            "mira el impacto y guarda la iteracion antes de pasar a la siguiente."
+        )
+        for play in plays:
+            st.markdown(f"**{play['name']}**")
+            st.write(play["intent"])
+            cols = st.columns([1.05, 0.95, 1, 0.72])
+            with cols[0]:
+                st.markdown("**Sliders**")
+                for item in play["sliders"]:
+                    st.write(f"- {item}")
+            with cols[1]:
+                st.markdown("**Mirar**")
+                st.write(play["watch"])
+            with cols[2]:
+                st.markdown("**Aprendizaje**")
+                st.write(play["learning"])
+            with cols[3]:
+                st.markdown("**Accion**")
+                if st.button(f"Aplicar {play['name'].split(' — ')[0]}", key=f"apply_{lab}_{play['name']}"):
+                    apply_guided_play(scenario, lab, play)
+                    st.rerun()
 
 
 def render_feedback(feedback: dict) -> None:
@@ -824,11 +1111,13 @@ def main() -> None:
     st.caption("MVP para iterar interfaz, laboratorios y persistencia de jugadas.")
 
     result = simulate(scenario)
+    baseline_result = simulate(neutral_baseline(scenario.current_month))
     feedback = advisor_feedback(scenario, result)
     render_cockpit(result)
-    render_system_context(result, scenario.current_month)
+    render_system_context(scenario, result, baseline_result)
     st.divider()
     render_lab_guide(selected_lab)
+    render_guided_plays(scenario, selected_lab)
 
     if selected_lab == "diagnostico":
         render_diagnosis(scenario)
