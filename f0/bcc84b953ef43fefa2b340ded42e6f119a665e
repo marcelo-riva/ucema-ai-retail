@@ -1,0 +1,21 @@
+simulador/README.md
+  s_4833c425914b3e::t_bf739656660414 32-41,48
+README.md
+  s_4833c425914b3e::t_fa39746e00c791 1-49
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "f0bcc84b953ef43fefa2b340ded42e6f119a665e",
+  "prompts": {},
+  "sessions": {
+    "s_4833c425914b3e": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019e3765-8bde-7973-aa92-31d759c41b06",
+        "model": "gpt-5.5"
+      },
+      "human_author": "Marcelo Riva <marceloriva.sys@gmail.com>"
+    }
+  }
+}
