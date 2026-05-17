@@ -141,6 +141,28 @@ CLASS_SEQUENCE = [
     ("Cierre", "Board Meeting", "Defender el plan integral y los trade-offs."),
 ]
 
+CONTROL_WIDGET_KEYS = [
+    "strategic_focus",
+    "inventory_coverage_pct",
+    "inventory_sku_reduction_pct",
+    "inventory_ddi_target",
+    "pricing_avg_pvp_change_pct",
+    "pricing_sensitive_category_change_pct",
+    "pricing_premium_category_change_pct",
+    "customer_vip_retention_focus",
+    "customer_at_risk_retention_focus",
+    "customer_opportunistic_retention_focus",
+    "customer_new_customers_monthly",
+    "digital_delivery_mix",
+    "digital_pickup_mix",
+    "digital_hub_push",
+    "network_flagship_openings",
+    "network_hub_openings",
+    "network_proximity_closures",
+] + [
+    f"inventory_category_delta_{slug}" for slug in CATEGORY_SLUGS.values()
+]
+
 GUIDED_PLAYS = {
     "inventory": [
         {
@@ -302,6 +324,19 @@ def ensure_scenario_defaults(scenario: Scenario) -> None:
     category_delta = inventory.setdefault("category_coverage_delta", {})
     for category in CATEGORY_BASELINE:
         category_delta.setdefault(category["name"], 0.0)
+
+
+def clear_control_widgets() -> None:
+    for key in CONTROL_WIDGET_KEYS:
+        st.session_state.pop(key, None)
+
+
+def reset_current_scenario(team_id: str) -> None:
+    clear_control_widgets()
+    st.session_state.scenario = Scenario(team_id=team_id or "team-01")
+    st.session_state.saved_counts = {lab: 0 for lab, _ in LABS}
+    st.session_state.last_saved_path = None
+    ensure_scenario_defaults(st.session_state.scenario)
 
 
 def sync_scenario_from_widgets(scenario: Scenario) -> None:
@@ -1060,6 +1095,7 @@ def render_saved_scenarios(team_id: str) -> None:
         selected = st.selectbox("Archivo", list(options.keys()))
         if st.button("Cargar jugada", use_container_width=True):
             payload = load_scenario(options[selected])
+            clear_control_widgets()
             st.session_state.scenario = Scenario.from_dict(payload["scenario"])
             ensure_scenario_defaults(st.session_state.scenario)
             st.rerun()
@@ -1083,6 +1119,13 @@ def main() -> None:
         help="Identificador usado para guardar jugadas en data/scenarios/<equipo>/.",
     )
     scenario.name = st.sidebar.text_input("Nombre del escenario", value=scenario.name)
+    if st.sidebar.button("Reset escenario actual", use_container_width=True):
+        reset_current_scenario(scenario.team_id)
+        st.rerun()
+    st.sidebar.caption(
+        "Reset vuelve al baseline del equipo actual. No borra jugadas guardadas; "
+        "para practicar limpio, usa otro nombre de equipo."
+    )
     lab_keys = [key for key, _ in LABS]
     lab_labels = {key: label for key, label in LABS}
     selected_lab = st.sidebar.radio(
