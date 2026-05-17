@@ -1,28 +1,15 @@
-# ucema-ai-retail
+# Claude Code — ucema-ai-retail
 
-Repositorio de clases y simulador para el curso de AI & Retail en UCEMA.
+> Leer primero: [AGENTS.md](./AGENTS.md) — contexto compartido del proyecto.
 
-## Estructura del proyecto
+## Instrucciones específicas para Claude
 
-- `simulador/` — simulador interactivo de retail con AI
-- `clases/` — materiales de clase (notebooks, slides, ejercicios)
+- Responder en español, registro informal
+- Al actualizar el estado del proyecto, editar `AGENTS.md` (no este archivo)
+- Rama activa de trabajo: `feature/simulador`
 
-## Ramas
+## Git
 
-- `main` — estable
-- `feature/simulador` — desarrollo del simulador
-
-## Stack
-
-> Completar a medida que se define
-
-## Contexto
-
-Curso universitario (UCEMA) sobre aplicaciones de inteligencia artificial en retail.
-El simulador permite experimentar con decisiones de negocio (pricing, inventario, demanda) usando modelos de AI.
-
-## Estado actual
-
-- [x] Repo inicializado
-- [ ] Estructura de carpetas del simulador
-- [ ] Primer notebook de clase
+- Remote: https://github.com/marcelo-riva/ucema-ai-retail
+- Cuenta GitHub: `marcelo-riva` (personal, no Meli)
+- Credential helper configurado con `gh auth git-credential`
