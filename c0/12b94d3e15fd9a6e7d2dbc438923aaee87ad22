@@ -1,0 +1,24 @@
+simulador/app/streamlit_app.py
+  s_4833c425914b3e::t_de3fcf3db0962c 370-371,470-474
+  s_4833c425914b3e::t_64036ad5bb88f7 810,815,819
+  s_4833c425914b3e::t_9bf9c55f24ea0a 68,116,134-142
+simulador/docs/presentacion-interaccion-jugador.html
+  s_4833c425914b3e::t_9b3a21f23e321a 1-411,413-898
+  s_4833c425914b3e::t_b65a0d0065e05e 412
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "c012b94d3e15fd9a6e7d2dbc438923aaee87ad22",
+  "prompts": {},
+  "sessions": {
+    "s_4833c425914b3e": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019e3765-8bde-7973-aa92-31d759c41b06",
+        "model": "gpt-5.5"
+      },
+      "human_author": "Marcelo Riva <marceloriva.sys@gmail.com>"
+    }
+  }
+}
