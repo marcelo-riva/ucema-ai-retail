@@ -1,0 +1,22 @@
+simulador/app/streamlit_app.py
+  s_4833c425914b3e::t_04c31443158656 1098
+  s_4833c425914b3e::t_d111b7ce2be300 329-341
+  s_4833c425914b3e::t_7ec0207aeb3782 1122-1128
+  s_4833c425914b3e::t_702e7e3c32ac4d 144-165
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "d724e3bc11a9db205411dd5cc45f5ec7ae4d76d2",
+  "prompts": {},
+  "sessions": {
+    "s_4833c425914b3e": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019e3765-8bde-7973-aa92-31d759c41b06",
+        "model": "gpt-5.5"
+      },
+      "human_author": "Marcelo Riva <marceloriva.sys@gmail.com>"
+    }
+  }
+}
