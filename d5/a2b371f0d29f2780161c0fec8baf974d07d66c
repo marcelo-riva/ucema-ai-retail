@@ -1,0 +1,31 @@
+README.md
+  s_4833c425914b3e::t_79086f2552bf0d 35-43,59-60
+simulador/docs/README.md
+  s_4833c425914b3e::t_93f0078884b375 9,11
+simulador/README.md
+  s_4833c425914b3e::t_0eb2c42fbbeb5d 51-61
+AGENTS.md
+  s_4833c425914b3e::t_d9c0265bfaae36 41-42,101-104,115-118,133
+simulador/docs/simulador-specs.md
+  s_4833c425914b3e::t_0d3ad2ff8ab516 12,17,85,87-88,104-108
+  s_4833c425914b3e::t_05107be453c4a8 28,600,606-608,646,668,872-874,892,942-945,952,969-972,976
+  s_4833c425914b3e::t_6f63463a21da1d 8
+simulador/docs/resumen-sesion-2026-05-17.md
+  s_4833c425914b3e::t_283e61380b2f4c 20,44,51-52,65-69,83-85,92,101
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "d5a2b371f0d29f2780161c0fec8baf974d07d66c",
+  "prompts": {},
+  "sessions": {
+    "s_4833c425914b3e": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019e3765-8bde-7973-aa92-31d759c41b06",
+        "model": "gpt-5.5"
+      },
+      "human_author": "Marcelo Riva <marceloriva.sys@gmail.com>"
+    }
+  }
+}
