@@ -1,0 +1,898 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>PharmaLink 360 | Interaccion del jugador</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --ink: #17202c;
+        --muted: #5f6d7c;
+        --line: #d8e0ea;
+        --paper: #ffffff;
+        --bg: #f5f7fa;
+        --blue: #17466e;
+        --teal: #18777b;
+        --green: #2f7d59;
+        --amber: #a7651a;
+        --red: #ac4141;
+        --soft-blue: #e9f1f8;
+        --soft-teal: #e8f5f5;
+        --soft-amber: #fff3df;
+        --shadow: 0 16px 42px rgba(23, 32, 44, 0.1);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        min-height: 100%;
+        background: var(--bg);
+        color: var(--ink);
+        font-family:
+          Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+          "Segoe UI", sans-serif;
+        letter-spacing: 0;
+      }
+
+      body {
+        overflow: hidden;
+      }
+
+      button {
+        font: inherit;
+      }
+
+      .deck {
+        min-height: 100vh;
+        display: grid;
+        grid-template-rows: 1fr auto;
+      }
+
+      .slides {
+        position: relative;
+        overflow: hidden;
+      }
+
+      .slide {
+        position: absolute;
+        inset: 0;
+        display: none;
+        padding: 44px 64px 34px;
+        background:
+          linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(245, 247, 250, 0.98)),
+          linear-gradient(90deg, rgba(23, 70, 110, 0.07), rgba(24, 119, 123, 0.05));
+      }
+
+      .slide.active {
+        display: grid;
+        grid-template-rows: auto 1fr;
+        gap: 24px;
+      }
+
+      .eyebrow {
+        color: var(--teal);
+        font-size: 0.78rem;
+        font-weight: 800;
+        text-transform: uppercase;
+      }
+
+      h1,
+      h2,
+      h3,
+      p {
+        margin: 0;
+      }
+
+      h1 {
+        max-width: 980px;
+        font-size: 3.45rem;
+        line-height: 1.02;
+        font-weight: 860;
+      }
+
+      h2 {
+        max-width: 980px;
+        font-size: 2.35rem;
+        line-height: 1.08;
+        font-weight: 820;
+      }
+
+      h3 {
+        font-size: 1.04rem;
+        line-height: 1.18;
+        font-weight: 780;
+      }
+
+      .lead {
+        max-width: 820px;
+        color: var(--muted);
+        font-size: 1.14rem;
+        line-height: 1.48;
+      }
+
+      .hero {
+        display: grid;
+        grid-template-columns: minmax(0, 0.95fr) minmax(380px, 0.78fr);
+        gap: 42px;
+        align-items: center;
+      }
+
+      .screen {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--paper);
+        box-shadow: var(--shadow);
+        overflow: hidden;
+      }
+
+      .screen-top {
+        height: 38px;
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        padding: 0 14px;
+        border-bottom: 1px solid var(--line);
+        background: #f7f9fb;
+      }
+
+      .dot {
+        width: 9px;
+        height: 9px;
+        border-radius: 999px;
+        background: var(--line);
+      }
+
+      .screen-body {
+        display: grid;
+        grid-template-columns: 120px 1fr;
+        min-height: 360px;
+      }
+
+      .mock-side {
+        padding: 16px 14px;
+        border-right: 1px solid var(--line);
+        background: #f2f5f8;
+      }
+
+      .mock-side span,
+      .kpi span,
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        min-height: 22px;
+        padding: 0 8px;
+        border-radius: 999px;
+        color: var(--blue);
+        background: var(--soft-blue);
+        font-size: 0.72rem;
+        font-weight: 760;
+      }
+
+      .mock-main {
+        padding: 18px;
+      }
+
+      .kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+        margin-bottom: 18px;
+      }
+
+      .kpi {
+        min-height: 78px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 12px;
+      }
+
+      .kpi strong {
+        display: block;
+        margin-top: 8px;
+        font-size: 1.05rem;
+      }
+
+      .curve {
+        height: 120px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background:
+          linear-gradient(#fff, #fff) padding-box,
+          repeating-linear-gradient(0deg, transparent 0 29px, #edf1f5 30px);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .curve::before,
+      .curve::after {
+        content: "";
+        position: absolute;
+        left: 16px;
+        right: 16px;
+        height: 3px;
+        border-radius: 999px;
+      }
+
+      .curve::before {
+        top: 34px;
+        background: var(--green);
+        transform: rotate(-2deg);
+      }
+
+      .curve::after {
+        top: 76px;
+        background: var(--red);
+        transform: rotate(4deg);
+      }
+
+      .grid-3,
+      .grid-4 {
+        display: grid;
+        gap: 16px;
+        align-content: start;
+      }
+
+      .grid-3 {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .grid-4 {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+
+      .panel {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.92);
+        padding: 18px;
+        min-height: 100%;
+      }
+
+      .panel p {
+        color: var(--muted);
+        margin-top: 9px;
+        font-size: 0.94rem;
+        line-height: 1.42;
+      }
+
+      .panel ul {
+        margin: 10px 0 0;
+        padding-left: 18px;
+        color: var(--muted);
+        font-size: 0.92rem;
+        line-height: 1.38;
+      }
+
+      .flow {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 14px;
+        align-items: stretch;
+      }
+
+      .flow-step {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--paper);
+        padding: 16px;
+        display: grid;
+        grid-template-rows: auto auto 1fr;
+        gap: 8px;
+        min-height: 210px;
+      }
+
+      .num {
+        width: 30px;
+        height: 30px;
+        display: grid;
+        place-items: center;
+        border-radius: 999px;
+        color: #fff;
+        background: var(--blue);
+        font-weight: 820;
+      }
+
+      .month-band {
+        display: grid;
+        grid-template-columns: repeat(12, minmax(0, 1fr));
+        gap: 8px;
+      }
+
+      .month {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--paper);
+        min-height: 136px;
+        padding: 10px;
+      }
+
+      .month strong {
+        display: block;
+        color: var(--blue);
+        font-size: 0.86rem;
+        margin-bottom: 8px;
+      }
+
+      .month span {
+        display: block;
+        color: var(--muted);
+        font-size: 0.78rem;
+        line-height: 1.28;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        overflow: hidden;
+        background: var(--paper);
+        font-size: 0.85rem;
+      }
+
+      th,
+      td {
+        padding: 10px 11px;
+        border-bottom: 1px solid var(--line);
+        vertical-align: top;
+        text-align: left;
+      }
+
+      th {
+        color: var(--blue);
+        background: #f2f6fa;
+        font-weight: 800;
+      }
+
+      tr:last-child td {
+        border-bottom: 0;
+      }
+
+      .split {
+        display: grid;
+        grid-template-columns: minmax(0, 0.88fr) minmax(0, 1.12fr);
+        gap: 20px;
+        align-items: start;
+      }
+
+      .callout {
+        border-left: 5px solid var(--teal);
+        border-radius: 8px;
+        background: var(--soft-teal);
+        padding: 17px 18px;
+        color: var(--ink);
+      }
+
+      .callout p {
+        color: var(--muted);
+        margin-top: 8px;
+        line-height: 1.42;
+      }
+
+      .controls {
+        height: 56px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 24px;
+        border-top: 1px solid var(--line);
+        background: var(--paper);
+      }
+
+      .nav {
+        display: flex;
+        gap: 10px;
+      }
+
+      .nav button {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #fff;
+        color: var(--ink);
+        padding: 8px 13px;
+        cursor: pointer;
+      }
+
+      .nav button.primary {
+        border-color: var(--blue);
+        background: var(--blue);
+        color: #fff;
+      }
+
+      .progress {
+        color: var(--muted);
+        font-size: 0.9rem;
+      }
+
+      @media (max-width: 820px) {
+        body {
+          overflow: auto;
+        }
+
+        .deck {
+          min-height: auto;
+        }
+
+        .slides {
+          overflow: visible;
+        }
+
+        .slide {
+          position: static;
+          min-height: auto;
+          padding: 28px 20px 88px;
+          display: none;
+        }
+
+        .slide.active {
+          display: grid;
+        }
+
+        .hero,
+        .split,
+        .grid-3,
+        .grid-4,
+        .flow,
+        .screen-body {
+          grid-template-columns: 1fr;
+        }
+
+        .month-band {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        h1 {
+          font-size: 2.55rem;
+        }
+
+        h2 {
+          font-size: 1.9rem;
+        }
+
+        .controls {
+          position: fixed;
+          left: 0;
+          right: 0;
+          bottom: 0;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="deck">
+      <section class="slides" aria-live="polite">
+        <article class="slide active">
+          <header>
+            <div class="eyebrow">PharmaLink 360</div>
+            <h1>Como juega un alumno y donde aparece el valor del simulador</h1>
+            <p class="lead">
+              La experiencia no deberia ser "mover sliders hasta que de verde". Deberia ser una practica guiada
+              de pensamiento ejecutivo: formular una hipotesis, tocar pocas palancas, leer efectos de segundo orden
+              y defender trade-offs.
+            </p>
+          </header>
+          <div class="hero">
+            <div class="grid-3">
+              <div class="panel">
+                <h3>El alumno decide</h3>
+                <p>Elige foco, mueve variables y guarda iteraciones. No delega la estrategia en la AI.</p>
+              </div>
+              <div class="panel">
+                <h3>El simulador calcula</h3>
+                <p>Convierte decisiones en curva de 12 meses, categorias, caja, alertas y consistencia.</p>
+              </div>
+              <div class="panel">
+                <h3>La AI desafia</h3>
+                <p>Explica riesgos, contradicciones y preguntas que haria un board.</p>
+              </div>
+            </div>
+            <div class="screen" aria-label="Mockup del simulador">
+              <div class="screen-top"><i class="dot"></i><i class="dot"></i><i class="dot"></i></div>
+              <div class="screen-body">
+                <div class="mock-side">
+                  <span>Lab</span>
+                  <p style="margin-top: 18px; color: var(--muted); font-size: 0.86rem;">Mes de lectura<br />M03</p>
+                </div>
+                <div class="mock-main">
+                  <div class="kpi-grid">
+                    <div class="kpi"><span>Caja</span><strong>ARS -31.2B</strong></div>
+                    <div class="kpi"><span>FCF</span><strong>ARS -5.4B</strong></div>
+                    <div class="kpi"><span>Quiebres</span><strong>6.8%</strong></div>
+                    <div class="kpi"><span>Consistencia</span><strong>78/100</strong></div>
+                  </div>
+                  <div class="curve"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="slide">
+          <header>
+            <div class="eyebrow">Loop de aprendizaje</div>
+            <h2>La unidad pedagogica es la jugada, no el slider</h2>
+            <p class="lead">
+              Una jugada es una hipotesis testeable. Idealmente cambia una o dos palancas para que el equipo pueda
+              entender causalidad. Guardar no simula: guardar congela una version para compararla despues.
+            </p>
+          </header>
+          <div class="flow">
+            <div class="flow-step">
+              <div class="num">1</div>
+              <h3>Clase tematica</h3>
+              <p>El docente introduce el concepto: diagnostico, inventario, pricing, clientes, digital o red.</p>
+            </div>
+            <div class="flow-step">
+              <div class="num">2</div>
+              <h3>Hipotesis</h3>
+              <p>El equipo escribe que cree que conviene hacer y que riesgo va a mirar.</p>
+            </div>
+            <div class="flow-step">
+              <div class="num">3</div>
+              <h3>Variables</h3>
+              <p>Mueve pocas palancas. Si mueve todo junto, aprende menos porque pierde causalidad.</p>
+            </div>
+            <div class="flow-step">
+              <div class="num">4</div>
+              <h3>Lectura</h3>
+              <p>Lee cockpit, curva mensual, categorias y alertas. Cambia mes para entender timing.</p>
+            </div>
+            <div class="flow-step">
+              <div class="num">5</div>
+              <h3>AI + guardado</h3>
+              <p>La AI desafia. El equipo ajusta o guarda la iteracion y pasa al siguiente laboratorio cuando puede defenderla.</p>
+            </div>
+          </div>
+        </article>
+
+        <article class="slide">
+          <header>
+            <div class="eyebrow">Mes de lectura</div>
+            <h2>El mes no es un turno: es una lupa temporal</h2>
+            <p class="lead">
+              El simulador siempre recalcula un plan de 12 meses. El alumno cambia el mes cuando quiere responder una
+              pregunta de timing: cuando entra caja, cuando pega CAPEX, cuando se acumula el problema o cuando el board mira el cierre.
+            </p>
+          </header>
+          <div class="month-band">
+            <div class="month"><strong>M01</strong><span>Diagnostico. Foto inicial, tesis y constraints.</span></div>
+            <div class="month"><strong>M02</strong><span>Inventario empieza a liberar capital de trabajo.</span></div>
+            <div class="month"><strong>M03</strong><span>Primer choque fuerte: capital de trabajo y CAPEX pueden cruzarse.</span></div>
+            <div class="month"><strong>M04</strong><span>Se ve si el recorte de inventario rompio disponibilidad.</span></div>
+            <div class="month"><strong>M05</strong><span>Pricing y clientes empiezan a mostrar volumen, churn y margen.</span></div>
+            <div class="month"><strong>M06</strong><span>Segundo punto de CAPEX. Buen mes para mirar caja y disciplina.</span></div>
+            <div class="month"><strong>M07</strong><span>Digital muestra conveniencia vs costo logistico.</span></div>
+            <div class="month"><strong>M08</strong><span>Se evalua si el crecimiento compensa el cost-to-serve.</span></div>
+            <div class="month"><strong>M09</strong><span>Tercer punto de CAPEX. Red y hubs empiezan a pesar.</span></div>
+            <div class="month"><strong>M10</strong><span>Mes de estabilizacion: mirar consistencia de la estrategia.</span></div>
+            <div class="month"><strong>M11</strong><span>Ultimo golpe de CAPEX en el MVP. Riesgo de caja final.</span></div>
+            <div class="month"><strong>M12</strong><span>Cierre para board: resultado anual y narrativa final.</span></div>
+          </div>
+        </article>
+
+        <article class="slide">
+          <header>
+            <div class="eyebrow">Cuando tocar variables</div>
+            <h2>Una variable se cambia cuando representa una decision de negocio</h2>
+            <p class="lead">
+              La pregunta no es "que slider puedo mover", sino "que decision quiero probar". Cada cambio deberia tener
+              un motivo y una expectativa antes de mirar el resultado.
+            </p>
+          </header>
+          <div class="split">
+            <div class="callout">
+              <h3>Regla de oro</h3>
+              <p>
+                En una iteracion, cambiar pocas variables. Si el equipo toca inventario, pricing, clientes y red al
+                mismo tiempo, el resultado puede mejorar o empeorar pero el aprendizaje se vuelve opaco.
+              </p>
+            </div>
+            <table>
+              <thead>
+                <tr>
+                  <th>Si quiero aprender...</th>
+                  <th>Cambio...</th>
+                  <th>Miro...</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Cuanta caja puedo liberar sin romper servicio</td>
+                  <td>DDI, cobertura y categorias de inventario</td>
+                  <td>M02-M04, quiebres, caja acumulada</td>
+                </tr>
+                <tr>
+                  <td>Si puedo mejorar margen</td>
+                  <td>PVP promedio, sensibles y premium</td>
+                  <td>Margen, revenue, impacto volumen por categoria</td>
+                </tr>
+                <tr>
+                  <td>Si conviene retener o adquirir</td>
+                  <td>Foco VIP, riesgo fuga, oportunistas, nuevos clientes</td>
+                  <td>Churn, marketing, FCF y caja</td>
+                </tr>
+                <tr>
+                  <td>Si omnicanalidad crea valor</td>
+                  <td>Delivery, pick-up y hubs</td>
+                  <td>Costo logistico, revenue y afinidad digital</td>
+                </tr>
+                <tr>
+                  <td>Si redisenar red paga</td>
+                  <td>Flagships, hubs y cierres</td>
+                  <td>CAPEX, caja final, cobertura y consistencia</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </article>
+
+        <article class="slide">
+          <header>
+            <div class="eyebrow">Clase -> laboratorio</div>
+            <h2>Cada laboratorio se usa despues de su clase tematica</h2>
+            <p class="lead">
+              No es una secuencia que los alumnos tengan que completar de una vez. Es una practica acumulativa: cada
+              clase agrega un nuevo lente y el equipo revisa si su plan anterior sigue teniendo sentido.
+            </p>
+          </header>
+          <table>
+            <thead>
+              <tr>
+                <th>Momento</th>
+                <th>Laboratorio</th>
+                <th>Que hace el jugador</th>
+                <th>Que hace el simulador</th>
+                <th>Que hace la AI</th>
+                <th>Que aprende</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Clase 1</td>
+                <td>Diagnostico</td>
+                <td>Elige foco y escribe hipotesis.</td>
+                <td>Muestra baseline, constraints y consistencia inicial.</td>
+                <td>Resume tensiones y pregunta que trade-off van a priorizar.</td>
+                <td>Que una estrategia empieza con una renuncia explicita.</td>
+              </tr>
+              <tr>
+                <td>Clase 2</td>
+                <td>Inventario</td>
+                <td>Toca DDI, cobertura y categorias.</td>
+                <td>Calcula caja M02-M04, quiebres y revenue por categoria.</td>
+                <td>Advierte donde bajar inventario rompe disponibilidad.</td>
+                <td>Que liberar caja puede vender menos si se rompe servicio.</td>
+              </tr>
+              <tr>
+                <td>Clase 3</td>
+                <td>Pricing</td>
+                <td>Prueba cambios de PVP y sensibilidad.</td>
+                <td>Recalcula margen, volumen y revenue anual.</td>
+                <td>Cuestiona elasticidad y coherencia con foco estrategico.</td>
+                <td>Que margen y volumen se negocian por categoria.</td>
+              </tr>
+              <tr>
+                <td>Clase 4</td>
+                <td>Clientes</td>
+                <td>Decide retener, adquirir o proteger segmentos.</td>
+                <td>Mide churn, marketing, CAC implicito y FCF.</td>
+                <td>Pregunta si el crecimiento compra caja o la consume.</td>
+                <td>Que no todo cliente nuevo es rentable.</td>
+              </tr>
+              <tr>
+                <td>Clase 5</td>
+                <td>Digital</td>
+                <td>Mueve delivery, pick-up y hubs.</td>
+                <td>Muestra conveniencia, revenue y costo logistico.</td>
+                <td>Detecta promesas de servicio caras o inconsistentes.</td>
+                <td>Que omnicanalidad puede crecer y destruir margen a la vez.</td>
+              </tr>
+              <tr>
+                <td>Clase 6</td>
+                <td>Red & CAPEX</td>
+                <td>Abre, cierra o redirige formatos.</td>
+                <td>Aplica CAPEX en meses clave y recalcula caja.</td>
+                <td>Desafia la disciplina de inversion y cobertura.</td>
+                <td>Que red fisica, digital y caja estan acopladas.</td>
+              </tr>
+              <tr>
+                <td>Cierre</td>
+                <td>Board</td>
+                <td>Elige escenario final y defiende trade-offs.</td>
+                <td>Consolida KPIs, alertas e iteraciones.</td>
+                <td>Actua como board: contradicciones y preguntas duras.</td>
+                <td>Que la respuesta correcta es defendible, no perfecta.</td>
+              </tr>
+            </tbody>
+          </table>
+        </article>
+
+        <article class="slide">
+          <header>
+            <div class="eyebrow">Iteraciones</div>
+            <h2>La dinamica que mas sentido tiene para aprender</h2>
+            <p class="lead">
+              Mantendria pocas iteraciones, pero con roles claros. La clave es comparar hipotesis, no buscar el numero
+              maximo. Mi recomendacion: dos iteraciones obligatorias y una tercera opcional por laboratorio.
+            </p>
+          </header>
+          <div class="grid-3">
+            <div class="panel">
+              <span class="pill">Iteracion A</span>
+              <h3 style="margin-top: 12px;">Hipotesis aislada</h3>
+              <p>El equipo mueve una decision principal. Ejemplo: bajo DDI sin tocar pricing.</p>
+              <ul>
+                <li>Aprende causalidad.</li>
+                <li>Detecta riesgo principal.</li>
+                <li>Guarda evidencia.</li>
+              </ul>
+            </div>
+            <div class="panel">
+              <span class="pill">Iteracion B</span>
+              <h3 style="margin-top: 12px;">Ajuste con AI</h3>
+              <p>Usa feedback para corregir el riesgo. Ejemplo: protejo cronicos y bajo OTC.</p>
+              <ul>
+                <li>Aprende trade-off.</li>
+                <li>Mejora consistencia.</li>
+                <li>Compara contra A.</li>
+              </ul>
+            </div>
+            <div class="panel">
+              <span class="pill">Iteracion C</span>
+              <h3 style="margin-top: 12px;">Combinacion opcional</h3>
+              <p>Integra con labs anteriores. Ejemplo: inventario conservador + pricing premium.</p>
+              <ul>
+                <li>Aprende sistema.</li>
+                <li>Prepara board.</li>
+                <li>No es obligatoria.</li>
+              </ul>
+            </div>
+          </div>
+        </article>
+
+        <article class="slide">
+          <header>
+            <div class="eyebrow">Que ve el jugador</div>
+            <h2>La pantalla debe responder cuatro preguntas</h2>
+            <p class="lead">
+              Si la pantalla no contesta estas preguntas, el alumno siente que esta operando una planilla mas linda.
+              El valor aparece cuando entiende causalidad, timing, trade-offs y defensa.
+            </p>
+          </header>
+          <div class="grid-4">
+            <div class="panel">
+              <h3>Que paso</h3>
+              <p>Cockpit ejecutivo: EBITDA, FCF, caja, CAPEX, quiebres, churn y consistencia.</p>
+            </div>
+            <div class="panel">
+              <h3>Cuando paso</h3>
+              <p>Curva M01-M12 y mes de lectura para ver timing de caja, CAPEX e impacto operativo.</p>
+            </div>
+            <div class="panel">
+              <h3>Donde paso</h3>
+              <p>Categorias, segmentos o canales. El promedio global no alcanza para aprender retail.</p>
+            </div>
+            <div class="panel">
+              <h3>Por que importa</h3>
+              <p>Feedback AI y preguntas de board que obligan a explicar renuncias y riesgos.</p>
+            </div>
+          </div>
+        </article>
+
+        <article class="slide">
+          <header>
+            <div class="eyebrow">Cambios hechos antes de esta presentacion</div>
+            <h2>Ajustes que haria para que el aprendizaje cierre mejor</h2>
+            <p class="lead">
+              Revise la dinamica y cambie el simulador en un punto conceptual: el mes no debe llamarse "decision".
+              Tambien agregue una guia de secuencia clase-laboratorio para que el uso acompane el curso.
+            </p>
+          </header>
+          <div class="split">
+            <div class="panel">
+              <h3>Cambios ya aplicados</h3>
+              <ul>
+                <li>"Mes de decision" pasa a "Mes de lectura".</li>
+                <li>La ayuda aclara que cambiar mes no cambia la jugada.</li>
+                <li>La lectura mensual dice que el mes es una lupa temporal.</li>
+                <li>La sidebar suma "Secuencia clase -> lab".</li>
+                <li>Se normaliza M02-M04 y M03/M06/M09/M11.</li>
+              </ul>
+            </div>
+            <div class="panel">
+              <h3>Siguiente mejora recomendada</h3>
+              <ul>
+                <li>Comparador visual entre iteraciones A/B/C.</li>
+                <li>Vista baseline vs escenario actual.</li>
+                <li>Plantillas de consigna por clase.</li>
+                <li>Modo docente para proyectar resultados por equipo.</li>
+                <li>Calibracion fina contra el Excel.</li>
+              </ul>
+            </div>
+          </div>
+        </article>
+
+        <article class="slide">
+          <header>
+            <div class="eyebrow">Valor pedagogico</div>
+            <h2>El valor del simulador no es el calculo: es hacer visible el sistema</h2>
+            <p class="lead">
+              El Excel ya calcula. El simulador agrega una experiencia de decision: reduce ruido, ordena el aprendizaje
+              por clase, muestra consecuencias temporales y obliga a defender una estrategia con evidencia.
+            </p>
+          </header>
+          <div class="grid-3">
+            <div class="panel">
+              <h3>Sin simulador</h3>
+              <p>El alumno puede quedarse en conceptos o perderse en celdas. La causalidad queda dispersa.</p>
+            </div>
+            <div class="panel">
+              <h3>Con simulador</h3>
+              <p>Prueba decisiones, ve impacto mensual y aprende que cada mejora tiene costo en otra variable.</p>
+            </div>
+            <div class="panel">
+              <h3>Con AI</h3>
+              <p>No obtiene la respuesta final. Obtiene una contraparte que lo fuerza a explicar su razonamiento.</p>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <footer class="controls">
+        <div class="progress"><span id="current">1</span> / <span id="total">9</span></div>
+        <div class="nav">
+          <button id="prev" type="button">Anterior</button>
+          <button id="next" class="primary" type="button">Siguiente</button>
+        </div>
+      </footer>
+    </main>
+
+    <script>
+      const slides = [...document.querySelectorAll(".slide")];
+      const current = document.querySelector("#current");
+      const total = document.querySelector("#total");
+      const prev = document.querySelector("#prev");
+      const next = document.querySelector("#next");
+      let index = 0;
+
+      total.textContent = slides.length.toString();
+
+      function render() {
+        slides.forEach((slide, slideIndex) => {
+          slide.classList.toggle("active", slideIndex === index);
+        });
+        current.textContent = (index + 1).toString();
+        prev.disabled = index === 0;
+        next.textContent = index === slides.length - 1 ? "Fin" : "Siguiente";
+      }
+
+      prev.addEventListener("click", () => {
+        index = Math.max(0, index - 1);
+        render();
+      });
+
+      next.addEventListener("click", () => {
+        index = Math.min(slides.length - 1, index + 1);
+        render();
+      });
+
+      window.addEventListener("keydown", (event) => {
+        if (event.key === "ArrowRight" || event.key === "PageDown") {
+          index = Math.min(slides.length - 1, index + 1);
+          render();
+        }
+        if (event.key === "ArrowLeft" || event.key === "PageUp") {
+          index = Math.max(0, index - 1);
+          render();
+        }
+      });
+
+      render();
+    </script>
+  </body>
+</html>

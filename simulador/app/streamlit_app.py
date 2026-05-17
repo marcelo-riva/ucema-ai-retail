@@ -65,7 +65,7 @@ LAB_GUIDES = {
             "Reducir SKUs y cobertura para simplificar surtido.",
         ],
         "watch": [
-            "Meses M2-M4, donde aparece la liberacion de capital de trabajo.",
+            "Meses M02-M04, donde aparece la liberacion de capital de trabajo.",
             "Quiebres por categoria, especialmente medicamentos cronicos y OTC.",
         ],
     },
@@ -113,7 +113,7 @@ LAB_GUIDES = {
             "Cerrar tiendas de proximidad.",
         ],
         "watch": [
-            "CAPEX en M3, M6, M9 y M11.",
+            "CAPEX en M03, M06, M09 y M11.",
             "Caja final y meses consecutivos de FCF negativo.",
         ],
     },
@@ -130,6 +130,16 @@ LAB_GUIDES = {
         ],
     },
 }
+
+CLASS_SEQUENCE = [
+    ("Clase 1", "Diagnostico", "Definir la tesis estrategica y el problema ejecutivo."),
+    ("Clase 2", "Inventario", "Probar caja vs disponibilidad por categoria."),
+    ("Clase 3", "Pricing", "Probar margen vs volumen y sensibilidad de categorias."),
+    ("Clase 4", "Clientes", "Probar retencion, churn, adquisicion y CAC."),
+    ("Clase 5", "Digital", "Probar conveniencia vs costo logistico."),
+    ("Clase 6", "Red & CAPEX", "Probar cobertura, formatos, hubs e inversion."),
+    ("Cierre", "Board Meeting", "Defender el plan integral y los trade-offs."),
+]
 
 
 def ensure_state() -> None:
@@ -357,8 +367,8 @@ def render_system_context(result: dict, current_month: int) -> None:
             }
         )
         st.caption(
-            f"Estas parado en {monthly['month'][current_idx]}. La jugada es un plan de 12 meses: "
-            "mover una palanca recalcula toda la curva, y guardar congela esa iteracion."
+            f"Estas leyendo {monthly['month'][current_idx]}. Este selector no avanza el juego: "
+            "solo cambia el punto de lectura de la curva. Mover una palanca recalcula el plan completo de 12 meses."
         )
         st.markdown(
             "<div class=\"kpi-grid\">"
@@ -455,6 +465,13 @@ def render_sidebar_hint(lab: str) -> None:
     st.sidebar.markdown("**Mirar antes de guardar**")
     for item in guide["watch"]:
         st.sidebar.caption(f"- {item}")
+
+
+def render_class_sequence() -> None:
+    with st.sidebar.expander("Secuencia clase -> lab", expanded=False):
+        for class_name, lab_name, purpose in CLASS_SEQUENCE:
+            st.markdown(f"**{class_name}: {lab_name}**")
+            st.caption(purpose)
 
 
 def render_feedback(feedback: dict) -> None:
@@ -790,15 +807,16 @@ def main() -> None:
     )
     scenario.current_lab = selected_lab
     scenario.current_month = st.sidebar.slider(
-        "Mes de decision",
+        "Mes de lectura",
         1,
         12,
         int(getattr(scenario, "current_month", 1)),
         1,
-        help="Indica donde se para el equipo para leer la curva. La jugada sigue recalculando el plan completo de 12 meses.",
+        help="No cambia la jugada. Solo cambia donde mirar la curva mensual para entender timing de caja, CAPEX e impactos.",
     )
     st.sidebar.caption(f"Iteracion actual: {scenario.iteration}")
     render_sidebar_hint(selected_lab)
+    render_class_sequence()
     render_saved_scenarios(scenario.team_id)
     sync_scenario_from_widgets(scenario)
 
