@@ -1,7 +1,19 @@
 # Specs del simulador PharmaLink 360
 
-Estado: borrador para revision
+Estado: MVP implementado, specs actualizadas para revision
 Fecha: 2026-05-17
+
+## 0. Estado de la especificacion
+
+Esta spec se inicio antes de construir el MVP. Luego de probar la primera version en Streamlit, se actualiza con aprendizajes de interfaz y dinamica pedagogica:
+
+- el simulador debe mostrar siempre la foto ejecutiva y la pelicula mensual de 12 meses;
+- cada jugada es un plan completo, no un avance automatico mes a mes;
+- el alumno puede elegir un **mes de decision** para leer la curva temporal;
+- mover sliders recalcula el escenario; guardar solo congela la iteracion;
+- no hace falta tocar todos los laboratorios en cada jugada;
+- inventario necesita intervencion por categoria, no solo valores globales;
+- diagnostico no mueve numeros operativos: define la tesis estrategica que luego se evalua por consistencia.
 
 ## 1. Objetivo
 
@@ -28,8 +40,10 @@ Todos los laboratorios deben seguir el mismo patron:
 2. **Palancas**: que variables puede mover el alumno.
 3. **Simulacion**: como esas palancas afectan el sistema.
 4. **Impacto**: KPIs y alertas actualizadas.
-5. **Feedback IA**: explicacion, riesgos y recomendacion.
-6. **Iteracion**: guardar escenario, ajustar o pasar al siguiente tema.
+5. **Lectura temporal**: como cambia la progresion de 12 meses.
+6. **Lectura por categoria / segmento / canal**: donde aplica, no quedarse solo en promedios globales.
+7. **Feedback IA**: explicacion, riesgos y recomendacion.
+8. **Iteracion**: guardar escenario, ajustar o pasar al siguiente tema.
 
 Esto evita que cada laboratorio se sienta como una herramienta distinta.
 
@@ -47,7 +61,7 @@ No debe reemplazar la decision del alumno ni elegir automaticamente la estrategi
 
 ### 2.3 Siempre visible: cockpit de variables clave
 
-La interfaz debe mantener visible un cockpit con las variables madre del caso:
+La interfaz debe mantener visible un cockpit compacto con las variables madre del caso:
 
 - EBITDA anual;
 - FCF anual;
@@ -64,6 +78,15 @@ La interfaz debe mantener visible un cockpit con las variables madre del caso:
 - score de consistencia estrategica;
 - alertas.
 
+Ademas del cockpit anual, la interfaz debe mostrar una **lectura de sistema** con:
+
+- progresion mensual M01-M12;
+- KPIs del mes de decision seleccionado;
+- categorias de producto y su sensibilidad;
+- mapa de que palancas afectan que variables.
+
+El objetivo es que el alumno vea la pelicula y no solo la foto final.
+
 ### 2.4 Iterar antes de avanzar
 
 Cada laboratorio debe permitir al menos 2 o 3 iteraciones:
@@ -73,6 +96,7 @@ Cada laboratorio debe permitir al menos 2 o 3 iteraciones:
 - escenario guardado.
 
 El objetivo pedagogico no es acertar en el primer intento, sino entender consecuencias.
+Guardar una iteracion no debe ser necesario para recalcular: mover una palanca recalcula el escenario actual. Guardar solo persiste una foto para comparacion posterior.
 
 ### 2.5 Progresion por desbloqueo
 
@@ -141,6 +165,8 @@ Necesita:
 
 Objetivo: entender el caso y definir una hipotesis de turnaround.
 
+En el MVP, diagnostico no debe operar como laboratorio numerico. Sirve para declarar el foco estrategico del equipo y escribir la hipotesis que luego sera contrastada con las decisiones de negocio. Esto evita que el alumno crea que el diagnostico es "otro set de sliders".
+
 Inputs del alumno:
 
 - seleccion de foco estrategico inicial:
@@ -157,6 +183,7 @@ Outputs:
 - baseline de KPIs;
 - alertas iniciales;
 - hipotesis de IA sobre principales problemas.
+- score de consistencia que se recalcula cuando las decisiones contradicen o refuerzan el foco declarado.
 
 Rol de IA:
 
@@ -169,17 +196,31 @@ Rol de IA:
 
 Objetivo: liberar caja y mejorar capital de trabajo sin romper disponibilidad.
 
-Palancas:
+Palancas MVP:
 
-- cobertura % por categoria;
-- reduccion de SKUs % por categoria;
-- DDI objetivo por categoria y mes o trimestre.
+- cobertura base %;
+- reduccion global de SKUs %;
+- DDI objetivo;
+- ajuste de cobertura por categoria:
+  - medicamentos cronicos;
+  - OTC y cuidado diario;
+  - dermocosmetica;
+  - perfumeria y belleza;
+  - suplementos y bienestar.
+
+Palancas futuras:
+
+- reduccion de SKUs por categoria;
+- DDI objetivo por categoria;
+- timing mensual o trimestral de cambios de inventario.
 
 Impactos esperados:
 
 - inventario;
 - liberacion / absorcion de working capital;
 - quiebres estimados;
+- quiebres por categoria;
+- cobertura por categoria;
 - mermas;
 - revenue ajustado por disponibilidad;
 - FCF;
@@ -362,6 +403,15 @@ La arquitectura debe separar claramente:
 
 **Streamlit + Python puro + archivos JSON/CSV locales.**
 
+Estado actual: esta opcion ya fue implementada como MVP inicial.
+
+Archivos principales:
+
+- `simulador/app/streamlit_app.py`: interfaz Streamlit.
+- `simulador/src/pharmalink/simulation.py`: motor pedagogico simplificado.
+- `simulador/src/pharmalink/storage.py`: persistencia local de jugadas.
+- `simulador/data/scenarios/<team_id>/*.json`: jugadas guardadas localmente.
+
 Motivos:
 
 - rapido de construir;
@@ -376,6 +426,7 @@ Limitaciones:
 - menos control visual que React;
 - multiusuario limitado si se corre local;
 - manejo de sesiones y persistencia simple.
+- no hay autenticacion ni agregacion docente de resultados por equipo.
 
 ## 6.2 Opcion posterior
 
@@ -537,7 +588,9 @@ En una version posterior:
 La app debe tener:
 
 - sidebar de navegacion por laboratorio;
+- selector de mes de decision;
 - cockpit fijo con KPIs clave;
+- lectura del sistema con progresion mensual y categorias;
 - area central de palancas;
 - panel de impacto;
 - panel de IA;
@@ -570,12 +623,25 @@ Colores:
 Cada laboratorio debe tener:
 
 - breve contexto;
-- 3 a 6 controles principales;
-- boton `Simular`;
-- boton `Pedir feedback IA`;
+- 3 a 6 controles principales en la version simple;
+- controles por categoria / segmento / canal cuando el promedio global oculte el trade-off;
+- recalculo automatico al mover controles;
 - boton `Guardar iteracion`;
 - comparacion contra baseline;
 - alertas especificas del modulo.
+
+No debe requerirse un boton `Simular` en el MVP: Streamlit recalcula al cambiar inputs. Si en una version futura se usa un frontend con estado mas complejo, puede reaparecer un boton explicito de simulacion.
+
+### 9.3.1 Mes de decision
+
+El selector de mes no significa que el equipo "avanza de turno" como en un juego por rondas. Representa el punto desde el cual el alumno lee el plan:
+
+- M01: estado inicial y primeros impactos;
+- M02-M04: caja liberada por inventario / capital de trabajo;
+- M03, M06, M09, M11: meses relevantes para CAPEX en el MVP;
+- M12: foto final del turnaround.
+
+La jugada siempre recalcula el plan completo de 12 meses.
 
 ## 9.4 Escenarios
 
@@ -766,6 +832,8 @@ Entregables:
 - mapa de variables;
 - wireframe simple si hace falta.
 
+Estado: completada como primera version.
+
 ### Fase 1: Motor Python minimo
 
 Objetivo: correr una simulacion baseline y una simulacion modificada desde JSON.
@@ -776,6 +844,8 @@ Incluye:
 - carga de datos normalizados;
 - motores pricing, inventory y financial iniciales;
 - tests contra casos simples.
+
+Estado: parcialmente completada. Existe un motor Python simplificado en `simulation.py`, pero todavia faltan modelos separados, motores modulares y tests.
 
 ### Fase 2: App Streamlit MVP
 
@@ -790,6 +860,8 @@ Incluye:
 - guardado JSON local;
 - mock advisor.
 
+Estado: completada y ampliada. El MVP actual cubre todos los laboratorios en forma inicial, no solo inventario y pricing.
+
 ### Fase 3: Laboratorios completos
 
 Objetivo: cubrir todos los modulos.
@@ -801,6 +873,8 @@ Incluye:
 - red/CAPEX;
 - Board Meeting;
 - scoring integral.
+
+Estado: iniciada. Los laboratorios existen en UI, pero falta profundizar formulas, comparacion de iteraciones y narrativa pedagogica final.
 
 ### Fase 4: IA real
 
@@ -839,16 +913,20 @@ Opciones:
 
 El MVP se considera valido si:
 
-- carga un baseline;
-- permite modificar palancas de al menos dos laboratorios;
-- recalcula KPIs clave;
-- muestra alertas de constraints;
-- compara baseline vs escenario actual;
-- permite guardar iteraciones;
-- ofrece feedback IA mockeado;
-- puede correr localmente con un comando;
-- la logica esta separada de la UI;
-- hay tests basicos para el motor.
+- [x] carga un baseline;
+- [x] permite modificar palancas de los laboratorios principales;
+- [x] recalcula KPIs clave al mover controles;
+- [x] muestra alertas de constraints;
+- [x] permite guardar iteraciones;
+- [x] ofrece feedback IA mockeado;
+- [x] puede correr localmente con un comando;
+- [x] separa la logica principal de simulacion de la UI;
+- [x] muestra progresion mensual de 12 meses;
+- [x] muestra categorias de producto;
+- [x] permite intervenir inventario por categoria;
+- [ ] compara baseline vs escenario actual en una vista dedicada;
+- [ ] compara iteraciones guardadas;
+- [ ] tiene tests basicos para el motor.
 
 ## 17. Comando objetivo para correr local
 
@@ -865,16 +943,18 @@ PYTHONPATH=src streamlit run app/streamlit_app.py
 
 ## 18. Recomendacion actual
 
-No construir todavia la app completa.
+La app completa de producto todavia no esta definida, pero ya existe un MVP util para validar con docente/alumnos.
 
 Siguiente paso recomendado:
 
-1. Revisar esta spec.
-2. Validar cantidad y orden de laboratorios.
-3. Validar palancas por laboratorio.
-4. Validar cockpit fijo.
-5. Decidir si la primera version sera:
+1. Validar en una sesion corta si la dinamica de laboratorio se entiende.
+2. Ajustar las consignas por laboratorio antes de profundizar formulas.
+3. Agregar comparador de iteraciones guardadas.
+4. Agregar vista baseline vs escenario actual.
+5. Agregar tests del motor.
+6. Calibrar formulas contra el Excel base.
+7. Decidir modalidad de uso:
    - demo local docente;
-   - app local por equipos;
-   - web compartida.
-6. Recien despues implementar Fase 1.
+   - local por equipos;
+   - web compartida sin IA real.
+8. Recién despues evaluar IA real y despliegue multiusuario.
