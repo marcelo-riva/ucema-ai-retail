@@ -29,11 +29,22 @@ Si mas adelante el motor necesita leer datos del Excel, conviene exportar/copiar
 
 La primera interfaz del simulador vive en `app/streamlit_app.py`.
 
-Para correrla localmente:
+Para correrla localmente desde la raiz del repo:
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r simulador/requirements.txt
+PYTHONPATH=simulador/src streamlit run simulador/app/streamlit_app.py
+```
+
+Tambien se puede correr desde esta carpeta:
 
 ```bash
 cd simulador
 PYTHONPATH=src streamlit run app/streamlit_app.py
 ```
+
+La app queda disponible en `http://127.0.0.1:8501`.
 
 Las jugadas de los equipos se guardan como JSON locales en `data/scenarios/<equipo>/`.
