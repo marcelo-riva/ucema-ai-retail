@@ -1,0 +1,1140 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>PharmaLink 360 | Presentacion del simulador</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --ink: #18212f;
+        --muted: #667084;
+        --line: #d9e1ec;
+        --bg: #f6f8fb;
+        --paper: #ffffff;
+        --navy: #153a5b;
+        --teal: #167b7f;
+        --green: #2e7d57;
+        --amber: #b26b18;
+        --red: #b34242;
+        --violet: #5a548f;
+        --shadow: 0 18px 48px rgba(21, 58, 91, 0.14);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        min-height: 100%;
+        background: var(--bg);
+        color: var(--ink);
+        font-family:
+          Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+          "Segoe UI", sans-serif;
+        letter-spacing: 0;
+      }
+
+      body {
+        overflow: hidden;
+      }
+
+      button {
+        font: inherit;
+      }
+
+      .deck {
+        height: 100vh;
+        display: grid;
+        grid-template-rows: 1fr auto;
+      }
+
+      .slides {
+        position: relative;
+        overflow: hidden;
+      }
+
+      .slide {
+        position: absolute;
+        inset: 0;
+        display: none;
+        padding: 48px 72px 36px;
+        background:
+          linear-gradient(180deg, rgba(255, 255, 255, 0.86), rgba(246, 248, 251, 0.94)),
+          radial-gradient(circle at 86% 14%, rgba(22, 123, 127, 0.14), transparent 34%),
+          radial-gradient(circle at 15% 92%, rgba(178, 107, 24, 0.12), transparent 34%);
+      }
+
+      .slide.active {
+        display: grid;
+        grid-template-rows: auto 1fr;
+        gap: 26px;
+      }
+
+      .slide.compact {
+        gap: 18px;
+      }
+
+      .eyebrow {
+        color: var(--teal);
+        font-weight: 800;
+        font-size: 0.78rem;
+        text-transform: uppercase;
+      }
+
+      h1,
+      h2,
+      h3,
+      p {
+        margin: 0;
+      }
+
+      h1 {
+        max-width: 980px;
+        font-size: 3.8rem;
+        line-height: 1.02;
+        font-weight: 860;
+      }
+
+      h2 {
+        max-width: 980px;
+        font-size: 2.45rem;
+        line-height: 1.08;
+        font-weight: 820;
+      }
+
+      h3 {
+        font-size: 1.05rem;
+        line-height: 1.2;
+        font-weight: 780;
+      }
+
+      .lead {
+        max-width: 780px;
+        color: var(--muted);
+        font-size: 1.18rem;
+        line-height: 1.55;
+      }
+
+      .hero {
+        display: grid;
+        grid-template-columns: minmax(0, 1.02fr) minmax(360px, 0.72fr);
+        gap: 48px;
+        align-items: center;
+      }
+
+      .hero-panel {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.82);
+        box-shadow: var(--shadow);
+        padding: 28px;
+      }
+
+      .metric-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+      }
+
+      .metric {
+        min-height: 92px;
+        border-radius: 8px;
+        border: 1px solid var(--line);
+        background: var(--paper);
+        padding: 16px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
+
+      .metric span {
+        color: var(--muted);
+        font-size: 0.76rem;
+        font-weight: 700;
+        text-transform: uppercase;
+      }
+
+      .metric strong {
+        font-size: 1.25rem;
+        line-height: 1.15;
+      }
+
+      .body-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 18px;
+        align-content: start;
+      }
+
+      .two-col {
+        display: grid;
+        grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+        gap: 28px;
+        align-items: start;
+      }
+
+      .panel {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.88);
+        padding: 22px;
+        min-height: 100%;
+      }
+
+      .panel p {
+        color: var(--muted);
+        font-size: 0.96rem;
+        line-height: 1.45;
+        margin-top: 10px;
+      }
+
+      .tag {
+        display: inline-flex;
+        align-items: center;
+        height: 26px;
+        padding: 0 10px;
+        border-radius: 999px;
+        background: #edf6f7;
+        color: var(--teal);
+        font-size: 0.76rem;
+        font-weight: 760;
+      }
+
+      .timeline {
+        display: grid;
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+        gap: 12px;
+      }
+
+      .step {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--paper);
+        padding: 16px;
+        min-height: 218px;
+        display: grid;
+        grid-template-rows: auto auto 1fr;
+        gap: 10px;
+      }
+
+      .step .number {
+        width: 32px;
+        height: 32px;
+        display: grid;
+        place-items: center;
+        border-radius: 999px;
+        color: #fff;
+        background: var(--navy);
+        font-weight: 800;
+      }
+
+      .step ul,
+      .panel ul,
+      .wide-panel ul {
+        margin: 10px 0 0;
+        padding-left: 18px;
+        color: var(--muted);
+        line-height: 1.38;
+        font-size: 0.92rem;
+      }
+
+      .map {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 14px;
+        align-items: stretch;
+      }
+
+      .map-column {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--paper);
+        padding: 16px;
+      }
+
+      .map-column h3 {
+        margin-bottom: 14px;
+      }
+
+      .pill-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .pill {
+        border: 1px solid #d2dce8;
+        border-radius: 999px;
+        padding: 7px 10px;
+        background: #f8fafc;
+        color: #344054;
+        font-size: 0.82rem;
+        font-weight: 680;
+      }
+
+      .scoreboard {
+        display: grid;
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+        gap: 12px;
+      }
+
+      .score {
+        min-height: 118px;
+        border-radius: 8px;
+        background: var(--paper);
+        border: 1px solid var(--line);
+        padding: 16px;
+      }
+
+      .score strong {
+        display: block;
+        font-size: 1.45rem;
+        margin: 6px 0 8px;
+      }
+
+      .score span {
+        color: var(--muted);
+        font-size: 0.78rem;
+        font-weight: 730;
+        text-transform: uppercase;
+      }
+
+      .score p {
+        color: var(--muted);
+        font-size: 0.82rem;
+        line-height: 1.3;
+      }
+
+      .warning {
+        color: var(--red);
+      }
+
+      .ok {
+        color: var(--green);
+      }
+
+      .scenario-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+      }
+
+      .scenario {
+        min-height: 174px;
+        border-radius: 8px;
+        border: 1px solid var(--line);
+        background: var(--paper);
+        padding: 18px;
+        display: grid;
+        gap: 10px;
+      }
+
+      .scenario header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .scenario p {
+        color: var(--muted);
+        line-height: 1.4;
+        font-size: 0.94rem;
+      }
+
+      .ai-grid {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 12px;
+      }
+
+      .ai-card {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--paper);
+        min-height: 260px;
+        padding: 18px;
+        display: grid;
+        grid-template-rows: auto auto 1fr;
+        gap: 10px;
+      }
+
+      .ai-card .role {
+        color: var(--teal);
+        font-size: 0.78rem;
+        font-weight: 800;
+        text-transform: uppercase;
+      }
+
+      .wide-panel {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.9);
+        padding: 22px;
+      }
+
+      .flow {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 12px;
+      }
+
+      .flow-item {
+        min-height: 150px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--paper);
+        padding: 16px;
+        position: relative;
+      }
+
+      .flow-item:not(:last-child)::after {
+        content: ">";
+        position: absolute;
+        right: -12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--teal);
+        font-weight: 800;
+      }
+
+      .flow-item p {
+        margin-top: 8px;
+        color: var(--muted);
+        line-height: 1.35;
+        font-size: 0.88rem;
+      }
+
+      .comparison {
+        display: grid;
+        grid-template-columns: minmax(0, 0.75fr) minmax(0, 1.25fr);
+        gap: 18px;
+      }
+
+      .table {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--paper);
+        overflow: hidden;
+      }
+
+      .row {
+        display: grid;
+        grid-template-columns: 1.05fr 0.95fr 1fr;
+        border-bottom: 1px solid var(--line);
+        min-height: 58px;
+      }
+
+      .row:last-child {
+        border-bottom: 0;
+      }
+
+      .row div {
+        padding: 12px 14px;
+        display: flex;
+        align-items: center;
+        border-right: 1px solid var(--line);
+        font-size: 0.9rem;
+        line-height: 1.3;
+      }
+
+      .row div:last-child {
+        border-right: 0;
+      }
+
+      .row.header div {
+        background: var(--navy);
+        color: #fff;
+        font-weight: 800;
+      }
+
+      .accent-teal {
+        border-top: 4px solid var(--teal);
+      }
+
+      .accent-amber {
+        border-top: 4px solid var(--amber);
+      }
+
+      .accent-violet {
+        border-top: 4px solid var(--violet);
+      }
+
+      .accent-green {
+        border-top: 4px solid var(--green);
+      }
+
+      .accent-red {
+        border-top: 4px solid var(--red);
+      }
+
+      .nav {
+        height: 72px;
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        align-items: center;
+        gap: 18px;
+        padding: 0 28px;
+        background: rgba(255, 255, 255, 0.92);
+        border-top: 1px solid var(--line);
+      }
+
+      .nav button {
+        width: 42px;
+        height: 42px;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        background: #fff;
+        color: var(--navy);
+        cursor: pointer;
+        font-size: 1.28rem;
+        line-height: 1;
+      }
+
+      .nav button:hover {
+        border-color: var(--teal);
+        color: var(--teal);
+      }
+
+      .progress {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        justify-content: center;
+      }
+
+      .dot {
+        width: 9px;
+        height: 9px;
+        border: 0;
+        border-radius: 999px;
+        background: #b9c5d3;
+        padding: 0;
+        cursor: pointer;
+      }
+
+      .dot.active {
+        width: 30px;
+        background: var(--teal);
+      }
+
+      .counter {
+        color: var(--muted);
+        font-size: 0.85rem;
+        font-weight: 750;
+        min-width: 72px;
+        text-align: right;
+      }
+
+      @media (max-width: 1180px) {
+        .slide {
+          padding: 32px 30px 24px;
+        }
+
+        h1 {
+          font-size: 2.9rem;
+        }
+
+        h2 {
+          font-size: 2rem;
+        }
+
+        .hero,
+        .two-col,
+        .comparison {
+          grid-template-columns: 1fr;
+        }
+
+        .timeline,
+        .scoreboard,
+        .ai-grid,
+        .flow {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .map,
+        .body-grid,
+        .scenario-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 720px) {
+        body {
+          overflow: auto;
+        }
+
+        .deck {
+          min-height: 100vh;
+          height: auto;
+        }
+
+        .slides {
+          min-height: calc(100vh - 72px);
+          overflow: visible;
+        }
+
+        .slide {
+          position: static;
+          min-height: calc(100vh - 72px);
+          padding: 24px 18px;
+        }
+
+        .slide:not(.active) {
+          display: none;
+        }
+
+        h1 {
+          font-size: 2.25rem;
+        }
+
+        h2 {
+          font-size: 1.7rem;
+        }
+
+        .metric-grid,
+        .timeline,
+        .scoreboard,
+        .ai-grid,
+        .flow {
+          grid-template-columns: 1fr;
+        }
+
+        .row {
+          grid-template-columns: 1fr;
+        }
+
+        .row div {
+          border-right: 0;
+          border-bottom: 1px solid var(--line);
+        }
+
+        .row div:last-child {
+          border-bottom: 0;
+        }
+      }
+
+      @media print {
+        body {
+          overflow: visible;
+          background: #fff;
+        }
+
+        .deck {
+          display: block;
+          height: auto;
+        }
+
+        .slides {
+          overflow: visible;
+        }
+
+        .slide {
+          position: static;
+          display: grid !important;
+          min-height: 100vh;
+          page-break-after: always;
+          box-shadow: none;
+        }
+
+        .nav {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="deck" aria-label="Presentacion del simulador PharmaLink 360">
+      <section class="slides">
+        <article class="slide active">
+          <div>
+            <div class="eyebrow">UCEMA | AI aplicada a estrategia comercial</div>
+            <h1>Simulador ejecutivo PharmaLink 360</h1>
+            <p class="lead">
+              Un laboratorio para que los alumnos tomen decisiones de negocio,
+              vean consecuencias economicas y usen IA para defender trade-offs
+              como un comite de turnaround.
+            </p>
+          </div>
+          <div class="hero">
+            <div class="wide-panel accent-teal">
+              <h3>La pregunta del caso</h3>
+              <p class="lead">
+                Como recuperar rentabilidad y caja en 12 meses sin destruir la
+                red, la experiencia de cliente ni la capacidad competitiva.
+              </p>
+            </div>
+            <div class="hero-panel">
+              <div class="metric-grid">
+                <div class="metric">
+                  <span>Locales</span>
+                  <strong>120 PDV</strong>
+                </div>
+                <div class="metric">
+                  <span>Ventas mes 0</span>
+                  <strong>ARS 29.984 MM</strong>
+                </div>
+                <div class="metric">
+                  <span>Caja inicial</span>
+                  <strong class="warning">ARS -25.000 MM</strong>
+                </div>
+                <div class="metric">
+                  <span>Horizonte</span>
+                  <strong>12 meses</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="slide">
+          <div>
+            <div class="eyebrow">El conflicto</div>
+            <h2>PharmaLink quedo atrapada en el medio</h2>
+          </div>
+          <div class="body-grid">
+            <section class="panel accent-red">
+              <span class="tag">Presion competitiva</span>
+              <h3>Los digitales ganan conveniencia</h3>
+              <p>
+                Apps y pure players capturan urgencia, delivery y rapidez.
+                PharmaLink queda lenta para el nuevo estandar omnicanal.
+              </p>
+            </section>
+            <section class="panel accent-violet">
+              <span class="tag">Presion de experiencia</span>
+              <h3>Las boutiques ganan valor</h3>
+              <p>
+                Dermocosmetica y categorias premium migran hacia propuestas con
+                mas curaduria, servicio y experiencia.
+              </p>
+            </section>
+            <section class="panel accent-amber">
+              <span class="tag">Presion financiera</span>
+              <h3>La caja no aguanta</h3>
+              <p>
+                Hay resultado operativo positivo, pero flujo de caja negativo.
+                El Board exige un plan rentable y financiable.
+              </p>
+            </section>
+          </div>
+        </article>
+
+        <article class="slide compact">
+          <div>
+            <div class="eyebrow">Como se juega</div>
+            <h2>Seis escenarios: cinco laboratorios y un Board Meeting</h2>
+          </div>
+          <div class="timeline">
+            <section class="step">
+              <div class="number">1</div>
+              <h3>Inventario y capital de trabajo</h3>
+              <ul>
+                <li>Cobertura</li>
+                <li>Reduccion de SKUs</li>
+                <li>DDI objetivo</li>
+              </ul>
+            </section>
+            <section class="step">
+              <div class="number">2</div>
+              <h3>Pricing y elasticidad</h3>
+              <ul>
+                <li>Cambio PVP</li>
+                <li>Mix margen/volumen</li>
+                <li>Competitividad</li>
+              </ul>
+            </section>
+            <section class="step">
+              <div class="number">3</div>
+              <h3>Clientes y marketing</h3>
+              <ul>
+                <li>Retencion por segmento</li>
+                <li>Nuevos clientes</li>
+                <li>CAC y budget</li>
+              </ul>
+            </section>
+            <section class="step">
+              <div class="number">4</div>
+              <h3>Digital y fulfillment</h3>
+              <ul>
+                <li>Delivery</li>
+                <li>Pick-up</li>
+                <li>Hubs y SLA</li>
+              </ul>
+            </section>
+            <section class="step">
+              <div class="number">5</div>
+              <h3>Red y CAPEX</h3>
+              <ul>
+                <li>Aperturas</li>
+                <li>Cierres</li>
+                <li>Formatos y zonas</li>
+              </ul>
+            </section>
+            <section class="step">
+              <div class="number">6</div>
+              <h3>Plan integral</h3>
+              <ul>
+                <li>Escenario final</li>
+                <li>Trade-offs</li>
+                <li>Defensa al Board</li>
+              </ul>
+            </section>
+          </div>
+        </article>
+
+        <article class="slide">
+          <div>
+            <div class="eyebrow">Cockpit del caso</div>
+            <h2>Las variables que guian la decision</h2>
+          </div>
+          <div class="scoreboard">
+            <section class="score">
+              <span>Rentabilidad</span>
+              <strong>EBITDA</strong>
+              <p>Ajustado por cost-to-serve.</p>
+            </section>
+            <section class="score">
+              <span>Supervivencia</span>
+              <strong>FCF</strong>
+              <p>Flujo mensual y acumulado.</p>
+            </section>
+            <section class="score">
+              <span>Restriccion</span>
+              <strong>Caja</strong>
+              <p>Final y meses negativos.</p>
+            </section>
+            <section class="score">
+              <span>Inversion</span>
+              <strong>CAPEX</strong>
+              <p>Uso contra limite anual.</p>
+            </section>
+            <section class="score">
+              <span>Operacion</span>
+              <strong>DDI</strong>
+              <p>Inventario, quiebres y WC.</p>
+            </section>
+            <section class="score">
+              <span>Cliente</span>
+              <strong>Churn</strong>
+              <p>Retencion y crecimiento.</p>
+            </section>
+          </div>
+        </article>
+
+        <article class="slide">
+          <div>
+            <div class="eyebrow">Que puede tocar el alumno</div>
+            <h2>Palancas simples, consecuencias sistemicas</h2>
+          </div>
+          <div class="map">
+            <section class="map-column accent-teal">
+              <h3>Variables de juego</h3>
+              <div class="pill-list">
+                <span class="pill">Cambio PVP %</span>
+                <span class="pill">Cobertura %</span>
+                <span class="pill">Reduccion SKUs %</span>
+                <span class="pill">DDI objetivo</span>
+                <span class="pill">Delivery %</span>
+                <span class="pill">Pick-up %</span>
+                <span class="pill">Retencion %</span>
+                <span class="pill">Nuevos clientes</span>
+                <span class="pill">Aperturas</span>
+                <span class="pill">Cierres</span>
+              </div>
+            </section>
+            <section class="map-column accent-amber">
+              <h3>Supuestos del mundo</h3>
+              <div class="pill-list">
+                <span class="pill">Ventas mes 0</span>
+                <span class="pill">Caja inicial</span>
+                <span class="pill">Elasticidad</span>
+                <span class="pill">Costo base</span>
+                <span class="pill">Clientes base</span>
+                <span class="pill">Churn base</span>
+                <span class="pill">CAPEX apertura</span>
+                <span class="pill">Margen por formato</span>
+              </div>
+            </section>
+            <section class="map-column accent-green">
+              <h3>Outputs de gestion</h3>
+              <div class="pill-list">
+                <span class="pill">Revenue</span>
+                <span class="pill">Margen bruto</span>
+                <span class="pill">Mermas</span>
+                <span class="pill">Quiebres</span>
+                <span class="pill">Costo logistico</span>
+                <span class="pill">Marketing</span>
+                <span class="pill">EBITDA</span>
+                <span class="pill">FCF</span>
+                <span class="pill">Caja final</span>
+                <span class="pill">Alertas</span>
+              </div>
+            </section>
+          </div>
+        </article>
+
+        <article class="slide">
+          <div>
+            <div class="eyebrow">Escenarios de trabajo</div>
+            <h2>El simulador no da una respuesta: fuerza a elegir</h2>
+          </div>
+          <div class="scenario-grid">
+            <section class="scenario accent-teal">
+              <header>
+                <h3>1. Caja primero</h3>
+                <span class="tag">Eficiencia</span>
+              </header>
+              <p>
+                Reducir DDI, bajar SKUs, cerrar formatos poco rentables y
+                contener CAPEX. Riesgo: quiebres, menor experiencia y perdida de
+                crecimiento.
+              </p>
+            </section>
+            <section class="scenario accent-amber">
+              <header>
+                <h3>2. Margen primero</h3>
+                <span class="tag">Rentabilidad</span>
+              </header>
+              <p>
+                Optimizar precios y mix hacia categorias menos elasticas o de
+                mayor margen. Riesgo: perder volumen y competitividad.
+              </p>
+            </section>
+            <section class="scenario accent-violet">
+              <header>
+                <h3>3. Cliente primero</h3>
+                <span class="tag">Crecimiento</span>
+              </header>
+              <p>
+                Invertir en VIPs, clientes en riesgo y adquisicion. Riesgo:
+                CAC alto y presion sobre caja antes de capturar retorno.
+              </p>
+            </section>
+            <section class="scenario accent-green">
+              <header>
+                <h3>4. Omnicanal primero</h3>
+                <span class="tag">Conveniencia</span>
+              </header>
+              <p>
+                Mover mix a delivery, pick-up y hubs. Riesgo: el costo logistico
+                puede erosionar el EBITDA si no se rediseña la red.
+              </p>
+            </section>
+          </div>
+        </article>
+
+        <article class="slide compact">
+          <div>
+            <div class="eyebrow">Rol de la IA</div>
+            <h2>La IA actua como copiloto de decision, no como piloto automatico</h2>
+          </div>
+          <div class="ai-grid">
+            <section class="ai-card accent-teal">
+              <span class="role">Inventario</span>
+              <h3>Detecta riesgo operativo</h3>
+              <ul>
+                <li>Recomienda DDI objetivo.</li>
+                <li>Marca quiebres probables.</li>
+                <li>Explica caja liberada vs venta perdida.</li>
+              </ul>
+            </section>
+            <section class="ai-card accent-amber">
+              <span class="role">Pricing</span>
+              <h3>Simula elasticidad</h3>
+              <ul>
+                <li>Propone bandas de precio.</li>
+                <li>Identifica categorias sensibles.</li>
+                <li>Explica impacto en margen y volumen.</li>
+              </ul>
+            </section>
+            <section class="ai-card accent-violet">
+              <span class="role">Clientes</span>
+              <h3>Prioriza segmentos</h3>
+              <ul>
+                <li>Estima churn evitable.</li>
+                <li>Compara retencion vs adquisicion.</li>
+                <li>Evalua ROI de marketing.</li>
+              </ul>
+            </section>
+            <section class="ai-card accent-green">
+              <span class="role">Digital</span>
+              <h3>Cuida cost-to-serve</h3>
+              <ul>
+                <li>Balancea delivery y pick-up.</li>
+                <li>Evalua SLA vs costo.</li>
+                <li>Sugiere donde usar hubs.</li>
+              </ul>
+            </section>
+            <section class="ai-card accent-red">
+              <span class="role">Board</span>
+              <h3>Evalua consistencia</h3>
+              <ul>
+                <li>Detecta contradicciones.</li>
+                <li>Genera alertas de constraints.</li>
+                <li>Ayuda a preparar defensa ejecutiva.</li>
+              </ul>
+            </section>
+          </div>
+        </article>
+
+        <article class="slide">
+          <div>
+            <div class="eyebrow">Dinamica pedagogica</div>
+            <h2>De diagnostico a defensa ejecutiva</h2>
+          </div>
+          <div class="flow">
+            <section class="flow-item">
+              <h3>1. Diagnosticar</h3>
+              <p>Leer la situacion inicial y detectar la fuga principal.</p>
+            </section>
+            <section class="flow-item">
+              <h3>2. Elegir foco</h3>
+              <p>Priorizar caja, margen, cliente, canal o red.</p>
+            </section>
+            <section class="flow-item">
+              <h3>3. Mover palancas</h3>
+              <p>Construir un escenario por mes o trimestre.</p>
+            </section>
+            <section class="flow-item">
+              <h3>4. Simular impacto</h3>
+              <p>Comparar baseline contra escenario y revisar alertas.</p>
+            </section>
+            <section class="flow-item">
+              <h3>5. Defender trade-offs</h3>
+              <p>Explicar que se hizo, que se resigno y por que.</p>
+            </section>
+          </div>
+        </article>
+
+        <article class="slide">
+          <div>
+            <div class="eyebrow">Experiencia esperada</div>
+            <h2>Un tablero para comparar escenarios</h2>
+          </div>
+          <div class="comparison">
+            <section class="wide-panel accent-teal">
+              <h3>Comparacion minima</h3>
+              <ul>
+                <li>Baseline del Excel.</li>
+                <li>Escenario actual del equipo.</li>
+                <li>Mejor escenario guardado.</li>
+                <li>Alertas de constraints.</li>
+                <li>Comentario de IA sobre consistencia.</li>
+              </ul>
+            </section>
+            <section class="table" aria-label="Mock de comparacion de escenarios">
+              <div class="row header">
+                <div>KPI</div>
+                <div>Baseline</div>
+                <div>Escenario equipo</div>
+              </div>
+              <div class="row">
+                <div>EBITDA anual</div>
+                <div>Base</div>
+                <div class="ok">Mejora si margen y costo logistico cierran</div>
+              </div>
+              <div class="row">
+                <div>Caja final</div>
+                <div class="warning">Negativa</div>
+                <div>Depende de DDI, CAPEX y timing</div>
+              </div>
+              <div class="row">
+                <div>CAPEX utilizado</div>
+                <div>Sin plan</div>
+                <div>Debe quedar bajo ARS 50.000 MM</div>
+              </div>
+              <div class="row">
+                <div>Consistencia</div>
+                <div>No aplica</div>
+                <div>IA explica contradicciones y riesgos</div>
+              </div>
+            </section>
+          </div>
+        </article>
+
+        <article class="slide">
+          <div>
+            <div class="eyebrow">Cierre</div>
+            <h2>Que deberia aprender el alumno</h2>
+          </div>
+          <div class="two-col">
+            <section class="wide-panel accent-green">
+              <h3>La decision no es maximizar una celda</h3>
+              <p class="lead">
+                El objetivo es construir una historia ejecutiva consistente:
+                que palancas se movieron, que restricciones se respetaron, que
+                trade-offs se aceptaron y como la IA ayudo a tomar una decision
+                mas defendible.
+              </p>
+            </section>
+            <section class="wide-panel accent-amber">
+              <h3>Entregable final</h3>
+              <ul>
+                <li>Presupuesto anual mes a mes.</li>
+                <li>Plan 100 dias con tres palancas criticas.</li>
+                <li>Escenario comparado contra baseline.</li>
+                <li>Defensa de que decidieron no hacer.</li>
+                <li>Uso explicito de IA para diagnosticar, simular y argumentar.</li>
+              </ul>
+            </section>
+          </div>
+        </article>
+      </section>
+
+      <nav class="nav" aria-label="Controles de presentacion">
+        <button type="button" id="prev" title="Anterior" aria-label="Anterior">‹</button>
+        <div class="progress" id="progress" aria-label="Progreso"></div>
+        <div style="display: flex; align-items: center; gap: 16px;">
+          <div class="counter" id="counter">1 / 10</div>
+          <button type="button" id="next" title="Siguiente" aria-label="Siguiente">›</button>
+        </div>
+      </nav>
+    </main>
+
+    <script>
+      const slides = Array.from(document.querySelectorAll(".slide"));
+      const progress = document.querySelector("#progress");
+      const counter = document.querySelector("#counter");
+      let current = 0;
+
+      slides.forEach((_, index) => {
+        const dot = document.createElement("button");
+        dot.type = "button";
+        dot.className = "dot";
+        dot.title = `Slide ${index + 1}`;
+        dot.setAttribute("aria-label", `Ir a slide ${index + 1}`);
+        dot.addEventListener("click", () => goTo(index));
+        progress.appendChild(dot);
+      });
+
+      const dots = Array.from(document.querySelectorAll(".dot"));
+
+      function goTo(index) {
+        current = Math.max(0, Math.min(index, slides.length - 1));
+        slides.forEach((slide, slideIndex) => {
+          slide.classList.toggle("active", slideIndex === current);
+        });
+        dots.forEach((dot, dotIndex) => {
+          dot.classList.toggle("active", dotIndex === current);
+        });
+        counter.textContent = `${current + 1} / ${slides.length}`;
+      }
+
+      document.querySelector("#prev").addEventListener("click", () => goTo(current - 1));
+      document.querySelector("#next").addEventListener("click", () => goTo(current + 1));
+
+      window.addEventListener("keydown", (event) => {
+        if (event.key === "ArrowRight" || event.key === "PageDown") goTo(current + 1);
+        if (event.key === "ArrowLeft" || event.key === "PageUp") goTo(current - 1);
+        if (event.key === "Home") goTo(0);
+        if (event.key === "End") goTo(slides.length - 1);
+      });
+
+      goTo(0);
+    </script>
+  </body>
+</html>

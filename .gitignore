@@ -5,9 +5,11 @@ __pycache__/
 .env*
 .venv/
 venv/
+.streamlit-home/
 node_modules/
 .DS_Store
 *.ipynb_checkpoints/
 .ipynb_checkpoints/
 dist/
 build/
+simulador/data/scenarios/**/*.json
