@@ -1,0 +1,25 @@
+simulador/docs/simulador-specs.md
+  s_4833c425914b3e::t_df9c141c6948f0 406-414,429
+  s_4833c425914b3e::t_3b5533948187ac 591,593,626-628,633-644
+  s_4833c425914b3e::t_f3f0881463bdb6 168-169,186,199-209,211-215,222-223
+  s_4833c425914b3e::t_16df1894fdae65 835-836,848-849,863-864,877
+  s_4833c425914b3e::t_853ad474c2c0ec 3,6-16
+  s_4833c425914b3e::t_d3181808dc65f2 916-929,946,950-956,958-960
+  s_4833c425914b3e::t_f67badab22e1bb 43-46,64,81-89,99
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "271e07c786f5fa40c86f8091207796c503f2c23d",
+  "prompts": {},
+  "sessions": {
+    "s_4833c425914b3e": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019e3765-8bde-7973-aa92-31d759c41b06",
+        "model": "gpt-5.5"
+      },
+      "human_author": "Marcelo Riva <marceloriva.sys@gmail.com>"
+    }
+  }
+}
