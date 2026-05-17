@@ -1,0 +1,27 @@
+simulador/app/streamlit_app.py
+  s_4833c425914b3e::t_4a4a7941f9f33d 373-441
+  s_4833c425914b3e::t_c1c2e276453834 144-160,172-187,199-214,226-238,245-255,262-272,279-282
+  s_4833c425914b3e::t_c0536f8c52a11e 161-171,188-198,215-225,239-244,256-261,273-278
+  s_4833c425914b3e::t_8424c8418a62d1 562,564-571,576,642-674
+  s_4833c425914b3e::t_411590a6913190 442-449
+  s_4833c425914b3e::t_b5a5f8c19bb884 733,746,757-761
+  s_4833c425914b3e::t_b7cd9451025dd5 1114,1117
+  s_4833c425914b3e::t_61ba83cd17a3a4 1120
+  s_4833c425914b3e::t_21b66a001db1c2 734-745,747-756,762-763
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "1b9937e738e9c77cd56a226ce5a324437f3fa82b",
+  "prompts": {},
+  "sessions": {
+    "s_4833c425914b3e": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019e3765-8bde-7973-aa92-31d759c41b06",
+        "model": "gpt-5.5"
+      },
+      "human_author": "Marcelo Riva <marceloriva.sys@gmail.com>"
+    }
+  }
+}
