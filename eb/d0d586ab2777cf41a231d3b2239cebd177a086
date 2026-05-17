@@ -1,0 +1,23 @@
+.claude/settings.json
+  s_36cb31e604bd3c::t_cc835c586c7e6b 1-16
+CLAUDE.md
+  s_36cb31e604bd3c::t_c17389c9eeaf20 1-28
+.gitignore
+  s_36cb31e604bd3c::t_27259127932074 1
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "ebd0d586ab2777cf41a231d3b2239cebd177a086",
+  "prompts": {},
+  "sessions": {
+    "s_36cb31e604bd3c": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "9eef888c-0811-45e4-b007-27e149bdfecd",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Marcelo Riva <marceloriva.sys@gmail.com>"
+    }
+  }
+}
