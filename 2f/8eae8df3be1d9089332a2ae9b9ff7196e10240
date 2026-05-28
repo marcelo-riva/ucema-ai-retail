@@ -1,0 +1,19 @@
+simulador/docs/laboratorios-overview.html
+  s_c2f71fc2a17f09::t_3f31062b84506d 1-328
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.0",
+  "base_commit_sha": "2f8eae8df3be1d9089332a2ae9b9ff7196e10240",
+  "prompts": {},
+  "sessions": {
+    "s_c2f71fc2a17f09": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "6a5479cb-faf1-479b-931b-1ee3bc75cd70",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Marcelo Riva <marceloriva.sys@gmail.com>"
+    }
+  }
+}
