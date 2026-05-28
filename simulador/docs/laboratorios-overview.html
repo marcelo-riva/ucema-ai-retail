@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Simulador PharmaLink 360 — Laboratorios</title>
+  <style>
+    body { font-family: Georgia, serif; max-width: 900px; margin: 40px auto; padding: 0 20px; color: #222; line-height: 1.6; }
+    h1 { border-bottom: 2px solid #222; padding-bottom: 8px; }
+    h2 { margin-top: 40px; border-bottom: 1px solid #ccc; padding-bottom: 4px; }
+    h3 { margin-top: 24px; margin-bottom: 4px; }
+    table { border-collapse: collapse; width: 100%; margin: 16px 0; font-size: 0.9em; }
+    th, td { border: 1px solid #ccc; padding: 6px 10px; text-align: left; }
+    th { background: #f0f0f0; }
+    .tag { display: inline-block; font-size: 0.8em; padding: 2px 8px; border-radius: 3px; font-family: monospace; }
+    .det { background: #e8f0fe; color: #1a4a8a; }
+    .heur { background: #fef3cd; color: #7a5500; }
+    .mock { background: #fde8e8; color: #8a1a1a; }
+    code { background: #f4f4f4; padding: 1px 5px; font-size: 0.9em; border-radius: 2px; }
+    .arch-box { background: #f9f9f9; border: 1px solid #ddd; padding: 12px 16px; font-family: monospace; font-size: 0.85em; white-space: pre; overflow-x: auto; }
+    ul { margin: 6px 0; padding-left: 20px; }
+    li { margin: 3px 0; }
+    .note { color: #555; font-style: italic; font-size: 0.9em; }
+  </style>
+</head>
+<body>
+
+<h1>Simulador PharmaLink 360 — Laboratorios</h1>
+<p>Resumen técnico y pedagógico de cada laboratorio del simulador. Describe qué simula cada uno, cómo funciona internamente y si hay inteligencia artificial real o lógica pre-definida.</p>
+
+<h2>Arquitectura general</h2>
+
+<div class="arch-box">Streamlit UI  (app/streamlit_app.py)
+     │
+     │  sliders → Scenario dataclass (decisions + strategic_focus + team_id)
+     ▼
+Motor de simulación  (src/pharmalink/simulation.py)
+     │
+     ├── Inventory engine   → working capital, stockouts
+     ├── Pricing engine     → margin, volume by category
+     ├── Customer engine    → churn rate, CAC
+     ├── Digital engine     → logistics cost, convenience uplift
+     ├── Network engine     → CAPEX, revenue per node type
+     └── Financial engine   → monthly FCF (12 meses)
+     │
+     ▼
+Output dict  { kpis, monthly_series, categories, alerts }
+     │
+     ├── Cockpit de KPIs (siempre visible)
+     ├── Gráfico de progresión 12 meses
+     ├── Comparación baseline vs actual
+     └── Persistencia JSON  (storage.py → data/scenarios/&lt;team&gt;/)</div>
+
+<p>Todo el motor es <strong>determinístico</strong>: dada la misma entrada, siempre produce el mismo resultado. No hay entrenamiento, no hay inferencia de modelos. El feedback que se llama "IA" en la interfaz es un conjunto de reglas booleanas escritas a mano.</p>
+
+<table>
+  <tr><th>Tipo de lógica</th><th>Significado</th></tr>
+  <tr><td><span class="tag det">Determinístico</span></td><td>Fórmulas algebraicas, resultado exacto y reproducible</td></tr>
+  <tr><td><span class="tag heur">Heurístico</span></td><td>Reglas if/else que aproximan comportamiento real</td></tr>
+  <tr><td><span class="tag mock">IA mockeada</span></td><td>Texto generado por reglas, no por un modelo de lenguaje</td></tr>
+</table>
+
+<hr>
+
+<h2>Lab 0 — Diagnóstico</h2>
+<p><strong>Idea:</strong> Antes de tocar ninguna palanca, el equipo define su hipótesis estratégica. ¿Cuál es el foco del plan: liberar caja, crecer margen, proteger clientes, ganar digital, optimizar la red, o equilibrar todo?</p>
+
+<h3>Qué hace</h3>
+<ul>
+  <li>No produce números directamente; fija el <code>strategic_focus</code> que luego actúa como parámetro en todos los demás labs.</li>
+  <li>El equipo escribe en texto libre su hipótesis de palancas.</li>
+  <li>Al final del simulador, el <em>score de consistencia</em> penaliza si las decisiones tomadas contradicen el foco declarado aquí.</li>
+</ul>
+
+<h3>Lógica</h3>
+<span class="tag heur">Heurístico</span>
+<p>El score de consistencia (0–100) descuenta puntos por contradicciones: por ejemplo, si el foco es <em>cash_first</em> pero luego en Red se gastan más del 75% del CAPEX disponible, se restan 18 puntos. Las reglas están en <code>simulation.py</code> líneas 331–342.</p>
+
+<h3>¿Hay IA?</h3>
+<p>No. El único "juicio" es la coherencia entre foco y decisiones, calculada con 6 reglas booleanas.</p>
+
+<hr>
+
+<h2>Lab 1 — Inventario</h2>
+<p><strong>Idea:</strong> Liberar capital de trabajo bajando los días de inventario (DDI) sin generar quiebres de stock que destruyan ventas. El trade-off central es <em>caja vs. disponibilidad</em>.</p>
+
+<h3>Palancas</h3>
+<ul>
+  <li>Cobertura objetivo (70–100%)</li>
+  <li>Reducción de SKUs (0–35%)</li>
+  <li>DDI objetivo (35–80 días)</li>
+  <li>Ajuste por categoría: –20% a +15% en cada una de las 5 categorías</li>
+</ul>
+
+<h3>Lógica</h3>
+<span class="tag det">Determinístico</span>
+<p>El motor calcula:</p>
+<ul>
+  <li><strong>Working capital liberado</strong> = <code>(DDI_base – DDI_objetivo) / DDI_base × WC_base</code></li>
+  <li><strong>Quiebre por categoría</strong> = función de la reducción de cobertura y la sensibilidad de cada categoría (<em>stockout sensitivity</em> definida en Baseline)</li>
+  <li><strong>Revenue perdido</strong> = quiebre × mix de revenue de la categoría</li>
+  <li><strong>DDI ponderado final</strong> = promedio ponderado de los DDI por categoría</li>
+</ul>
+
+<h3>Categorías y sensibilidades</h3>
+<table>
+  <tr><th>Categoría</th><th>Mix</th><th>Stockout sensitivity</th></tr>
+  <tr><td>Medicamentos crónicos</td><td>38%</td><td>1.25 (muy alta)</td></tr>
+  <tr><td>OTC y cuidado diario</td><td>22%</td><td>0.90</td></tr>
+  <tr><td>Dermocosmética</td><td>16%</td><td>0.60</td></tr>
+  <tr><td>Perfumería y belleza</td><td>14%</td><td>0.70</td></tr>
+  <tr><td>Suplementos y bienestar</td><td>10%</td><td>0.65</td></tr>
+</table>
+
+<h3>¿Hay IA?</h3>
+<p>No. Puras fórmulas. Las "jugadas guiadas" (A, B, C) son conjuntos de valores pre-cargados que representan estrategias tipo: agresiva, segmentada, conservadora.</p>
+
+<hr>
+
+<h2>Lab 2 — Pricing</h2>
+<p><strong>Idea:</strong> Mejorar el margen bruto ajustando precios sin destruir volumen. El trade-off es <em>margen vs. volumen</em>, mediado por la elasticidad-precio de cada categoría.</p>
+
+<h3>Palancas</h3>
+<ul>
+  <li>Cambio PVP promedio (–15% a +20%)</li>
+  <li>Cambio PVP categorías sensibles: medicamentos + OTC (–20% a +20%)</li>
+  <li>Cambio PVP categorías premium: dermocosméctica + perfumería (–10% a +25%)</li>
+</ul>
+
+<h3>Lógica</h3>
+<span class="tag det">Determinístico</span>
+<p>Para cada categoría: <code>volume_change = –elasticity × price_change</code>. El revenue resultante es <code>revenue_base × (1 + price_change) × (1 + volume_change)</code>.</p>
+
+<table>
+  <tr><th>Categoría</th><th>Elasticidad</th><th>Interpretación</th></tr>
+  <tr><td>Medicamentos crónicos</td><td>1.25</td><td>Muy sensible: +10% precio → –12.5% volumen</td></tr>
+  <tr><td>OTC y cuidado diario</td><td>1.10</td><td>Sensible</td></tr>
+  <tr><td>Suplementos y bienestar</td><td>0.82</td><td>Moderado</td></tr>
+  <tr><td>Perfumería y belleza</td><td>0.74</td><td>Algo inelástica</td></tr>
+  <tr><td>Dermocosméctica</td><td>0.58</td><td>Inelástica: aguanta bien subas de precio</td></tr>
+</table>
+
+<h3>¿Hay IA?</h3>
+<p>No. Las elasticidades son constantes calibradas a mano. No hay modelo que las estime ni las ajuste dinámicamente.</p>
+
+<hr>
+
+<h2>Lab 3 — Clientes</h2>
+<p><strong>Idea:</strong> Distribuir el presupuesto de retención entre tres segmentos de clientes: VIPs, clientes en riesgo de fuga, y oportunistas. También controlar la adquisición de nuevos clientes. El trade-off es <em>rentabilidad vs. crecimiento</em>.</p>
+
+<h3>Palancas</h3>
+<ul>
+  <li>Foco retención VIPs (0–1)</li>
+  <li>Foco retención clientes en riesgo de fuga (0–1)</li>
+  <li>Foco retención oportunistas (0–1)</li>
+  <li>Nuevos clientes por mes (0–250.000)</li>
+</ul>
+
+<h3>Lógica</h3>
+<span class="tag det">Determinístico</span>
+<p>La reducción de churn se calcula como suma ponderada del foco asignado a cada segmento:</p>
+<ul>
+  <li>VIPs: peso 0.28</li>
+  <li>At-risk: peso 0.52 (el más impactante)</li>
+  <li>Oportunistas: peso 0.12</li>
+</ul>
+<p><code>churn_rate = max(1.8%, 6.2% – retention_power × (6.2% – 1.8%))</code></p>
+<p>Los nuevos clientes generan revenue incremental pero tienen un CAC (costo de adquisición) que reduce el FCF.</p>
+
+<h3>¿Hay IA?</h3>
+<p>No. No hay segmentación real ni predicción de churn. Los segmentos y sus pesos son valores fijos del Baseline.</p>
+
+<hr>
+
+<h2>Lab 4 — Digital</h2>
+<p><strong>Idea:</strong> Crecer en omnicanal (delivery, pick-up, hubs) sin que el costo logístico destruya el margen. El trade-off es <em>conveniencia vs. costo</em>.</p>
+
+<h3>Palancas</h3>
+<ul>
+  <li>Mix delivery a domicilio (0–25%)</li>
+  <li>Mix pick-up en tienda (0–25%)</li>
+  <li>Push hubs / dark stores (0–20%)</li>
+</ul>
+
+<h3>Lógica</h3>
+<span class="tag det">Determinístico</span>
+<p>El costo logístico se acumula linealmente por canal:</p>
+<p><code>logistics_cost_rate = 2.5% + 10.5% × delivery_mix + 3% × pickup_mix + 6.5% × hub_push</code></p>
+<p>La penetración digital total mejora el volumen vía un <em>convenience uplift</em> de hasta +4.5%, diferenciado por la afinidad digital de cada categoría (suplementos y OTC tienen mayor afinidad; medicamentos crónicos, menor).</p>
+
+<table>
+  <tr><th>Categoría</th><th>Digital affinity</th></tr>
+  <tr><td>Suplementos y bienestar</td><td>1.18 (más digital)</td></tr>
+  <tr><td>Dermocosméctica</td><td>1.10</td></tr>
+  <tr><td>OTC y cuidado diario</td><td>0.95</td></tr>
+  <tr><td>Perfumería y belleza</td><td>1.00</td></tr>
+  <tr><td>Medicamentos crónicos</td><td>0.75 (menos digital)</td></tr>
+</table>
+
+<h3>¿Hay IA?</h3>
+<p>No. El costo logístico y el uplift son relaciones lineales fijas.</p>
+
+<hr>
+
+<h2>Lab 5 — Red &amp; CAPEX</h2>
+<p><strong>Idea:</strong> Rediseñar la red de puntos de venta: abrir flagships o hubs/dark stores y/o cerrar locales de proximidad, sin superar el presupuesto de CAPEX ni generar más de 3 meses consecutivos de FCF negativo. El trade-off es <em>cobertura vs. inversión</em>.</p>
+
+<h3>Palancas</h3>
+<ul>
+  <li>Aperturas flagship (0–12)</li>
+  <li>Aperturas hubs / dark stores (0–16)</li>
+  <li>Cierres de locales de proximidad (0–28)</li>
+</ul>
+
+<h3>Lógica</h3>
+<span class="tag det">Determinístico</span>
+<table>
+  <tr><th>Tipo de nodo</th><th>CAPEX por unidad</th><th>Revenue incremental</th></tr>
+  <tr><td>Flagship</td><td>ARS 6.100 MM</td><td>ARS 520 MM/mes</td></tr>
+  <tr><td>Hub / dark store</td><td>ARS 2.250 MM</td><td>ARS 120 MM/mes</td></tr>
+  <tr><td>Cierre de proximidad</td><td>Ahorra ARS 38 MM/mes en fixed cost</td><td>Pierde ARS 92 MM/mes</td></tr>
+</table>
+<p>El CAPEX total se distribuye en cuatro desembolsos: M03 (32%), M06 (26%), M09 (22%), M11 (20%).</p>
+<p><strong>Constraints duros:</strong> CAPEX total ≤ ARS 50.000 MM; no más de 3 meses consecutivos con FCF negativo.</p>
+
+<h3>¿Hay IA?</h3>
+<p>No. Los valores por tipo de nodo son constantes. No hay optimización de red ni modelo de localización.</p>
+
+<hr>
+
+<h2>Lab 6 — Board Meeting</h2>
+<p><strong>Idea:</strong> Integrar todas las decisiones tomadas en los labs anteriores y defender el plan de 12 meses ante el directorio. El simulador calcula el impacto combinado y evalúa la consistencia del plan integral.</p>
+
+<h3>Qué hace</h3>
+<ul>
+  <li>Agrega los outputs de todos los labs en un único cockpit de KPIs.</li>
+  <li>Calcula el score de consistencia estratégica (penaliza contradicciones entre foco declarado en Diagnóstico y decisiones ejecutadas).</li>
+  <li>Muestra el plan de 12 meses con EBITDA, FCF, caja final, CAPEX y cobertura.</li>
+  <li>Genera preguntas "de directorio" para que el equipo las responda en clase.</li>
+</ul>
+
+<h3>Lógica</h3>
+<span class="tag heur">Heurístico</span> <span class="tag mock">IA mockeada</span>
+<p>El feedback del "advisor IA" es un conjunto de reglas if/else que detectan condiciones problemáticas (stockout &gt; 6%, FCF negativo prolongado, caja final negativa, costo logístico &gt; 5%) y emiten recomendaciones textuales pre-escritas. No hay generación de lenguaje natural real.</p>
+
+<h3>¿Hay IA?</h3>
+<p>No todavía. Según la especificación del proyecto, un próximo paso es reemplazar el advisor mock por un LLM (Claude o GPT) que genere feedback contextualizado. Hoy es 100% reglas.</p>
+
+<hr>
+
+<h2>Resumen por laboratorio</h2>
+
+<table>
+  <tr>
+    <th>Lab</th>
+    <th>Trade-off central</th>
+    <th>Tipo de lógica</th>
+    <th>Palancas principales</th>
+    <th>¿IA real?</th>
+  </tr>
+  <tr>
+    <td>0 — Diagnóstico</td>
+    <td>Foco estratégico</td>
+    <td><span class="tag heur">Heurístico</span></td>
+    <td>Foco declarado + hipótesis texto</td>
+    <td>No</td>
+  </tr>
+  <tr>
+    <td>1 — Inventario</td>
+    <td>Caja vs. disponibilidad</td>
+    <td><span class="tag det">Determinístico</span></td>
+    <td>DDI, cobertura, SKU reduction</td>
+    <td>No</td>
+  </tr>
+  <tr>
+    <td>2 — Pricing</td>
+    <td>Margen vs. volumen</td>
+    <td><span class="tag det">Determinístico</span></td>
+    <td>PVP por segmento de categoría</td>
+    <td>No</td>
+  </tr>
+  <tr>
+    <td>3 — Clientes</td>
+    <td>Rentabilidad vs. crecimiento</td>
+    <td><span class="tag det">Determinístico</span></td>
+    <td>Foco retención por segmento + adquisición</td>
+    <td>No</td>
+  </tr>
+  <tr>
+    <td>4 — Digital</td>
+    <td>Conveniencia vs. costo logístico</td>
+    <td><span class="tag det">Determinístico</span></td>
+    <td>Mix delivery / pick-up / hubs</td>
+    <td>No</td>
+  </tr>
+  <tr>
+    <td>5 — Red &amp; CAPEX</td>
+    <td>Cobertura vs. inversión</td>
+    <td><span class="tag det">Determinístico</span></td>
+    <td>Aperturas flagship/hub, cierres PDV</td>
+    <td>No</td>
+  </tr>
+  <tr>
+    <td>6 — Board Meeting</td>
+    <td>Integración y defensa del plan</td>
+    <td><span class="tag mock">IA mockeada</span></td>
+    <td>Todas las anteriores combinadas</td>
+    <td>No (próximo paso)</td>
+  </tr>
+</table>
+
+<hr>
+
+<h2>¿Cuándo entra la IA?</h2>
+
+<p>Hoy el simulador no usa ningún modelo de machine learning ni LLM. La lógica es enteramente algebraica y reproducible. Esto es una decisión de diseño: facilita la comprensión del alumno, no hay "caja negra".</p>
+
+<p>Los lugares donde podría entrar IA en iteraciones futuras:</p>
+<ul>
+  <li><strong>Advisor / feedback</strong>: reemplazar las reglas if/else del Board Meeting por un LLM que genere feedback contextualizado según las decisiones específicas del equipo.</li>
+  <li><strong>Calibración de parámetros</strong>: ajustar elasticidades, sensibilidades de stockout y afinidades digitales con datos reales de una cadena farmacéutica.</li>
+  <li><strong>Demand forecasting</strong>: agregar un motor de forecasting por categoría que simule incertidumbre (distribución de resultados en vez de valor puntual).</li>
+  <li><strong>Optimización de red</strong>: modelo de localización para sugerir dónde abrir o cerrar nodos, en vez de dejar esa decisión solo al jugador.</li>
+</ul>
+
+<p class="note">Generado el 2026-05-28 a partir del código fuente en <code>simulador/src/pharmalink/</code> y <code>simulador/app/streamlit_app.py</code>.</p>
+
+</body>
+</html>
