@@ -1,0 +1,788 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>NEXUS Retail - Guía del Alumno</title>
+    <style>
+      :root {
+        --bg: #f3efe7;
+        --bg-2: #e7dfd0;
+        --card: rgba(255, 255, 255, 0.82);
+        --card-strong: #ffffff;
+        --text: #172027;
+        --muted: #5d6a72;
+        --accent: #0f766e;
+        --accent-2: #b45309;
+        --accent-3: #1d4ed8;
+        --border: rgba(23, 32, 39, 0.12);
+        --shadow: 0 18px 50px rgba(23, 32, 39, 0.12);
+        --radius: 22px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        margin: 0;
+        font-family: "Segoe UI", "Trebuchet MS", sans-serif;
+        color: var(--text);
+        background:
+          radial-gradient(circle at top left, rgba(15, 118, 110, 0.18), transparent 28%),
+          radial-gradient(circle at top right, rgba(180, 83, 9, 0.16), transparent 24%),
+          linear-gradient(180deg, var(--bg), var(--bg-2));
+      }
+
+      a {
+        color: inherit;
+      }
+
+      .shell {
+        width: min(1200px, calc(100% - 32px));
+        margin: 0 auto;
+        padding: 28px 0 72px;
+      }
+
+      .hero {
+        display: grid;
+        grid-template-columns: 1.6fr 1fr;
+        gap: 20px;
+        align-items: stretch;
+        margin-bottom: 22px;
+      }
+
+      .panel {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        backdrop-filter: blur(12px);
+      }
+
+      .hero-main {
+        padding: 34px;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .hero-main::after {
+        content: "";
+        position: absolute;
+        inset: auto -40px -80px auto;
+        width: 220px;
+        height: 220px;
+        border-radius: 999px;
+        background: radial-gradient(circle, rgba(15, 118, 110, 0.22), transparent 68%);
+        pointer-events: none;
+      }
+
+      .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 12px;
+        border-radius: 999px;
+        background: rgba(15, 118, 110, 0.12);
+        color: #0e5f59;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+        font-size: 0.86rem;
+      }
+
+      h1,
+      h2,
+      h3 {
+        margin: 0;
+        font-family: Georgia, "Times New Roman", serif;
+        letter-spacing: -0.02em;
+      }
+
+      h1 {
+        font-size: clamp(2.2rem, 4vw, 4.3rem);
+        line-height: 1;
+        margin-top: 16px;
+      }
+
+      .lede {
+        margin: 18px 0 0;
+        font-size: 1.05rem;
+        line-height: 1.7;
+        color: var(--muted);
+        max-width: 66ch;
+      }
+
+      .hero-actions {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-top: 26px;
+      }
+
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 12px 16px;
+        border-radius: 14px;
+        border: 1px solid transparent;
+        text-decoration: none;
+        font-weight: 700;
+        transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease;
+      }
+
+      .btn:hover {
+        transform: translateY(-1px);
+      }
+
+      .btn-primary {
+        background: var(--text);
+        color: white;
+        box-shadow: 0 12px 24px rgba(23, 32, 39, 0.18);
+      }
+
+      .btn-secondary {
+        background: rgba(255, 255, 255, 0.55);
+        border-color: var(--border);
+      }
+
+      .hero-side {
+        display: grid;
+        gap: 16px;
+      }
+
+      .stat-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+      }
+
+      .stat {
+        padding: 18px;
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.75);
+        border: 1px solid var(--border);
+      }
+
+      .stat strong {
+        display: block;
+        font-size: 1.4rem;
+        margin-bottom: 4px;
+      }
+
+      .stat span {
+        color: var(--muted);
+        font-size: 0.92rem;
+        line-height: 1.45;
+      }
+
+      .mini {
+        padding: 22px;
+      }
+
+      .mini h2 {
+        font-size: 1.5rem;
+        margin-bottom: 8px;
+      }
+
+      .mini p,
+      .mini li,
+      .card p,
+      .card li {
+        color: var(--muted);
+        line-height: 1.65;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: 1.1fr 0.9fr;
+        gap: 18px;
+        margin: 20px 0;
+      }
+
+      .section {
+        padding: 26px;
+      }
+
+      .section h2 {
+        font-size: 2rem;
+        margin-bottom: 14px;
+      }
+
+      .section-head {
+        display: flex;
+        align-items: end;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 14px;
+      }
+
+      .section-head p {
+        margin: 0;
+        max-width: 72ch;
+      }
+
+      .file-list {
+        display: grid;
+        gap: 12px;
+        margin-top: 16px;
+      }
+
+      .file {
+        display: flex;
+        justify-content: space-between;
+        gap: 14px;
+        padding: 16px 18px;
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.62);
+        border: 1px solid var(--border);
+      }
+
+      .file strong {
+        display: block;
+        margin-bottom: 4px;
+      }
+
+      .file small {
+        color: var(--muted);
+      }
+
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        padding: 6px 10px;
+        border-radius: 999px;
+        background: rgba(29, 78, 216, 0.12);
+        color: #1d4ed8;
+        font-size: 0.82rem;
+        font-weight: 700;
+        white-space: nowrap;
+        height: fit-content;
+      }
+
+      .nav {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin: 18px 0 24px;
+      }
+
+      .nav a {
+        text-decoration: none;
+        padding: 10px 14px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.62);
+        border: 1px solid var(--border);
+        color: var(--text);
+        font-weight: 700;
+      }
+
+      .cards {
+        display: grid;
+        gap: 18px;
+      }
+
+      .card {
+        padding: 24px;
+        border-radius: 24px;
+        background: var(--card-strong);
+        border: 1px solid var(--border);
+        box-shadow: var(--shadow);
+      }
+
+      .card-top {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        align-items: start;
+        margin-bottom: 16px;
+      }
+
+      .card h3 {
+        font-size: 1.6rem;
+        margin-bottom: 6px;
+      }
+
+      .meta {
+        font-size: 0.9rem;
+        color: var(--muted);
+      }
+
+      .split {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+      }
+
+      .box {
+        padding: 16px;
+        border-radius: 18px;
+        background: #fbfaf7;
+        border: 1px solid rgba(23, 32, 39, 0.08);
+      }
+
+      .box h4 {
+        margin: 0 0 8px;
+        font-size: 1rem;
+      }
+
+      .box p,
+      .box li {
+        margin: 0;
+        font-size: 0.96rem;
+      }
+
+      .box ul {
+        margin: 0;
+        padding-left: 18px;
+      }
+
+      .prompt {
+        margin-top: 14px;
+        background: #18212a;
+        color: #f3f7fa;
+        border-radius: 18px;
+        padding: 18px;
+        overflow: auto;
+        line-height: 1.6;
+        font-size: 0.94rem;
+      }
+
+      .prompt code {
+        color: #ffd38a;
+      }
+
+      .callout {
+        padding: 18px;
+        border-radius: 18px;
+        background: linear-gradient(135deg, rgba(15, 118, 110, 0.12), rgba(29, 78, 216, 0.1));
+        border: 1px solid rgba(15, 118, 110, 0.18);
+      }
+
+      .callout strong {
+        display: block;
+        margin-bottom: 6px;
+      }
+
+      .footer {
+        padding: 22px 6px 0;
+        color: var(--muted);
+        font-size: 0.92rem;
+      }
+
+      @media (max-width: 960px) {
+        .hero,
+        .grid,
+        .split {
+          grid-template-columns: 1fr;
+        }
+
+        .card-top,
+        .section-head {
+          align-items: start;
+          flex-direction: column;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="shell">
+      <section class="hero">
+        <article class="panel hero-main">
+          <span class="eyebrow">NEXUS Retail · Laboratorio con IA</span>
+          <h1>Usá tu IA para diagnosticar problemas reales de retail</h1>
+          <p class="lede">
+            Este sitio presenta situaciones de negocio de NEXUS Retail. En cada problema vas a
+            trabajar con una base masiva de productos, pedirle análisis a tu propia IA, revisar sus
+            conclusiones y proponer un plan de acción con impacto estimado.
+          </p>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="#problemas">Comenzar por el problema 1</a>
+            <a class="btn btn-secondary" href="data/Base%20SKUs.xlsx">Descargar base de SKUs</a>
+            <a class="btn btn-secondary" href="contexto-alumno.md">Descargar contexto para IA</a>
+          </div>
+        </article>
+
+        <aside class="hero-side">
+          <div class="panel mini">
+            <h2>Cómo funciona</h2>
+            <p>
+              El HTML presenta el contexto y los desafíos. La simulación la hacés vos con tu IA:
+              analizás los datos, formulás decisiones y estimás cómo impactarían en ventas, margen,
+              inventario y caja.
+            </p>
+          </div>
+          <div class="panel mini">
+            <div class="stat-grid">
+              <div class="stat"><strong>1 base</strong><span>Base de SKUs utilizada en esta versión</span></div>
+              <div class="stat"><strong>12 meses</strong><span>Historia de precios, costos y volumen</span></div>
+              <div class="stat"><strong>3 precios</strong><span>Competidores disponibles por SKU</span></div>
+              <div class="stat"><strong>4 problemas</strong><span>Diagnósticos y planes de acción</span></div>
+            </div>
+          </div>
+        </aside>
+      </section>
+
+      <section class="grid">
+        <article class="panel section">
+          <div class="section-head">
+            <div>
+              <h2>Tu rol</h2>
+              <p>
+                Formás parte del equipo comercial de NEXUS Retail. Tu responsabilidad es encontrar
+                oportunidades de mejora dentro del portfolio y recomendar acciones respaldadas por
+                datos.
+              </p>
+            </div>
+          </div>
+          <div class="callout">
+            <strong>No buscamos una respuesta única</strong>
+            <p>
+              Buscamos que puedas hacer buenas preguntas, controlar el análisis producido por tu IA
+              y explicar los supuestos, beneficios y riesgos de cada recomendación.
+            </p>
+          </div>
+        </article>
+
+        <article class="panel section">
+          <div class="section-head">
+            <div>
+              <h2>Input común</h2>
+              <p>En esta versión vas a usar únicamente la base de productos.</p>
+            </div>
+          </div>
+          <div class="file-list">
+            <div class="file">
+              <div>
+                <strong>Base SKUs.xlsx · hoja Base</strong>
+                <small>
+                  Incluye identificación, familia, departamento, estado, venta, PVP 1-12, costo
+                  unitario 1-12, volumen 1-12, stock CD/PDV/total, DDI, competencia y cobertura.
+                </small>
+              </div>
+              <span class="pill"><a href="data/Base%20SKUs.xlsx">Descargar</a></span>
+            </div>
+          </div>
+          <div class="callout" style="margin-top: 14px;">
+            <strong>Importante</strong>
+            <p>
+              La base de clientes existe, pero no forma parte de los problemas de esta versión.
+              No la cargues en tu IA ni la uses para justificar decisiones.
+            </p>
+          </div>
+        </article>
+      </section>
+
+      <section id="problemas" class="panel section">
+        <div class="section-head">
+          <div>
+            <h2>Problemas de NEXUS Retail</h2>
+            <p>
+              Cada problema empieza con una situación concreta. Tu trabajo es transformar la base
+              de SKUs en un diagnóstico, un conjunto de acciones y una estimación de impacto.
+            </p>
+          </div>
+        </div>
+
+        <nav class="nav" aria-label="Problemas">
+          <a href="#p1">1 · Pricing leakage</a>
+          <a href="#p2">2 · Inventario y caja</a>
+          <a href="#p3">3 · Portfolio</a>
+          <a href="#p4">4 · Plan integrado</a>
+        </nav>
+
+        <div class="cards">
+          <article id="p1" class="card">
+            <div class="card-top">
+              <div>
+                <span class="eyebrow">Problema 1</span>
+                <h3>Encontrar productos con pricing leakage</h3>
+                <div class="meta">Situación: algunos productos podrían venderse a un precio mayor.</div>
+              </div>
+              <span class="pill">Pricing</span>
+            </div>
+            <div class="split">
+              <div class="box">
+                <h4>Contexto del negocio</h4>
+                <p>
+                  NEXUS sospecha que parte del portfolio tiene precios bajos frente a la competencia.
+                  Sin embargo, aumentar precios sin entender la sensibilidad de la demanda podría
+                  reducir volumen y destruir margen.
+                </p>
+              </div>
+              <div class="box">
+                <h4>Qué vamos a aprender</h4>
+                <ul>
+                  <li>Comparar el precio propio contra precios competidores.</li>
+                  <li>Calcular elasticidad usando 12 meses de precio y volumen.</li>
+                  <li>Entender el trade-off entre precio, volumen y margen.</li>
+                  <li>Distinguir oportunidad de precio de una suba riesgosa.</li>
+                </ul>
+              </div>
+              <div class="box">
+                <h4>Teoría necesaria</h4>
+                <p>
+                  Hay pricing leakage cuando un SKU está barato frente al mercado y su demanda no
+                  cae fuertemente ante cambios de precio. La elasticidad relaciona la variación
+                  porcentual del volumen con la variación porcentual del precio. Una elasticidad
+                  cercana a 0 indica menor sensibilidad.
+                </p>
+              </div>
+              <div class="box">
+                <h4>Input esperado para tu IA</h4>
+                <ul>
+                  <li>Archivo: <strong>Base SKUs.xlsx</strong>, hoja <strong>Base</strong>.</li>
+                  <li>Identificación: Producto CODE, Producto DESC, Familia y Departamento.</li>
+                  <li>Historia: PVP 1-12 y Vol 1-12.</li>
+                  <li>Economía: PVP 12, CU 12 y Venta Neta.</li>
+                  <li>Mercado: Competidor 1, Competidor 2 y Competidor 3.</li>
+                </ul>
+              </div>
+            </div>
+            <div class="prompt">
+              <code>Prompt sugerido</code><br /><br />
+              Analizá la hoja Base y detectá todos los SKUs con oportunidad de pricing. Calculá el
+              precio promedio de competidores disponibles y estimá la elasticidad con PVP 1-12 y
+              Vol 1-12. Priorizá productos cuyo PVP 12 esté por debajo del mercado y cuya elasticidad
+              indique baja o media sensibilidad. Para cada SKU proponé un nuevo precio, estimá el
+              cambio de volumen y el impacto en margen. Explicá fórmula, supuestos y controles.
+            </div>
+            <div class="callout" style="margin-top: 14px;">
+              <strong>Output esperado</strong>
+              <p>
+                Una tabla de SKUs candidatos con precio actual, precio competidor promedio, brecha
+                porcentual, elasticidad estimada, aumento recomendado, volumen esperado, margen
+                incremental y nivel de riesgo. Cerrá con los 10 productos prioritarios y una
+                explicación de por qué empezarías por ellos.
+              </p>
+            </div>
+          </article>
+
+          <article id="p2" class="card">
+            <div class="card-top">
+              <div>
+                <span class="eyebrow">Problema 2</span>
+                <h3>Reducir inventario sin provocar shortage</h3>
+                <div class="meta">Situación: hay capital inmovilizado, pero recortar stock también tiene costo.</div>
+              </div>
+              <span class="pill">Inventario</span>
+            </div>
+            <div class="split">
+              <div class="box">
+                <h4>Contexto del negocio</h4>
+                <p>
+                  NEXUS tiene productos con muchos días de inventario y necesita liberar caja.
+                  Reducir stock indiscriminadamente puede generar faltantes, pérdida de ventas y
+                  deterioro de la cobertura comercial.
+                </p>
+              </div>
+              <div class="box">
+                <h4>Qué vamos a aprender</h4>
+                <ul>
+                  <li>Entender cómo los días de inventario afectan capital de trabajo y caja.</li>
+                  <li>Identificar exceso de stock y baja rotación.</li>
+                  <li>Reconocer riesgo de shortage en productos con poco inventario.</li>
+                  <li>Calcular capital potencialmente liberable sin tratar todos los SKUs igual.</li>
+                </ul>
+              </div>
+              <div class="box">
+                <h4>Teoría necesaria</h4>
+                <p>
+                  Los DDI expresan cuántos días de venta puede cubrir el stock actual. DDI altos
+                  suelen inmovilizar capital; DDI bajos elevan el riesgo de quiebre. El inventario
+                  objetivo debe considerar rotación, valor del stock y relevancia comercial.
+                </p>
+              </div>
+              <div class="box">
+                <h4>Input esperado para tu IA</h4>
+                <ul>
+                  <li>Archivo: <strong>Base SKUs.xlsx</strong>, hoja <strong>Base</strong>.</li>
+                  <li>Stock total: TOTAL Units, TOTAL $, TOTAL DDI.</li>
+                  <li>Ubicación: CD Units/$/DDI y PDV Units/$/DDI.</li>
+                  <li>Demanda: Vol 1-12 y Venta Neta.</li>
+                  <li>Contexto: Familia, Departamento, Estado Actual y Cobertura Mercado %.</li>
+                </ul>
+              </div>
+            </div>
+            <div class="prompt">
+              <code>Prompt sugerido</code><br /><br />
+              Identificá SKUs con exceso de inventario y SKUs con riesgo de shortage. Segmentalos
+              usando DDI total, stock valorizado, volumen histórico y cobertura. Proponé un DDI
+              objetivo razonado por segmento, calculá capital liberable para los excesos y señalá
+              los productos donde reducir stock sería riesgoso. Explicá supuestos y controles.
+            </div>
+            <div class="callout" style="margin-top: 14px;">
+              <strong>Output esperado</strong>
+              <p>
+                Dos tablas: una con SKUs de exceso, DDI actual, DDI objetivo, stock actual y capital
+                liberable; otra con SKUs en riesgo de shortage, señal de riesgo e impacto comercial
+                posible. Sumá el capital liberable total y describí cómo evitarías quiebres.
+              </p>
+            </div>
+          </article>
+
+          <article id="p3" class="card">
+            <div class="card-top">
+              <div>
+                <span class="eyebrow">Problema 3</span>
+                <h3>Detectar productos que agregan complejidad y poco valor</h3>
+                <div class="meta">Situación: no todos los SKUs justifican el espacio y el capital que consumen.</div>
+              </div>
+              <span class="pill">Portfolio</span>
+            </div>
+            <div class="split">
+              <div class="box">
+                <h4>Contexto del negocio</h4>
+                <p>
+                  NEXUS quiere revisar productos que venden poco, tienen bajo margen, rotan lento o
+                  aportan poca cobertura. Quitarlos sin análisis también puede afectar surtido,
+                  clientes y ventas relacionadas.
+                </p>
+              </div>
+              <div class="box">
+                <h4>Qué vamos a aprender</h4>
+                <ul>
+                  <li>Evaluar contribución económica y comercial por SKU.</li>
+                  <li>Diferenciar productos core, productos a revisar y candidatos a liquidación.</li>
+                  <li>Entender el costo de complejidad de un portfolio extenso.</li>
+                  <li>Considerar cobertura y riesgo antes de recomendar una baja.</li>
+                </ul>
+              </div>
+              <div class="box">
+                <h4>Teoría necesaria</h4>
+                <p>
+                  La venta por sí sola no define el valor de un producto. Un SKU puede ser pequeño
+                  pero estratégico por cobertura; también puede vender y destruir margen. Una
+                  revisión de portfolio combina venta, margen, rotación, inventario y cobertura.
+                </p>
+              </div>
+              <div class="box">
+                <h4>Input esperado para tu IA</h4>
+                <ul>
+                  <li>Archivo: <strong>Base SKUs.xlsx</strong>, hoja <strong>Base</strong>.</li>
+                  <li>Identificación y estado: Familia, Departamento, Estado Actual y Producto.</li>
+                  <li>Contribución: Venta Neta, PVP 12, CU 12 y Vol 1-12.</li>
+                  <li>Complejidad: stock total $, DDI total y Cobertura Mercado %.</li>
+                  <li>Referencia competitiva: precios de competidores.</li>
+                </ul>
+              </div>
+            </div>
+            <div class="prompt">
+              <code>Prompt sugerido</code><br /><br />
+              Clasificá los SKUs en Core, Mantener con acción, Revisar y Liquidación controlada.
+              Construí criterios explícitos combinando venta, margen estimado, volumen, DDI, stock
+              valorizado y cobertura. No recomiendes retirar un producto solo por baja venta.
+              Mostrá el impacto potencial y los riesgos de cada recomendación.
+            </div>
+            <div class="callout" style="margin-top: 14px;">
+              <strong>Output esperado</strong>
+              <p>
+                Una clasificación completa del portfolio con criterio trazable, acción sugerida por
+                SKU y resumen por familia/departamento. Incluí valor de stock involucrado, venta y
+                margen expuestos, cobertura afectada y una lista priorizada para revisión.
+              </p>
+            </div>
+          </article>
+
+          <article id="p4" class="card">
+            <div class="card-top">
+              <div>
+                <span class="eyebrow">Problema 4</span>
+                <h3>Construir un plan de acción integrado</h3>
+                <div class="meta">Situación: las decisiones de precio, inventario y portfolio se afectan entre sí.</div>
+              </div>
+              <span class="pill">Decisión</span>
+            </div>
+            <div class="split">
+              <div class="box">
+                <h4>Contexto del negocio</h4>
+                <p>
+                  La dirección de NEXUS necesita un plan ejecutable. No alcanza con una lista de
+                  oportunidades: hay que decidir qué acciones priorizar, estimar impactos y
+                  explicitar qué riesgos se van a controlar.
+                </p>
+              </div>
+              <div class="box">
+                <h4>Qué vamos a aprender</h4>
+                <ul>
+                  <li>Integrar diagnósticos que pueden competir entre sí.</li>
+                  <li>Estimar impacto económico bajo supuestos explícitos.</li>
+                  <li>Priorizar acciones por valor, esfuerzo y riesgo.</li>
+                  <li>Diseñar controles para aprender y corregir durante la ejecución.</li>
+                </ul>
+              </div>
+              <div class="box">
+                <h4>Teoría necesaria</h4>
+                <p>
+                  Una decisión comercial cambia varias métricas al mismo tiempo. Subir precio puede
+                  mejorar margen y bajar volumen; reducir stock libera caja y eleva shortage. Un
+                  buen plan muestra el resultado esperado y también el trade-off aceptado.
+                </p>
+              </div>
+              <div class="box">
+                <h4>Input esperado para tu IA</h4>
+                <ul>
+                  <li>Los outputs completos de los problemas 1, 2 y 3.</li>
+                  <li>Las fórmulas, supuestos y criterios utilizados.</li>
+                  <li>Una lista de acciones candidatas con impacto y riesgo estimado.</li>
+                  <li>La base SKU para verificar cualquier conclusión dudosa.</li>
+                </ul>
+              </div>
+            </div>
+            <div class="prompt">
+              <code>Prompt sugerido</code><br /><br />
+              Integrá los diagnósticos de pricing, inventario y portfolio en un plan de 90 días.
+              Priorizá acciones por impacto económico, facilidad de implementación y riesgo.
+              Estimá impacto en ventas, margen, capital de trabajo, caja y cobertura. Identificá
+              contradicciones entre acciones y proponé indicadores para controlar resultados.
+            </div>
+            <div class="callout" style="margin-top: 14px;">
+              <strong>Output esperado</strong>
+              <p>
+                Un plan 30/60/90 con acciones priorizadas, SKUs afectados, impacto estimado, riesgo,
+                responsable sugerido e indicador de seguimiento. Cerrá con una comparación entre
+                situación actual y situación esperada, incluyendo todos los supuestos.
+              </p>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="panel section">
+        <div class="section-head">
+          <div>
+            <h2>Reglas para trabajar con tu IA</h2>
+            <p>Tu IA puede acelerar el análisis, pero vos seguís siendo responsable del diagnóstico.</p>
+          </div>
+        </div>
+        <div class="split">
+          <div class="box">
+            <h4>Siempre pedile</h4>
+            <ul>
+              <li>Que explique fórmulas, supuestos y criterios.</li>
+              <li>Que entregue tablas completas y rankings priorizados.</li>
+              <li>Que identifique datos faltantes y riesgos.</li>
+              <li>Que verifique resultados extremos antes de recomendar acciones.</li>
+            </ul>
+          </div>
+          <div class="box">
+            <h4>Siempre revisá</h4>
+            <ul>
+              <li>Que haya usado las columnas correctas.</li>
+              <li>Que no haya inventado datos ni variables.</li>
+              <li>Que el impacto calculado sea consistente con la recomendación.</li>
+              <li>Que la conclusión pueda explicarse en lenguaje de negocio.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <p class="footer">NEXUS Retail · Laboratorio de diagnóstico y decisiones con IA · v0.3</p>
+    </main>
+  </body>
+</html>
