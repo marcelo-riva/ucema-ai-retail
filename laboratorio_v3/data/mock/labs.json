@@ -1,0 +1,14 @@
+[
+  {
+    "id": "lab-01",
+    "title": "AI Revenue & Inventory Copilot",
+    "description": "Portfolio, pricing, forecast e inventario con horizonte 90 días.",
+    "status": "available"
+  },
+  {
+    "id": "lab-02",
+    "title": "Customer Profitability Copilot",
+    "description": "CLV, churn, couponing y marketing ROI.",
+    "status": "locked"
+  }
+]

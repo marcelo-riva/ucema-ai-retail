@@ -1,0 +1,56 @@
+[
+  {
+    "id": "ex-00",
+    "labId": "lab-01",
+    "title": "Exploración Inicial",
+    "objective": "Entender el negocio, la base y las variables antes de decidir.",
+    "status": "available",
+    "requiredStateVersion": "state_v0",
+    "nextStateVersion": "state_v0_explored"
+  },
+  {
+    "id": "ex-01",
+    "labId": "lab-01",
+    "title": "Portfolio Optimization",
+    "objective": "Clasificar SKUs como CORE, REVIEW o ELIMINAR y justificar la decisión con datos.",
+    "status": "locked",
+    "requiredStateVersion": "state_v0_explored",
+    "nextStateVersion": "state_v1_portfolio"
+  },
+  {
+    "id": "ex-02",
+    "labId": "lab-01",
+    "title": "Pricing Optimization",
+    "objective": "Definir precios para capturar margen sin destruir volumen ni competitividad.",
+    "status": "locked",
+    "requiredStateVersion": "state_v1_portfolio",
+    "nextStateVersion": "state_v2_pricing"
+  },
+  {
+    "id": "ex-03",
+    "labId": "lab-01",
+    "title": "Forecast Engine",
+    "objective": "Proyectar M13, M14 y M15 usando decisiones de portfolio y pricing.",
+    "status": "locked",
+    "requiredStateVersion": "state_v2_pricing",
+    "nextStateVersion": "state_v3_forecast"
+  },
+  {
+    "id": "ex-04",
+    "labId": "lab-01",
+    "title": "Inventory & Working Capital Optimization",
+    "objective": "Definir inventario objetivo y liberar capital de trabajo minimizando riesgo de quiebre.",
+    "status": "locked",
+    "requiredStateVersion": "state_v3_forecast",
+    "nextStateVersion": "state_v4_inventory"
+  },
+  {
+    "id": "final-plan",
+    "labId": "lab-01",
+    "title": "Plan de Captura de Valor 90 días",
+    "objective": "Consolidar decisiones, impacto económico, quick wins y riesgos.",
+    "status": "locked",
+    "requiredStateVersion": "state_v4_inventory",
+    "nextStateVersion": "state_final_plan"
+  }
+]

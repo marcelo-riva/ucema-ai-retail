@@ -1,0 +1,22 @@
+[
+  {
+    "id": "group_01",
+    "name": "Grupo 01",
+    "role": "student"
+  },
+  {
+    "id": "group_02",
+    "name": "Grupo 02",
+    "role": "student"
+  },
+  {
+    "id": "group_03",
+    "name": "Grupo 03",
+    "role": "student"
+  },
+  {
+    "id": "admin",
+    "name": "Admin Demo",
+    "role": "admin"
+  }
+]
