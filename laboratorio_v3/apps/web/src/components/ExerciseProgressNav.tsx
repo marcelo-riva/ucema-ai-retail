@@ -5,6 +5,7 @@ type ProgressItem = {
   order: number;
   title: string;
   route: string;
+  objective: string;
   status: string;
   checkpointName: string;
   mainSheet: string;
@@ -16,7 +17,7 @@ export function ExerciseProgressNav({ items }: { items: ProgressItem[] }) {
   return (
     <section className="card">
       <div className="eyebrow">Secuencia Laboratorio 1</div>
-      <h2>AI Revenue & Inventory Copilot</h2>
+      <h2>Ejercicios</h2>
       <div className="exerciseTimeline">
         {items.map((item) => (
           <article key={item.id}>
@@ -24,10 +25,9 @@ export function ExerciseProgressNav({ items }: { items: ProgressItem[] }) {
             <div>
               <div className={`statusPill ${item.status}`}>{item.status}</div>
               <h3>{item.title}</h3>
-              <p><strong>Checkpoint:</strong> {item.checkpointName}</p>
+              <p>{item.objective}</p>
               <p><strong>Hoja principal:</strong> {item.mainSheet}</p>
-              <p><strong>Apoyo:</strong> {item.supportSheets.join(", ")}</p>
-              <p><strong>Output:</strong> {item.output}</p>
+              <p><strong>Checkpoint:</strong> {item.checkpointName}</p>
               <Link className={`button ${item.status === "locked" ? "secondary" : "primary"}`} href={item.route}>
                 Abrir
               </Link>

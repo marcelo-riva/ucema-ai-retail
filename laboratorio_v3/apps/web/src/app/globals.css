@@ -113,6 +113,39 @@ button {
   color: #ffffff;
 }
 
+.navSection {
+  border-left: 1px solid rgba(255, 255, 255, 0.16);
+  display: grid;
+  gap: 4px;
+  margin: 2px 0 4px 12px;
+  padding-left: 10px;
+}
+
+.navSectionTitle {
+  color: rgba(246, 250, 246, 0.54);
+  font-size: 11px;
+  font-weight: 850;
+  letter-spacing: 0.1em;
+  padding: 8px 8px 4px;
+  text-transform: uppercase;
+}
+
+.navSubLink {
+  align-items: center;
+  border-radius: 8px;
+  color: rgba(246, 250, 246, 0.68);
+  display: flex;
+  font-size: 13px;
+  gap: 8px;
+  padding: 8px 10px;
+}
+
+.navSubLink:hover,
+.navSubLink.active {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+}
+
 .sideNote {
   color: rgba(246, 250, 246, 0.68);
   font-size: 13px;
@@ -123,6 +156,25 @@ button {
 .content {
   margin: 0 auto;
   max-width: 1180px;
+}
+
+.breadcrumbs {
+  color: var(--muted);
+  display: flex;
+  flex-wrap: wrap;
+  font-size: 13px;
+  font-weight: 750;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.breadcrumbs a {
+  color: var(--brand);
+}
+
+.breadcrumbSeparator {
+  color: var(--muted);
+  margin-right: 8px;
 }
 
 .topbar {
@@ -306,6 +358,18 @@ h3 {
   padding: 22px;
 }
 
+.labSelectionCard {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 260px;
+}
+
+.labSelectionCard .button {
+  margin-top: auto;
+  width: fit-content;
+}
+
 .panel {
   background: rgba(255, 255, 255, 0.72);
   border: 1px solid var(--line);
@@ -373,6 +437,7 @@ h3 {
 
 .statusPill.available,
 .statusPill.submitted,
+.statusPill.completed,
 .statusPill.success {
   background: rgba(25, 115, 90, 0.12);
   color: var(--success);

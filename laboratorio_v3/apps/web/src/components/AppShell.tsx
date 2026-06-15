@@ -2,19 +2,65 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BarChart3, ClipboardList, LayoutDashboard, ShieldCheck } from "lucide-react";
+import { ClipboardList, Home, LayoutDashboard, ShieldCheck } from "lucide-react";
 
-const navItems = [
-  { href: "/labs", label: "Laboratorios", icon: LayoutDashboard },
-  { href: "/labs/lab-01/exercises/ex-00", label: "Exploración", icon: ClipboardList },
-  { href: "/labs/lab-01/exercises/ex-01", label: "Portfolio", icon: ClipboardList },
-  { href: "/labs/lab-01/scoreboard", label: "Scoreboard", icon: BarChart3 },
-  { href: "/labs/lab-01/final-plan", label: "Plan final", icon: ClipboardList },
-  { href: "/admin", label: "Admin", icon: ShieldCheck }
+const lab01Links = [
+  { href: "/labs/lab-01", label: "Overview" },
+  { href: "/labs/lab-01/exercises/ex-00", label: "Ejercicio 0" },
+  { href: "/labs/lab-01/exercises/ex-01", label: "Ejercicio 1" },
+  { href: "/labs/lab-01/exercises/ex-02", label: "Ejercicio 2" },
+  { href: "/labs/lab-01/exercises/ex-03", label: "Ejercicio 3" },
+  { href: "/labs/lab-01/exercises/ex-04", label: "Ejercicio 4" },
+  { href: "/labs/lab-01/scoreboard", label: "Scoreboard" },
+  { href: "/labs/lab-01/final-plan", label: "Plan final" }
 ];
+
+const exerciseLabels: Record<string, string> = {
+  "ex-00": "Ejercicio 0",
+  "ex-01": "Ejercicio 1",
+  "ex-02": "Ejercicio 2",
+  "ex-03": "Ejercicio 3",
+  "ex-04": "Ejercicio 4"
+};
+
+function isCurrent(pathname: string, href: string) {
+  return pathname === href;
+}
+
+function buildBreadcrumbs(pathname: string) {
+  if (pathname === "/labs") {
+    return [{ label: "Laboratorios", href: "/labs" }];
+  }
+  if (pathname.startsWith("/labs/lab-01")) {
+    const crumbs = [
+      { label: "Laboratorios", href: "/labs" },
+      { label: "Laboratorio 1", href: "/labs/lab-01" }
+    ];
+    const exerciseMatch = pathname.match(/\/exercises\/(ex-\d+)/);
+    if (exerciseMatch) {
+      crumbs.push({ label: exerciseLabels[exerciseMatch[1]] ?? "Ejercicio", href: pathname });
+    } else if (pathname.endsWith("/scoreboard")) {
+      crumbs.push({ label: "Scoreboard", href: pathname });
+    } else if (pathname.endsWith("/final-plan")) {
+      crumbs.push({ label: "Plan final", href: pathname });
+    }
+    return crumbs;
+  }
+  if (pathname.startsWith("/labs/lab-02")) {
+    return [
+      { label: "Laboratorios", href: "/labs" },
+      { label: "Laboratorio 2", href: "/labs/lab-02" }
+    ];
+  }
+  return [];
+}
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const inLabs = pathname.startsWith("/labs");
+  const inLab01 = pathname.startsWith("/labs/lab-01");
+  const inLab02 = pathname.startsWith("/labs/lab-02");
+  const breadcrumbs = buildBreadcrumbs(pathname);
 
   return (
     <div className="page">
@@ -25,24 +71,69 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </div>
 
         <nav className="nav" aria-label="Navegación principal">
-          {navItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = pathname === item.href;
+          <Link className={`navLink ${pathname === "/" ? "active" : ""}`} href="/">
+            <Home aria-hidden size={18} />
+            <span>Inicio</span>
+          </Link>
 
-            return (
-              <Link key={item.href} className={`navLink ${isActive ? "active" : ""}`} href={item.href}>
-                <Icon aria-hidden size={18} />
-                <span>{item.label}</span>
+          <Link className={`navLink ${inLabs ? "active" : ""}`} href="/labs">
+            <LayoutDashboard aria-hidden size={18} />
+            <span>Laboratorios</span>
+          </Link>
+
+          {inLab01 ? (
+            <div className="navSection">
+              <div className="navSectionTitle">Laboratorio 1</div>
+              {lab01Links.map((item) => (
+                <Link
+                  className={`navSubLink ${isCurrent(pathname, item.href) ? "active" : ""}`}
+                  href={item.href}
+                  key={item.href}
+                >
+                  <ClipboardList aria-hidden size={15} />
+                  <span>{item.label}</span>
+                </Link>
+              ))}
+            </div>
+          ) : null}
+
+          {inLab02 ? (
+            <div className="navSection">
+              <div className="navSectionTitle">Laboratorio 2</div>
+              <Link className={`navSubLink ${pathname === "/labs/lab-02" ? "active" : ""}`} href="/labs/lab-02">
+                <ClipboardList aria-hidden size={15} />
+                <span>Overview / Próximamente</span>
               </Link>
-            );
-          })}
+            </div>
+          ) : null}
+
+          <Link className={`navLink ${pathname === "/admin" ? "active" : ""}`} href="/admin">
+            <ShieldCheck aria-hidden size={18} />
+            <span>Admin</span>
+          </Link>
         </nav>
 
         <p className="sideNote">La plataforma guía. Tu AI analiza. Tu equipo decide.</p>
       </aside>
 
       <main className="main">
-        <div className="content">{children}</div>
+        <div className="content">
+          {breadcrumbs.length > 0 ? (
+            <nav aria-label="Breadcrumb" className="breadcrumbs">
+              {breadcrumbs.map((crumb, index) => (
+                <span key={`${crumb.href}-${crumb.label}`}>
+                  {index > 0 ? <span className="breadcrumbSeparator">/</span> : null}
+                  {index === breadcrumbs.length - 1 ? (
+                    <span>{crumb.label}</span>
+                  ) : (
+                    <Link href={crumb.href}>{crumb.label}</Link>
+                  )}
+                </span>
+              ))}
+            </nav>
+          ) : null}
+          {children}
+        </div>
       </main>
     </div>
   );

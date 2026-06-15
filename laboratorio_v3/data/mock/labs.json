@@ -1,14 +1,16 @@
 [
   {
     "id": "lab-01",
-    "title": "AI Revenue & Inventory Copilot",
-    "description": "Portfolio, pricing, forecast e inventario con horizonte 90 días.",
-    "status": "available"
+    "title": "Laboratorio 1 — AI Revenue & Inventory Copilot",
+    "description": "Portfolio, pricing, forecast e inventario para construir un plan de captura de valor de 90 días.",
+    "status": "mock_available",
+    "route": "/labs/lab-01"
   },
   {
     "id": "lab-02",
-    "title": "Customer Profitability Copilot",
-    "description": "CLV, churn, couponing y marketing ROI.",
-    "status": "locked"
+    "title": "Laboratorio 2 — Customer Profitability Copilot",
+    "description": "Segmentación, CLV, churn, estrategia VIP y ROI promocional.",
+    "status": "coming_soon",
+    "route": "/labs/lab-02"
   }
 ]

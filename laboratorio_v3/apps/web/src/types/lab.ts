@@ -8,7 +8,8 @@ export type Lab = {
   id: string;
   title: string;
   description: string;
-  status: "available" | "locked" | "completed";
+  status: "available" | "locked" | "completed" | "mock_available" | "coming_soon";
+  route?: string;
 };
 
 export type Exercise = {
