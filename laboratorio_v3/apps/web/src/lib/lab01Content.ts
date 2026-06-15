@@ -39,6 +39,48 @@ export const lab01ExerciseContent = {
       { key: "reviewedBaseWithAI", label: "Revisé la base con mi AI personal, sin delegar la decisión." }
     ]
   },
+  "ex-01": {
+    title: "Ejercicio 1: Decidir qué portfolio sostener",
+    subtitle: "Clasificar SKUs como CORE, REVIEW o ELIMINAR y justificar la decisión con datos.",
+    context: "El foco es decidir portfolio. Usá el diagnóstico del Ejercicio 0, la base histórica M01-M12 y el scoreboard inicial para definir qué productos mantener, revisar o retirar.",
+    mainSheets: ["05_DECISIONES_PORTFOLIO"],
+    supportSheets: ["01_BASE_SKUS", "04_DIAGNOSTICO_INICIAL", "09_SCOREBOARD_ALUMNO", "10_PLAN_90_DIAS"],
+    concepts: [
+      { term: "CORE", definition: "SKU que conviene sostener por venta, margen, cobertura o rol comercial." },
+      { term: "REVIEW", definition: "SKU que requiere análisis o acción antes de decidir retiro." },
+      { term: "ELIMINAR", definition: "SKU candidato a retirar, liquidar o discontinuar." },
+      { term: "Revenue en riesgo", definition: "Ventas que podrían perderse si se retiran productos." },
+      { term: "Capital inmovilizado", definition: "Dinero atrapado en stock." }
+    ],
+    questions: [
+      "¿Qué productos concentran ventas y margen?",
+      "¿Qué productos tienen bajo margen o margen negativo?",
+      "¿Qué productos tienen mucho stock o DDI alto?",
+      "¿Qué productos venden poco pero ocupan capital?",
+      "¿Qué productos conviene revisar antes de eliminar?"
+    ],
+    prompts: [
+      { title: "Explorar portfolio", body: "Usá 01_BASE_SKUS y 04_DIAGNOSTICO_INICIAL para detectar productos CORE, REVIEW y ELIMINAR. No decidas sólo por baja venta." },
+      { title: "Proponer criterios", body: "Proponé criterios simples combinando ventas, margen, DDI, stock, cobertura y rol comercial. Explicá excepciones." },
+      { title: "Preparar checkpoint", body: "Ayudame a completar 05_DECISIONES_PORTFOLIO y la sección Portfolio de 09_SCOREBOARD_ALUMNO con diagnóstico, criterios y riesgos." }
+    ],
+    required: [
+      "05_DECISIONES_PORTFOLIO completa.",
+      "09_SCOREBOARD_ALUMNO actualizada en sección portfolio.",
+      "Diagnóstico de portfolio, criterios de clasificación, riesgos y cuidados."
+    ],
+    fields: [
+      { key: "portfolioDiagnosis", label: "Diagnóstico de portfolio", placeholder: "Qué problema detectaron en el portfolio." },
+      { key: "classificationCriteria", label: "Criterios de clasificación", placeholder: "Reglas para CORE, REVIEW o ELIMINAR." },
+      { key: "risks", label: "Riesgos y cuidados", placeholder: "Qué puede salir mal y cómo controlarlo." }
+    ],
+    confirmations: [
+      { key: "completedPortfolio", label: "Completé 05_DECISIONES_PORTFOLIO." },
+      { key: "updatedScoreboardPortfolio", label: "Actualicé la sección Portfolio de 09_SCOREBOARD_ALUMNO." },
+      { key: "reviewedExecutiveCriteria", label: "Revisé la recomendación con criterio ejecutivo, no solo con la AI." },
+      { key: "firstPlan90", label: "Completé una primera versión del plan 90 días.", optional: true }
+    ]
+  },
   "ex-02": {
     title: "Ejercicio 2: Pricing Optimization",
     subtitle: "Definir precios para capturar margen sin destruir volumen ni competitividad.",

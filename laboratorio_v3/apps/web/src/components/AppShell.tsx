@@ -6,8 +6,10 @@ import { BarChart3, ClipboardList, LayoutDashboard, ShieldCheck } from "lucide-r
 
 const navItems = [
   { href: "/labs", label: "Laboratorios", icon: LayoutDashboard },
-  { href: "/labs/lab-01/exercises/ex-01", label: "Ejercicio 1", icon: ClipboardList },
+  { href: "/labs/lab-01/exercises/ex-00", label: "Exploración", icon: ClipboardList },
+  { href: "/labs/lab-01/exercises/ex-01", label: "Portfolio", icon: ClipboardList },
   { href: "/labs/lab-01/scoreboard", label: "Scoreboard", icon: BarChart3 },
+  { href: "/labs/lab-01/final-plan", label: "Plan final", icon: ClipboardList },
   { href: "/admin", label: "Admin", icon: ShieldCheck }
 ];
 

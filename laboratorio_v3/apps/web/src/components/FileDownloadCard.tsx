@@ -5,17 +5,17 @@ export function FileDownloadCard() {
   return (
     <section className="card">
       <div className="eyebrow">Archivos de trabajo</div>
-      <h2>Descargar pack de trabajo</h2>
+      <h2>Descargar workbook del Laboratorio 1</h2>
       <p className="muted">
-        El Excel tiene la base histórica, la hoja para tomar decisiones por SKU y un
-        scoreboard para que el equipo explique su impacto.
+        Este es el archivo de trabajo para todo el laboratorio. Lo vas a completar
+        por etapas: exploración, portfolio, pricing, forecast, inventario y plan final.
       </p>
       <p className="muted">
-        No modifiques columnas históricas ni nombres de hojas. La plataforma usará esta
-        estructura para validar la entrega.
+        No modifiques `01_BASE_SKUS` ni los nombres de hojas. La plataforma puede pedir
+        checkpoints, pero el recorrido vive en el workbook.
       </p>
       <a className="button primary" href={`/templates/${LAB01_WORKBOOK_FILENAME}`} download>
-        <Download size={17} /> Descargar pack de trabajo
+        <Download size={17} /> Descargar workbook del Laboratorio 1
       </a>
     </section>
   );

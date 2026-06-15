@@ -1,64 +1,67 @@
-# CODEX PROMPT 02 — Build Exercise 01 UI
+# CODEX PROMPT 02 — Build Lab 1 UI
 
-Implementar la pantalla `/labs/lab-01/exercises/ex-01`.
+Implementar el flujo mock del Laboratorio 1.
 
 ## Objetivo
 
-La pantalla debe funcionar como plataforma de laboratorio, no como AI.
+La plataforma debe funcionar como copilot de acompañamiento, no como AI que
+resuelve.
 
-Debe guiar al alumno para que use su AI personal.
+Debe guiar al alumno para que use su AI personal y complete un único workbook
+vivo durante todo el laboratorio.
 
-## Secciones
+## Rutas
 
-1. Header
-   - Ejercicio 1: Decidir qué portfolio sostener
-   - Grupo, base, horizonte y estado
+- `/labs`
+- `/labs/lab-01/exercises/ex-00`
+- `/labs/lab-01/exercises/ex-01`
+- `/labs/lab-01/exercises/ex-02`
+- `/labs/lab-01/exercises/ex-03`
+- `/labs/lab-01/exercises/ex-04`
+- `/labs/lab-01/scoreboard`
+- `/labs/lab-01/final-plan`
 
-2. Objetivo
-   - Clasificar SKUs como CORE, REVIEW o ELIMINAR.
+## Workbook
 
-3. Archivos
-   - Card para descargar `NEXUS_RETAIL_LAB01_EJ01_PORTFOLIO_PACK_FINAL.xlsx`.
-   - Link a `/templates/NEXUS_RETAIL_LAB01_EJ01_PORTFOLIO_PACK_FINAL.xlsx`.
-   - Explicar que M01-M12 es histórico.
+- Descargar `NEXUS_RETAIL_LAB01_WORKBOOK_COMPLETO.xlsx`.
+- Link a `/templates/NEXUS_RETAIL_LAB01_WORKBOOK_COMPLETO.xlsx`.
+- Nombrarlo como "Workbook del Laboratorio 1".
+- Explicar que el workbook es la memoria del laboratorio.
 
-4. Cómo trabajar con tu AI
-   - Mostrar 3 prompts: explorar, proponer criterios, preparar entrega.
-   - Explicar que la AI analiza, pero no decide.
+## Secuencia
 
-5. Recomendación ejecutiva
-   - Diagnóstico.
-   - Criterios.
-   - Riesgos y cuidados.
-   - Guardar borrador.
+0. Exploración Inicial.
+1. Portfolio Optimization.
+2. Pricing Optimization.
+3. Forecast Engine.
+4. Inventory & Working Capital Optimization.
+5. Plan de Captura de Valor 90 días.
 
-6. Carga de archivos
-   - Excel completado obligatorio.
-   - Reporte AI opcional.
+## Ejercicio 1
 
-7. Confirmaciones
-   - Completé 05_DECISIONES_SKU.
-   - Actualicé 06_SCOREBOARD_ALUMNO.
-   - Escribí diagnóstico, criterios y riesgos.
-   - Revisé la decisión con criterio ejecutivo.
-   - 09_PROYECCION_90_DIAS queda opcional como preview.
+- Título: "Ejercicio 1: Decidir qué portfolio sostener".
+- Foco: clasificar SKUs como CORE, REVIEW o ELIMINAR.
+- Hoja principal: `05_DECISIONES_PORTFOLIO`.
+- Scoreboard del equipo: `09_SCOREBOARD_ALUMNO`.
+- Forecast `07_FORECAST_90_DIAS` es preview, no tarea pesada en Portfolio.
 
-8. Scoreboard del sistema
-   - Mostrar estado oficial mock.
+## Checkpoints
 
-9. Submit
-   - Validar tesis, Excel y confirmaciones.
-   - Si ok, guardar submission y mostrar estado submitted.
+- Usar el término "Subir checkpoint del workbook".
+- No usar "subir archivo del ejercicio".
+- Persistir en localStorage.
+- Estados mock: `state_v0`, `state_v0_explored`, `state_v1_portfolio`,
+  `state_v2_pricing`, `state_v3_forecast`, `state_v4_inventory`,
+  `state_final_plan`.
 
 ## Textos clave
 
 Usar este principio visible:
-"La plataforma guía. Tu AI analiza. Tu equipo decide."
+"La plataforma acompaña; el workbook sostiene el ejercicio."
 
 ## Validaciones Fase 0
 
-- Tesis obligatoria.
-- Excel obligatorio.
-- Excel debe tener extensión `.xlsx`.
+- Campos obligatorios por checkpoint.
+- Workbook `.xlsx` obligatorio para enviar checkpoint.
 - Reporte AI opcional.
 - Confirmaciones obligatorias.

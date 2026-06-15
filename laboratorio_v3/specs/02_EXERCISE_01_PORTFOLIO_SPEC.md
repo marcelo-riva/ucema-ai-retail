@@ -48,7 +48,7 @@ El alumno debe identificar:
 - Reporte AI opcional.
 - Scoreboard alumno.
 - Plan 90 días opcional / recomendado.
-- Hoja `09_PROYECCION_90_DIAS` opcional en Portfolio.
+- Hoja `07_FORECAST_90_DIAS` opcional como preview en Portfolio.
 
 ## Output del sistema
 

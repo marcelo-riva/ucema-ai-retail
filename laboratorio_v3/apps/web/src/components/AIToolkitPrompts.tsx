@@ -7,7 +7,7 @@ const prompts = [
     title: "Prompt A: explorar la base",
     body: `Actuá como analista comercial.
 
-Voy a cargar NEXUS_RETAIL_LAB01_EJ01_PORTFOLIO_PACK_FINAL.xlsx. Ayudame a entender la base antes de decidir.
+Voy a cargar NEXUS_RETAIL_LAB01_WORKBOOK_COMPLETO.xlsx. Ayudame a entender la base antes de decidir.
 
 Mirando M01-M12, identificá productos o categorías con buena venta, bajo margen, mucho stock, DDI alto o baja contribución. Explicá qué columnas usaste y qué hallazgos debería revisar el equipo. No tomes decisiones finales todavía.`
   },
@@ -21,7 +21,7 @@ Usá variables simples: ventas, margen, stock, DDI, cobertura y rol comercial. D
     title: "Prompt C: preparar la entrega",
     body: `Ayudame a preparar la entrega del Ejercicio 1.
 
-Necesito completar 05_DECISIONES_SKU y 06_SCOREBOARD_ALUMNO. Ayudame a justificar decisiones, estimar impacto inicial y explicar supuestos. Revenue en riesgo significa ventas que podrían perderse si retiramos productos. La decisión final es del equipo.`
+Necesito completar 05_DECISIONES_PORTFOLIO y la sección Portfolio de 09_SCOREBOARD_ALUMNO. Ayudame a justificar decisiones, estimar impacto inicial y explicar supuestos. Revenue en riesgo significa ventas que podrían perderse si retiramos productos. La decisión final es del equipo.`
   }
 ];
 

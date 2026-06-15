@@ -1,39 +1,40 @@
-# Dinámica de alumno — V0
+# Dinámica de alumno — Laboratorio 1
 
 ## Mensaje inicial de pantalla
 
-Ejercicio 1: Decidir qué portfolio sostener.
+Laboratorio 1: AI Revenue & Inventory Copilot.
 
-En este ejercicio el equipo debe clasificar productos como CORE, REVIEW o ELIMINAR,
-justificando la decisión con datos simples de venta, margen, stock, DDI y cobertura.
+El equipo trabaja con un único workbook desde el inicio hasta el cierre. Cada
+ejercicio completa una parte distinta del mismo archivo: exploración, portfolio,
+pricing, forecast, inventario y plan final.
 
-La base trae meses históricos M01-M12. La hoja `09_PROYECCION_90_DIAS` puede usarse
-como preview de impacto, pero la proyección detallada se profundiza más adelante en Forecast.
+La base trae meses históricos M01-M12. En Forecast, M13-M15 representan los
+próximos 90 días. Las columnas `BASELINE_*` son referencia; `PROJECTED_*` es el
+escenario del equipo.
 
-La plataforma no resolverá el caso por ustedes. Les entregará datos, estructura y validaciones. Ustedes deberán usar su AI personal para analizar la base, construir una recomendación y justificar la decisión.
+La plataforma no resolverá el caso por ustedes. Entrega contexto, workbook,
+guías y checkpoints mock. Ustedes usan su AI personal para analizar la base,
+construir una recomendación y controlar supuestos.
 
 ## Frase visible
 
-La plataforma guía. Tu AI analiza. Tu equipo decide.
+La plataforma acompaña; el workbook sostiene el ejercicio.
 
 ## Entregables
 
-- Diagnóstico.
-- Criterios de decisión.
-- Riesgos y cuidados.
-- Excel completado.
-- Scoreboard del equipo.
-- Plan de 90 días opcional / recomendado.
-- Proyección M13-M15 opcional salvo indicación docente.
-- Reporte AI opcional.
+- Workbook del Laboratorio 1 actualizado.
+- Checkpoints por ejercicio, opcionales para operar la plataforma.
+- Scoreboard del equipo en `09_SCOREBOARD_ALUMNO`.
+- Plan de Captura de Valor 90 días en `11_OUTPUT_FINAL`.
+- Reporte AI opcional como evidencia de uso y control.
 
 ## Criterio de evaluación
 
 - Calidad de la exploración inicial.
-- Coherencia de criterios de clasificación.
-- Claridad de la tesis.
-- Uso correcto de datos.
-- Coherencia de decisiones por SKU.
+- Coherencia de decisiones de portfolio.
+- Criterio comercial en pricing.
+- Supuestos defendibles en forecast.
+- Decisiones de inventario conectadas con demanda y DDI.
 - Calidad del scoreboard propio.
-- Capacidad de estimar impacto inicial sin sobredimensionar Forecast.
-- Capacidad de explicar riesgos.
+- Claridad del plan final.
+- Capacidad de explicar riesgos y trade-offs.

@@ -1,94 +1,67 @@
-# Excel Contract — Exercise 01
+# Excel Contract — Exercise 01 Portfolio
 
 ## Archivo
 
-`NEXUS_RETAIL_LAB01_EJ01_PORTFOLIO_PACK_FINAL.xlsx`
+`NEXUS_RETAIL_LAB01_WORKBOOK_COMPLETO.xlsx`
 
-## Hojas
+## Principio
 
-- `00_CASO_NEGOCIO`
+El Ejercicio 1 no usa un archivo propio. Trabaja sobre el workbook vivo del
+Laboratorio 1. El alumno puede continuar desde el Excel aunque la plataforma no
+esté disponible.
+
+## Hoja principal
+
+- `05_DECISIONES_PORTFOLIO`
+
+## Hojas de apoyo
+
 - `01_BASE_SKUS`
-- `02_DICCIONARIO_DATOS`
-- `03_GUIA_EXPLORACION`
-- `04_HIPOTESIS_EQUIPO`
-- `05_DECISIONES_SKU`
-- `09_PROYECCION_90_DIAS`
-- `06_SCOREBOARD_ALUMNO`
-- `07_PLAN_90_DIAS`
-- `08_OUTPUT_FINAL`
+- `04_DIAGNOSTICO_INICIAL`
+- `09_SCOREBOARD_ALUMNO`
+- `10_PLAN_90_DIAS`
+
+## Preview opcional
+
+- `07_FORECAST_90_DIAS`
+
+En Portfolio, Forecast se usa solo como estimación inicial de impacto. La
+proyección M13-M15 se trabaja en profundidad en Ejercicio 3.
 
 ## Reglas
 
-El alumno puede usar todas las hojas como input para su AI personal.
+- `01_BASE_SKUS` conserva histórico M01-M12 y no debe ser modificada.
+- La decisión de portfolio se carga en `05_DECISIONES_PORTFOLIO`.
+- El tablero propio se actualiza en la sección Portfolio de `09_SCOREBOARD_ALUMNO`.
+- El plan 90 días puede iniciarse en `10_PLAN_90_DIAS`, pero no es obligatorio
+  para cerrar Portfolio salvo indicación docente.
 
-La hoja principal de entrega es:
-- `05_DECISIONES_SKU`
+## Columnas editables esperadas
 
-La hipótesis, criterios y trade-offs del equipo están en:
-- `04_HIPOTESIS_EQUIPO`
+En `05_DECISIONES_PORTFOLIO`:
 
-El cierre ejecutivo está en:
-- `08_OUTPUT_FINAL`
-- y también en los textareas de la plataforma.
-
-El scoreboard propio del alumno debe estar en:
-- `06_SCOREBOARD_ALUMNO`
-
-El plan táctico debe estar en:
-- `07_PLAN_90_DIAS`
-
-La proyección de 90 días está en:
-- `09_PROYECCION_90_DIAS`
-
-Reglas de proyección:
-- M01-M12 son meses históricos.
-- M13-M15 son los próximos 90 días.
-- `baseline_*` es referencia automática de la plataforma.
-- `projected_*` es la respuesta editable del equipo.
-- El equipo debe justificar supuestos para M13-M15.
-
-## Columnas editables
-
-En `05_DECISIONES_SKU`:
-- decision_portfolio
-- action_90_days
-- decision_reason
-- priority
-- commercial_risk
-- ai_comment
-- team_comment
-
-En `09_PROYECCION_90_DIAS`:
-- projected_*
-- projection_assumption
-- projection_comment
-
-## Columnas no editables
-
-- sku_id
-- sku_name
-- category
-- historical_revenue_12m
-- historical_margin_12m
-- current_inventory_value
-- ddi
-- market_coverage
-- columnas históricas M01-M12
-- columnas baseline_*
+- `decision_portfolio`
+- `action_90_days`
+- `decision_reason`
+- `priority`
+- `commercial_risk`
+- `ai_comment`
+- `team_comment`
 
 ## Validaciones actuales
 
-En `05_DECISIONES_SKU`:
+En `05_DECISIONES_PORTFOLIO`:
 
 - `decision_portfolio`: CORE, REVIEW, ELIMINAR.
-- `action_90_days`: Mantener, Revisar precio, Liquidar stock, Reducir compra, Discontinuar, Mantener con monitoreo.
+- `action_90_days`: Mantener, Revisar precio, Liquidar stock, Reducir compra,
+  Discontinuar, Mantener con monitoreo.
 - `priority`: Alta, Media, Baja.
 - `commercial_risk`: Alto, Medio, Bajo.
 
 ## Validaciones futuras de backend
 
 - No eliminar filas.
-- No duplicar sku_id.
-- No modificar columnas no editables.
+- No duplicar `sku_id`.
+- No modificar columnas históricas.
 - No dejar decisiones vacías.
 - Usar valores permitidos.

@@ -36,39 +36,40 @@ La plataforma no reemplaza a la AI personal del alumno.
 - DynamoDB para metadata
 - S3 para Excel/reportes/estados
 
-## Cómo usar este paquete
+## Cómo usar esta versión
 
-1. Copiar el contenido de esta carpeta dentro de `laboratorio_v3/` en tu repo.
-2. Abrir Codex en el repo.
-3. Pasarle primero `prompts/CODEX_01_BOOTSTRAP_FRONTEND.md`.
-4. Cuando compile, pasar `prompts/CODEX_02_EXERCISE_01_UI.md`.
-5. Probar la dinámica como alumno.
-6. Recién después avanzar a backend con `prompts/CODEX_04_PREPARE_FASTAPI_BACKEND.md`.
+1. Entrar a `laboratorio_v3/apps/web`.
+2. Instalar dependencias si hace falta con `npm install`.
+3. Ejecutar `npm run dev`.
+4. Entrar a `/login`, elegir Grupo 01 y abrir `/labs`.
+5. Recorrer el Laboratorio 1 desde Ejercicio 0 hasta Plan final.
+6. Mantener esta etapa sin backend: checkpoints, dashboards y estados viven en `localStorage`.
 
-## Archivo Excel final
+## Workbook del Laboratorio 1
 
-El pack final del Ejercicio 1 está en:
+El laboratorio usa un único workbook vivo desde el inicio hasta el final:
 
-`public/templates/NEXUS_RETAIL_LAB01_EJ01_PORTFOLIO_PACK_FINAL.xlsx`
+`public/templates/NEXUS_RETAIL_LAB01_WORKBOOK_COMPLETO.xlsx`
 
 La app lo publica para descarga desde:
 
-`apps/web/public/templates/NEXUS_RETAIL_LAB01_EJ01_PORTFOLIO_PACK_FINAL.xlsx`
+`apps/web/public/templates/NEXUS_RETAIL_LAB01_WORKBOOK_COMPLETO.xlsx`
 
-El pack incluye 12 meses históricos M01-M12 y una hoja `09_PROYECCION_90_DIAS`
-para M13-M15. Las columnas `baseline_*` son referencia de plataforma; las
-columnas `projected_*` son la proyección editable del equipo.
+Este workbook contiene todas las hojas del Laboratorio 1. `01_BASE_SKUS`
+conserva el histórico M01-M12 y no debe ser modificada por el alumno. Las
+decisiones se cargan por etapa en hojas específicas, y el workbook funciona como
+memoria del laboratorio incluso si la plataforma no está disponible.
 
-## Validar y publicar el pack Excel
+## Validar y publicar el workbook
 
-El pack final adjunto se valida y copia a la carpeta pública de Next con:
+El workbook se valida y copia a la carpeta pública de Next con:
 
 ```bash
-python3 scripts/generate_excel_pack.py
+python3 scripts/generate_lab01_workbook.py
 ```
 
-El script verifica hojas, columnas principales de `05_DECISIONES_SKU` y presencia
-de columnas `baseline_*` / `projected_*` en `09_PROYECCION_90_DIAS`.
+El script verifica la estructura esperada de hojas y publica el archivo en
+`apps/web/public/templates`.
 
 Requiere `openpyxl`:
 
