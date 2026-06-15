@@ -1,0 +1,23 @@
+version: 1
+env:
+  variables:
+    NEXT_PUBLIC_APP_ENV: mock
+    NEXT_PUBLIC_AWS_REGION: us-west-2
+    NEXT_PUBLIC_LAB_VERSION: v3
+applications:
+  - appRoot: laboratorio_v3/apps/web
+    frontend:
+      phases:
+        preBuild:
+          commands:
+            - npm ci
+        build:
+          commands:
+            - npm run build
+      artifacts:
+        baseDirectory: .next
+        files:
+          - '**/*'
+      cache:
+        paths:
+          - node_modules/**/*
