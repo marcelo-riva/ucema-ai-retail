@@ -71,12 +71,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </div>
 
         <nav className="nav" aria-label="Navegación principal">
-          <Link className={`navLink ${pathname === "/" ? "active" : ""}`} href="/">
+          <Link className={`navLink ${pathname === "/" ? "active" : ""}`} href="/" prefetch={false}>
             <Home aria-hidden size={18} />
             <span>Inicio</span>
           </Link>
 
-          <Link className={`navLink ${inLabs ? "active" : ""}`} href="/labs">
+          <Link className={`navLink ${inLabs ? "active" : ""}`} href="/labs" prefetch={false}>
             <LayoutDashboard aria-hidden size={18} />
             <span>Laboratorios</span>
           </Link>
@@ -89,6 +89,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                   className={`navSubLink ${isCurrent(pathname, item.href) ? "active" : ""}`}
                   href={item.href}
                   key={item.href}
+                  prefetch={false}
                 >
                   <ClipboardList aria-hidden size={15} />
                   <span>{item.label}</span>
@@ -100,14 +101,14 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           {inLab02 ? (
             <div className="navSection">
               <div className="navSectionTitle">Laboratorio 2</div>
-              <Link className={`navSubLink ${pathname === "/labs/lab-02" ? "active" : ""}`} href="/labs/lab-02">
+              <Link className={`navSubLink ${pathname === "/labs/lab-02" ? "active" : ""}`} href="/labs/lab-02" prefetch={false}>
                 <ClipboardList aria-hidden size={15} />
                 <span>Overview / Próximamente</span>
               </Link>
             </div>
           ) : null}
 
-          <Link className={`navLink ${pathname === "/admin" ? "active" : ""}`} href="/admin">
+          <Link className={`navLink ${pathname === "/admin" ? "active" : ""}`} href="/admin" prefetch={false}>
             <ShieldCheck aria-hidden size={18} />
             <span>Admin</span>
           </Link>
@@ -126,7 +127,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                   {index === breadcrumbs.length - 1 ? (
                     <span>{crumb.label}</span>
                   ) : (
-                    <Link href={crumb.href}>{crumb.label}</Link>
+                    <Link href={crumb.href} prefetch={false}>{crumb.label}</Link>
                   )}
                 </span>
               ))}
