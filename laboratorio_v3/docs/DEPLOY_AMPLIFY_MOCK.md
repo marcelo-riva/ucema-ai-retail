@@ -30,11 +30,11 @@ laboratorio_v3/apps/web
 
 No está en la raíz del repo.
 
-El proyecto usa Next.js sin `output: "export"`, por lo tanto el artifact de
+El proyecto usa Next.js con `output: "export"`, por lo tanto el artifact de
 Amplify debe ser:
 
 ```text
-.next
+out
 ```
 
 ## Build local
@@ -49,18 +49,19 @@ npm run build
 
 ## Start local
 
-Después del build:
-
-```bash
-cd laboratorio_v3/apps/web
-npm run start
-```
-
 Para desarrollo:
 
 ```bash
 cd laboratorio_v3/apps/web
 npm run dev
+```
+
+Para revisar el build estático localmente, servir la carpeta `out` después de
+`npm run build`:
+
+```bash
+cd laboratorio_v3/apps/web
+python3 -m http.server 3002 -d out
 ```
 
 ## amplify.yml esperado
@@ -85,7 +86,7 @@ applications:
           commands:
             - npm run build
       artifacts:
-        baseDirectory: .next
+        baseDirectory: out
         files:
           - '**/*'
       cache:
@@ -106,7 +107,7 @@ applications:
 9. Confirmar que Amplify detecta `amplify.yml`.
 10. Confirmar app root `laboratorio_v3/apps/web`.
 11. Confirmar build command `npm run build`.
-12. Confirmar artifact/base directory `.next`.
+12. Confirmar artifact/base directory `out`.
 13. Guardar y desplegar.
 
 ## Variables de entorno

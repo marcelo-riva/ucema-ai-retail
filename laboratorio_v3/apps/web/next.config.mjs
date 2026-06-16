@@ -3,7 +3,9 @@ const nextConfig = {
   experimental: {
     externalDir: true
   },
-  reactStrictMode: true
+  output: "export",
+  reactStrictMode: true,
+  trailingSlash: true
 };
 
 export default nextConfig;
