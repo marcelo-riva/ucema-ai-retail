@@ -219,25 +219,26 @@ function getStateFromCheckpoints(groupId: string): string {
 
 function buildScoreboardForState(groupId: string, labId: string, stateVersion: string): SystemScoreboard {
   const step = Math.max(0, stateOrder.indexOf(stateVersion));
+  const base = initialScoreboard as SystemScoreboard;
   return {
-    ...(initialScoreboard as SystemScoreboard),
+    ...base,
     groupId,
     labId,
     stateVersion,
     coreSkus: step >= 2 ? 5120 : 0,
     reviewSkus: step >= 2 ? 2260 : 0,
     eliminateSkus: step >= 2 ? 844 : 0,
-    revenueProjected: 32625000000 + step * 185000000,
-    revenueImpact: step * 185000000,
+    revenueProjected: base.revenueBase + step * 200000000,
+    revenueImpact: step * 200000000,
     revenueAtRisk: step >= 2 ? 385000000 : 0,
-    grossMarginProjected: 460000000 + step * 14200000,
-    grossMarginImpact: step * 14200000,
-    expectedMarginRate: 1.41 + step * 0.05,
-    workingCapitalProjected: 10477000000 - step * 265000000,
-    capitalReleased: step * 265000000,
-    ebitdaImpact: step * 31000000,
-    ddiCurrent: 74,
-    ddiTarget: step >= 5 ? 58 : 66,
+    grossMarginProjected: base.grossMarginBase + step * 100000000,
+    grossMarginImpact: step * 100000000,
+    expectedMarginRate: base.expectedMarginRate,
+    workingCapitalProjected: base.workingCapitalBase - step * 200000000,
+    capitalReleased: step * 200000000,
+    ebitdaImpact: step * 100000000,
+    ddiCurrent: base.ddiCurrent,
+    ddiTarget: step >= 5 ? base.ddiTarget : 66,
     checkpointCount: Object.values(getStoredCheckpoints()).filter((item) => item.groupId === groupId && item.status === "submitted").length,
     lastWorkbookName: Object.values(getStoredCheckpoints())
       .filter((item) => item.groupId === groupId && item.workbookName)
@@ -507,10 +508,15 @@ export async function submitExercise(payload: Partial<Submission>): Promise<Subm
 }
 
 export async function getSystemScoreboard(groupId: string, labId: string): Promise<SystemScoreboard> {
+  const currentState = getStateFromCheckpoints(groupId);
   const stored = getStoredScoreboards()[`${groupId}:${labId}`];
-  if (stored) return stored;
+  // Usar el scoreboard almacenado solo si corresponde al estado actual.
+  // Si el estado cambió (avance de ejercicios o cambio de mock base), se recalcula.
+  if (stored && stored.stateVersion === currentState) {
+    return stored;
+  }
 
-  return buildScoreboardForState(groupId, labId, getStateFromCheckpoints(groupId));
+  return buildScoreboardForState(groupId, labId, currentState);
 }
 
 export async function getAdminSubmissions(): Promise<Submission[]> {
