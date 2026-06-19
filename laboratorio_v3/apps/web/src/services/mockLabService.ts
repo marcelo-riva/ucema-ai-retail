@@ -88,14 +88,14 @@ function buildScoreboardV1(groupId: string, labId: string): SystemScoreboard {
     coreSkus: 5120,
     reviewSkus: 2260,
     eliminateSkus: 844,
-    revenueProjected: 33114375000,
-    revenueImpact: 489375000,
+    revenueProjected: 49503286934,
+    revenueImpact: 0,
     revenueAtRisk: 385000000,
-    grossMarginProjected: 493600000,
-    grossMarginImpact: 33600000,
-    expectedMarginRate: 1.49,
-    workingCapitalProjected: 9557000000,
-    capitalReleased: 920000000,
+    grossMarginProjected: 14019136540,
+    grossMarginImpact: 0,
+    expectedMarginRate: 28.3,
+    workingCapitalProjected: 9500000000,
+    capitalReleased: 500000000,
     ebitdaImpact: 72000000
   };
 }

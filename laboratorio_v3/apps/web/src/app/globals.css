@@ -759,6 +759,12 @@ h3 {
   stroke-width: 1;
 }
 
+.gridLine {
+  stroke: #e2e8f0;
+  stroke-width: 1;
+  stroke-dasharray: 3 3;
+}
+
 .divider {
   stroke: var(--accent);
   stroke-dasharray: 5 5;
