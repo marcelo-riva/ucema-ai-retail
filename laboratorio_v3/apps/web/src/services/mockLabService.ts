@@ -17,6 +17,7 @@ const SUBMISSIONS_KEY = "nexus.submissions";
 const SCOREBOARDS_KEY = "nexus.scoreboards";
 const CHECKPOINTS_KEY = "nexus.lab01.checkpoints";
 const DEMO_MODE_KEY = "nexus.lab01.demoMode";
+const SCOREBOARD_VERSION = 2;
 
 const emptyConfirmations = {
   completedSkuDecisions: false,
@@ -510,13 +511,15 @@ export async function submitExercise(payload: Partial<Submission>): Promise<Subm
 export async function getSystemScoreboard(groupId: string, labId: string): Promise<SystemScoreboard> {
   const currentState = getStateFromCheckpoints(groupId);
   const stored = getStoredScoreboards()[`${groupId}:${labId}`];
-  // Usar el scoreboard almacenado solo si corresponde al estado actual.
-  // Si el estado cambió (avance de ejercicios o cambio de mock base), se recalcula.
-  if (stored && stored.stateVersion === currentState) {
+  // Usar el scoreboard almacenado solo si corresponde al estado actual y a la versión actual del mock.
+  // Si el estado o la versión cambiaron, se recalcula para reflejar correcciones de datos.
+  if (stored && stored.stateVersion === currentState && (stored as any).__version === SCOREBOARD_VERSION) {
     return stored;
   }
 
-  return buildScoreboardForState(groupId, labId, currentState);
+  const scoreboard = buildScoreboardForState(groupId, labId, currentState);
+  (scoreboard as any).__version = SCOREBOARD_VERSION;
+  return scoreboard;
 }
 
 export async function getAdminSubmissions(): Promise<Submission[]> {
