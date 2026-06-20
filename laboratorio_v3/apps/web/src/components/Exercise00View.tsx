@@ -4,9 +4,7 @@ import { Check, Copy } from "lucide-react";
 import { useState } from "react";
 import { ExerciseCheckpointForm } from "./ExerciseCheckpointForm";
 import { ExerciseStepLayout } from "./ExerciseStepLayout";
-import { SystemScoreboardCard } from "./SystemScoreboardCard";
-import { WorkbookStatusCard } from "./WorkbookStatusCard";
-import type { Group, LabCheckpoint, SystemScoreboard } from "../types/lab";
+import type { Group, LabCheckpoint } from "../types/lab";
 
 const recommendedPrompt = `Subí el workbook y analizá principalmente la hoja de SKUs.
 
@@ -45,16 +43,12 @@ const validationTips = [
 
 export function Exercise00View({
   group,
-  stateVersion,
   checkpoint,
-  scoreboard,
   onSave,
   onSubmit
 }: {
   group: Group;
-  stateVersion: string;
   checkpoint: LabCheckpoint | null;
-  scoreboard: SystemScoreboard;
   onSave: (payload: { fields: Record<string, string>; confirmations: Record<string, boolean>; workbookName?: string; reportName?: string }) => Promise<void>;
   onSubmit: (payload: { fields: Record<string, string>; confirmations: Record<string, boolean>; workbookName?: string; reportName?: string; requiredFields: string[]; requiredConfirmations: string[] }) => Promise<void>;
 }) {
@@ -80,15 +74,9 @@ export function Exercise00View({
       title="Ejercicio 0: Entender el negocio y explorar la base"
       subtitle="Antes de decidir qué productos mantener, ajustar o retirar, necesitás entender cómo está compuesto el negocio."
       meta={[
-        { label: "Grupo", value: group.name },
-        { label: "Estado", value: stateVersion },
-        { label: "Workbook", value: "único" },
-        { label: "Checkpoint", value: checkpoint?.status ?? "borrador" }
+        { label: "Grupo", value: group.name }
       ]}
     >
-      <WorkbookStatusCard stateVersion={stateVersion} lastWorkbookName={scoreboard.lastWorkbookName} />
-      <SystemScoreboardCard scoreboard={scoreboard} />
-
       <section className="card">
         <div className="eyebrow">Objetivo</div>
         <h2>Qué estás resolviendo</h2>
@@ -115,12 +103,9 @@ export function Exercise00View({
 
       <section className="card">
         <div className="eyebrow">Paso 2</div>
-        <h2>Subí el workbook a tu AI personal</h2>
+        <h2>Usá tu AI personal para explorar la base de SKUs</h2>
         <p className="muted">
-          Subí el workbook a ChatGPT, Claude, Gemini u otra AI que pueda leer archivos.
-        </p>
-        <p className="muted">
-          Usá la IA para explorar la base, detectar patrones y ordenar preguntas de negocio. No le pidas todavía una estrategia final: en este ejercicio buscamos entender el negocio antes de decidir.
+          Con el workbook del laboratorio como contexto, usá tu AI personal para explorar la hoja de SKUs y construir una primera lectura comercial del negocio. No buscamos una estrategia final todavía: buscamos detectar patrones, alertas y preguntas para seguir investigando.
         </p>
 
         <div className="promptSingle">
@@ -162,6 +147,8 @@ export function Exercise00View({
           checkpoint={checkpoint}
           confirmations={[]}
           fieldLabels={fieldLabels}
+          hideUploads
+          introText="Guardá la síntesis del equipo. No hace falta adjuntar el workbook ni un reporte completo de la IA."
           onSave={onSave}
           onSubmit={onSubmit}
           requiredFields={requiredFields}

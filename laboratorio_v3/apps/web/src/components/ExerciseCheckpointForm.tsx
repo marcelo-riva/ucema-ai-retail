@@ -11,7 +11,9 @@ export function ExerciseCheckpointForm({
   requiredFields,
   confirmations,
   onSave,
-  onSubmit
+  onSubmit,
+  hideUploads = false,
+  introText
 }: {
   title: string;
   checkpoint: LabCheckpoint | null;
@@ -20,6 +22,8 @@ export function ExerciseCheckpointForm({
   confirmations: Array<{ key: string; label: string; optional?: boolean }>;
   onSave: (payload: { fields: Record<string, string>; confirmations: Record<string, boolean>; workbookName?: string; reportName?: string }) => Promise<void>;
   onSubmit: (payload: { fields: Record<string, string>; confirmations: Record<string, boolean>; workbookName?: string; reportName?: string; requiredFields: string[]; requiredConfirmations: string[] }) => Promise<void>;
+  hideUploads?: boolean;
+  introText?: string;
 }) {
   const [fields, setFields] = useState<Record<string, string>>(checkpoint?.fields ?? {});
   const [checks, setChecks] = useState<Record<string, boolean>>(checkpoint?.confirmations ?? {});
@@ -33,8 +37,7 @@ export function ExerciseCheckpointForm({
       <div className="eyebrow">Checkpoint</div>
       <h2>{title}</h2>
       <p className="muted">
-        Subí tu workbook actualizado del Laboratorio 1 para registrar el checkpoint. Si la
-        plataforma falla, continuá trabajando en el Excel.
+        {introText ?? "Subí tu workbook actualizado del Laboratorio 1 para registrar el checkpoint. Si la plataforma falla, continuá trabajando en el Excel."}
       </p>
       <div className="grid">
         {fieldLabels.map((field) => (
@@ -48,24 +51,26 @@ export function ExerciseCheckpointForm({
           </label>
         ))}
       </div>
-      <div className="grid two" style={{ marginTop: 16 }}>
-        <label className="dropBox">
-          <span>
-            <strong>Workbook actualizado</strong>
-            <br />
-            <span className="muted">{workbookName ?? "Debe ser .xlsx"}</span>
-          </span>
-          <input accept=".xlsx" onChange={(event) => setWorkbookName(event.target.files?.[0]?.name)} type="file" />
-        </label>
-        <label className="dropBox">
-          <span>
-            <strong>Reporte AI opcional</strong>
-            <br />
-            <span className="muted">{reportName ?? "Opcional"}</span>
-          </span>
-          <input onChange={(event) => setReportName(event.target.files?.[0]?.name)} type="file" />
-        </label>
-      </div>
+      {hideUploads ? null : (
+        <div className="grid two" style={{ marginTop: 16 }}>
+          <label className="dropBox">
+            <span>
+              <strong>Workbook actualizado</strong>
+              <br />
+              <span className="muted">{workbookName ?? "Debe ser .xlsx"}</span>
+            </span>
+            <input accept=".xlsx" onChange={(event) => setWorkbookName(event.target.files?.[0]?.name)} type="file" />
+          </label>
+          <label className="dropBox">
+            <span>
+              <strong>Reporte AI opcional</strong>
+              <br />
+              <span className="muted">{reportName ?? "Opcional"}</span>
+            </span>
+            <input onChange={(event) => setReportName(event.target.files?.[0]?.name)} type="file" />
+          </label>
+        </div>
+      )}
       <div className="checkList" style={{ marginTop: 16 }}>
         {confirmations.map((confirmation) => (
           <label className={`checkItem ${confirmation.optional ? "optionalCheck" : ""}`} key={confirmation.key}>

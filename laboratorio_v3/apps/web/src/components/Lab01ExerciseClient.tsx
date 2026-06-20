@@ -82,8 +82,6 @@ export function Lab01ExerciseClient({ exerciseId }: { exerciseId: Lab01ExerciseI
           setCheckpoint(next);
           await reload(group);
         }}
-        scoreboard={scoreboard}
-        stateVersion={stateVersion}
       />
     );
   }
