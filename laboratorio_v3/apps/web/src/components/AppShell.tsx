@@ -23,8 +23,18 @@ const exerciseLabels: Record<string, string> = {
   "ex-04": "Ejercicio 4"
 };
 
-function isCurrent(pathname: string, href: string) {
-  return pathname === href;
+const allLinks = [
+  { href: "/" },
+  { href: "/labs" },
+  { href: "/admin" },
+  ...lab01Links
+];
+
+function getActiveHref(pathname: string): string | null {
+  if (pathname === "/") return "/";
+  const candidates = allLinks.filter(link => link.href !== "/" && pathname.startsWith(link.href));
+  if (candidates.length === 0) return null;
+  return candidates.sort((a, b) => b.href.length - a.href.length)[0].href;
 }
 
 function buildBreadcrumbs(pathname: string) {
@@ -57,7 +67,7 @@ function buildBreadcrumbs(pathname: string) {
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const inLabs = pathname.startsWith("/labs");
+  const activeHref = getActiveHref(pathname);
   const inLab01 = pathname.startsWith("/labs/lab-01");
   const inLab02 = pathname.startsWith("/labs/lab-02");
   const breadcrumbs = buildBreadcrumbs(pathname);
@@ -71,12 +81,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </div>
 
         <nav className="nav" aria-label="Navegación principal">
-          <Link className={`navLink ${pathname === "/" ? "active" : ""}`} href="/" prefetch={false}>
+          <Link className={`navLink ${activeHref === "/" ? "active" : ""}`} href="/" prefetch={false}>
             <Home aria-hidden size={18} />
             <span>Inicio</span>
           </Link>
 
-          <Link className={`navLink ${inLabs ? "active" : ""}`} href="/labs" prefetch={false}>
+          <Link className={`navLink ${activeHref === "/labs" ? "active" : ""}`} href="/labs" prefetch={false}>
             <LayoutDashboard aria-hidden size={18} />
             <span>Laboratorios</span>
           </Link>
@@ -86,7 +96,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               <div className="navSectionTitle">Laboratorio 1</div>
               {lab01Links.map((item) => (
                 <Link
-                  className={`navSubLink ${isCurrent(pathname, item.href) ? "active" : ""}`}
+                  className={`navSubLink ${activeHref === item.href ? "active" : ""}`}
                   href={item.href}
                   key={item.href}
                   prefetch={false}
@@ -108,7 +118,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             </div>
           ) : null}
 
-          <Link className={`navLink ${pathname === "/admin" ? "active" : ""}`} href="/admin" prefetch={false}>
+          <Link className={`navLink ${activeHref === "/admin" ? "active" : ""}`} href="/admin" prefetch={false}>
             <ShieldCheck aria-hidden size={18} />
             <span>Admin</span>
           </Link>
