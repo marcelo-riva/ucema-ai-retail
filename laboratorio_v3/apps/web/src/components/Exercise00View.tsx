@@ -1,6 +1,7 @@
 "use client";
 
 import { Check, Copy } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { ExerciseCheckpointForm } from "./ExerciseCheckpointForm";
 import { ExerciseStepLayout } from "./ExerciseStepLayout";
@@ -50,8 +51,9 @@ export function Exercise00View({
   group: Group;
   checkpoint: LabCheckpoint | null;
   onSave: (payload: { fields: Record<string, string>; confirmations: Record<string, boolean>; workbookName?: string; reportName?: string }) => Promise<void>;
-  onSubmit: (payload: { fields: Record<string, string>; confirmations: Record<string, boolean>; workbookName?: string; reportName?: string; requiredFields: string[]; requiredConfirmations: string[] }) => Promise<void>;
+  onSubmit: (payload: { fields: Record<string, string>; confirmations: Record<string, boolean>; workbookName?: string; reportName?: string; requiredFields: string[]; requiredConfirmations: string[]; skipWorkbookValidation?: boolean }) => Promise<void>;
 }) {
+  const router = useRouter();
   const [copied, setCopied] = useState(false);
 
   async function copyPrompt() {
@@ -146,12 +148,17 @@ export function Exercise00View({
         <ExerciseCheckpointForm
           checkpoint={checkpoint}
           confirmations={[]}
+          continueLabel="Continuar al Ejercicio 1"
           fieldLabels={fieldLabels}
           hideUploads
-          introText="Guardá la síntesis del equipo. No hace falta adjuntar el workbook ni un reporte completo de la IA."
+          introText="Guardá la síntesis del equipo para cerrar el Ejercicio 0. No hace falta subir un workbook actualizado en este paso."
+          onContinue={() => router.push("/labs/lab-01/exercises/ex-01")}
           onSave={onSave}
           onSubmit={onSubmit}
           requiredFields={requiredFields}
+          saveLabel="Guardar síntesis"
+          showSubmit={false}
+          skipWorkbookValidation
           title="Guardá la síntesis del equipo"
         />
       </section>

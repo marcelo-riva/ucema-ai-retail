@@ -305,7 +305,7 @@ export async function saveLabCheckpoint(payload: Partial<LabCheckpoint>): Promis
   return checkpoint;
 }
 
-export async function submitLabCheckpoint(payload: Partial<LabCheckpoint> & { requiredFields?: string[]; requiredConfirmations?: string[] }): Promise<LabCheckpoint> {
+export async function submitLabCheckpoint(payload: Partial<LabCheckpoint> & { requiredFields?: string[]; requiredConfirmations?: string[]; skipWorkbookValidation?: boolean }): Promise<LabCheckpoint> {
   if (!payload.groupId || !payload.labId || !payload.exerciseId) {
     throw new Error("Faltan datos del checkpoint.");
   }
@@ -324,10 +324,12 @@ export async function submitLabCheckpoint(payload: Partial<LabCheckpoint> & { re
       validationMessages.push({ type: "error", message: `Falta confirmar: ${confirmation}.` });
     }
   }
-  if (!payload.workbookName && !existing?.workbookName) {
-    validationMessages.push({ type: "error", message: "Subí tu workbook actualizado del Laboratorio 1 en formato .xlsx." });
-  } else if (!(payload.workbookName ?? existing?.workbookName)?.toLowerCase().endsWith(".xlsx")) {
-    validationMessages.push({ type: "error", message: "El checkpoint debe ser un workbook .xlsx." });
+  if (!payload.skipWorkbookValidation) {
+    if (!payload.workbookName && !existing?.workbookName) {
+      validationMessages.push({ type: "error", message: "Subí tu workbook actualizado del Laboratorio 1 en formato .xlsx." });
+    } else if (!(payload.workbookName ?? existing?.workbookName)?.toLowerCase().endsWith(".xlsx")) {
+      validationMessages.push({ type: "error", message: "El checkpoint debe ser un workbook .xlsx." });
+    }
   }
 
   const checkpoint = await saveLabCheckpoint({

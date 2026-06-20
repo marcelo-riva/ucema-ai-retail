@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Save, Send } from "lucide-react";
+import { ArrowRight, Save, Send } from "lucide-react";
 import type { LabCheckpoint } from "../types/lab";
 
 export function ExerciseCheckpointForm({
@@ -12,8 +12,13 @@ export function ExerciseCheckpointForm({
   confirmations,
   onSave,
   onSubmit,
+  onContinue,
   hideUploads = false,
-  introText
+  introText,
+  saveLabel = "Guardar checkpoint",
+  showSubmit = true,
+  continueLabel = "Continuar",
+  skipWorkbookValidation = false
 }: {
   title: string;
   checkpoint: LabCheckpoint | null;
@@ -21,9 +26,14 @@ export function ExerciseCheckpointForm({
   requiredFields: string[];
   confirmations: Array<{ key: string; label: string; optional?: boolean }>;
   onSave: (payload: { fields: Record<string, string>; confirmations: Record<string, boolean>; workbookName?: string; reportName?: string }) => Promise<void>;
-  onSubmit: (payload: { fields: Record<string, string>; confirmations: Record<string, boolean>; workbookName?: string; reportName?: string; requiredFields: string[]; requiredConfirmations: string[] }) => Promise<void>;
+  onSubmit: (payload: { fields: Record<string, string>; confirmations: Record<string, boolean>; workbookName?: string; reportName?: string; requiredFields: string[]; requiredConfirmations: string[]; skipWorkbookValidation?: boolean }) => Promise<void>;
+  onContinue?: () => void;
   hideUploads?: boolean;
   introText?: string;
+  saveLabel?: string;
+  showSubmit?: boolean;
+  continueLabel?: string;
+  skipWorkbookValidation?: boolean;
 }) {
   const [fields, setFields] = useState<Record<string, string>>(checkpoint?.fields ?? {});
   const [checks, setChecks] = useState<Record<string, boolean>>(checkpoint?.confirmations ?? {});
@@ -31,6 +41,11 @@ export function ExerciseCheckpointForm({
   const [reportName, setReportName] = useState<string | undefined>(checkpoint?.reportName);
 
   const requiredConfirmations = confirmations.filter((item) => !item.optional).map((item) => item.key);
+
+  async function handleContinue() {
+    await onSubmit({ fields, confirmations: checks, workbookName, reportName, requiredFields, requiredConfirmations, skipWorkbookValidation });
+    onContinue?.();
+  }
 
   return (
     <section className="card">
@@ -92,15 +107,22 @@ export function ExerciseCheckpointForm({
       ) : null}
       <div className="buttonRow" style={{ marginTop: 16 }}>
         <button className="button secondary" onClick={() => onSave({ fields, confirmations: checks, workbookName, reportName })} type="button">
-          <Save size={17} /> Guardar checkpoint
+          <Save size={17} /> {saveLabel}
         </button>
-        <button
-          className="button primary"
-          onClick={() => onSubmit({ fields, confirmations: checks, workbookName, reportName, requiredFields, requiredConfirmations })}
-          type="button"
-        >
-          <Send size={17} /> Subir checkpoint del workbook
-        </button>
+        {showSubmit ? (
+          <button
+            className="button primary"
+            onClick={() => onSubmit({ fields, confirmations: checks, workbookName, reportName, requiredFields, requiredConfirmations })}
+            type="button"
+          >
+            <Send size={17} /> Subir checkpoint del workbook
+          </button>
+        ) : null}
+        {onContinue ? (
+          <button className="button primary" onClick={handleContinue} type="button">
+            <ArrowRight size={17} /> {continueLabel}
+          </button>
+        ) : null}
       </div>
     </section>
   );
