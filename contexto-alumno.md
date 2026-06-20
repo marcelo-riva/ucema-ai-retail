@@ -20,14 +20,18 @@ La plataforma guía el recorrido, pero **no reemplaza a tu IA personal**. Vos op
 
 Ese workbook es la memoria del laboratorio. Tiene todas las hojas que vas a necesitar:
 
-- `01_BASE_SKUS`: datos históricos M01-M12. **No la edites.**
-- `03_GUIA_EXPLORACION` y `04_DIAGNOSTICO_INICIAL`: Ejercicio 0.
-- `05_DECISIONES_PORTFOLIO`: Ejercicio 1.
-- `06_PRICING_DECISIONS`: Ejercicio 2.
-- `07_FORECAST_90_DIAS`: Ejercicio 3.
-- `08_INVENTORY_DECISIONS`: Ejercicio 4.
-- `09_SCOREBOARD_ALUMNO`: tu scoreboard.
-- `10_PLAN_90_DIAS` y `11_OUTPUT_FINAL`: cierre del laboratorio.
+- `00_INSTRUCCIONES`: cómo usar el workbook, leyenda de celdas y orden de trabajo.
+- `01_CASO_NEGOCIO`: contexto del caso.
+- `02_DICCIONARIO_DATOS`: explicación de campos.
+- `03_BASE_SKUS`: datos históricos M01-M12. **No la edites.**
+- `04_EXPLORACION` y `05_DIAGNOSTICO_INICIAL`: Ejercicio 0.
+- `06_PORTFOLIO`: Ejercicio 1.
+- `07_FORECAST_90_DIAS`: Ejercicio 2.
+- `08_INVENTARIO`: Ejercicio 3.
+- `09_PRICING`: Ejercicio 4.
+- `10_JUGADAS_COMERCIALES`: síntesis de jugadas por SKU.
+- `11_SCOREBOARD_ALUMNO`: tu scoreboard. **No lo edites manualmente: se actualiza solo.**
+- `12_PLAN_90_DIAS` y `13_OUTPUT_FINAL`: cierre del laboratorio.
 
 ## Información disponible en la base
 

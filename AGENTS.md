@@ -55,30 +55,34 @@ Ubicaciones:
 - Fuente: `laboratorio_v3/public/templates/NEXUS_RETAIL_LAB01_WORKBOOK_COMPLETO.xlsx`
 - Next.js: `laboratorio_v3/apps/web/public/templates/NEXUS_RETAIL_LAB01_WORKBOOK_COMPLETO.xlsx`
 
-El workbook es la memoria del laboratorio. Tiene 13 hojas + 1 hoja de listas:
+El workbook es la memoria del laboratorio. Tiene 16 hojas organizadas en flujo de trabajo:
 
 | Hoja | Uso |
 |---|---|
-| `00_CASO_NEGOCIO` | Contexto del caso |
-| `01_BASE_SKUS` | Base histórica M01-M12. **No editar.** |
+| `00_INSTRUCCIONES` | Cómo usar el workbook, leyenda de celdas y orden de trabajo |
+| `01_CASO_NEGOCIO` | Contexto del caso |
 | `02_DICCIONARIO_DATOS` | Explicación de campos |
-| `03_GUIA_EXPLORACION` | Guía para Ejercicio 0 |
-| `04_DIAGNOSTICO_INICIAL` | Respuestas del equipo en Ejercicio 0 |
-| `05_DECISIONES_PORTFOLIO` | Ejercicio 1: clasificación CORE/REVIEW/ELIMINAR |
-| `06_PRICING_DECISIONS` | Ejercicio 2: decisiones de pricing |
-| `07_FORECAST_90_DIAS` | Ejercicio 3: proyección M13-M15 |
-| `08_INVENTORY_DECISIONS` | Ejercicio 4: decisiones de inventario |
-| `09_SCOREBOARD_ALUMNO` | Scoreboard del equipo |
-| `10_PLAN_90_DIAS` | Plan de iniciativas |
-| `11_OUTPUT_FINAL` | Tesis y resumen final |
-| `12_CONTROL_STATUS` | Checklist de avance |
-| `13_LISTS` | Listas de validación |
+| `03_BASE_SKUS` | Base histórica M01-M12. **No editar.** |
+| `04_EXPLORACION` | Ejercicio 0: guía y hallazgos de exploración |
+| `05_DIAGNOSTICO_INICIAL` | Ejercicio 0: diagnóstico y preguntas de negocio |
+| `06_PORTFOLIO` | Ejercicio 1: clasificación CORE/REVIEW/ELIMINAR |
+| `07_FORECAST_90_DIAS` | Ejercicio 2: proyección M13-M15 |
+| `08_INVENTARIO` | Ejercicio 3: decisiones de inventario y capital de trabajo |
+| `09_PRICING` | Ejercicio 4: decisiones de pricing |
+| `10_JUGADAS_COMERCIALES` | Síntesis de jugadas comerciales por SKU |
+| `11_SCOREBOARD_ALUMNO` | Scoreboard automático de avance (no editar manualmente) |
+| `12_PLAN_90_DIAS` | Plan de iniciativas 30/60/90 |
+| `13_OUTPUT_FINAL` | Tesis y resumen final |
+| `14_CONTROL_STATUS` | Checklist de avance técnico |
+| `15_LISTS` | Listas de validación |
+
+**Diseño**: Excel = trabajo numérico, cálculo y análisis por SKU. Plataforma = guía pedagógica, hallazgos cualitativos, decisiones ejecutivas y plan final. El Scoreboard se actualiza automáticamente a partir de las hojas de trabajo.
 
 ### Datos de la base SKU
 
 El workbook incluye datos históricos de 8.224 productos aproximadamente.
 
-Campos principales de `01_BASE_SKUS`:
+Campos principales de `03_BASE_SKUS`:
 
 - Identificación: `sku_id`, `sku_name`, `family`, `department`, `current_status`, `barcode`.
 - Precio histórico mensual: `pvp_m01` a `pvp_m12`.
@@ -118,7 +122,8 @@ Campos principales de `01_BASE_SKUS`:
 - `laboratorio_v3/apps/web/src/services/mockLabService.ts`: lógica mock, estados y scoreboard.
 - `laboratorio_v3/data/mock/`: JSONs mock (labs, ejercicios, grupos, scoreboard).
 - `laboratorio_v3/public/templates/NEXUS_RETAIL_LAB01_WORKBOOK_COMPLETO.xlsx`: workbook fuente.
-- `laboratorio_v3/scripts/generate_lab01_workbook.py`: generador del workbook (desactualizado respecto al Excel actual; usar con precaución).
+- `laboratorio_v3/scripts/generate_lab01_workbook.py`: generador base del workbook (desactualizado; genera la estructura antigua).
+- `laboratorio_v3/scripts/transform_workbook_v2.py`: script que transforma la estructura antigua en la nueva versión con mejor UX y scoreboard automático.
 - `laboratorio_v3/scripts/README.md`: documentación del estado del generador y discrepancias con el workbook actual.
 - `ingest/`: inbox de nuevas versiones del workbook y otros artefactos.
 - `old/index.html`: experiencia HTML legacy.
