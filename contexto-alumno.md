@@ -2,45 +2,64 @@
 
 ## Tu rol
 
-Formás parte del equipo comercial de NEXUS Retail. Vas a analizar una base masiva de productos para detectar oportunidades y proponer planes de acción.
+Formás parte del equipo comercial de NEXUS Retail. Vas a recorrer un laboratorio de 5 ejercicios para analizar una base masiva de productos, decidir portfolio, definir pricing, proyectar 90 días, optimizar inventario y cerrar un plan de captura de valor.
 
-Este sitio presenta los problemas. La simulación la hacés vos con tu propia IA: analizás datos, probás supuestos y estimás impactos.
+## Plataforma
+
+La plataforma guía el recorrido, pero **no reemplaza a tu IA personal**. Vos operás, tu IA analiza y tu equipo decide.
+
+- Entrá a la plataforma de laboratorios.
+- Elegí tu grupo.
+- Descargá el workbook del Laboratorio 1.
+- Completá cada ejercicio en el Excel, con ayuda de tu IA.
+- Subí checkpoints para actualizar el avance.
 
 ## Archivo a usar
 
-- `data/Base SKUs.xlsx`
-- Hoja: `Base`
+- `NEXUS_RETAIL_LAB01_WORKBOOK_COMPLETO.xlsx` (descargable desde la plataforma).
 
-La base de clientes no se utiliza en esta versión.
+Ese workbook es la memoria del laboratorio. Tiene todas las hojas que vas a necesitar:
 
-## Información disponible
+- `01_BASE_SKUS`: datos históricos M01-M12. **No la edites.**
+- `03_GUIA_EXPLORACION` y `04_DIAGNOSTICO_INICIAL`: Ejercicio 0.
+- `05_DECISIONES_PORTFOLIO`: Ejercicio 1.
+- `06_PRICING_DECISIONS`: Ejercicio 2.
+- `07_FORECAST_90_DIAS`: Ejercicio 3.
+- `08_INVENTORY_DECISIONS`: Ejercicio 4.
+- `09_SCOREBOARD_ALUMNO`: tu scoreboard.
+- `10_PLAN_90_DIAS` y `11_OUTPUT_FINAL`: cierre del laboratorio.
 
-- Identificación: familia, departamento, estado y producto.
-- Venta neta.
-- Precio de venta al público de los últimos 12 meses: `PVP 1-12`.
-- Costo unitario de los últimos 12 meses: `CU 1-12`.
-- Volumen de los últimos 12 meses: `Vol 1-12`.
+## Información disponible en la base
+
+- Identificación: `sku_id`, `sku_name`, `family`, `department`, `current_status`, `barcode`.
+- Venta neta original: `net_revenue_original_12m`.
+- Precio de venta mensual: `pvp_m01` a `pvp_m12`.
+- Costo unitario mensual: `cost_m01` a `cost_m12`.
+- Volumen mensual: `vol_m01` a `vol_m12` (ya incluyen todos los días del mes).
 - Stock y DDI en CD, PDV y total.
 - Precio de tres competidores.
 - Cobertura de mercado.
+- Métricas calculadas: `units_12m`, `revenue_12m_calc`, `cost_12m_calc`, `gross_margin_12m`, `gross_margin_pct`, etc.
 
-## Cómo trabajar
+**Nota importante**: `vol_m01..vol_m12` son unidades mensuales. Para calcular revenue mensual usá `pvp_mXX * vol_mXX`. No hace falta multiplicar por días del mes.
 
-Para cada problema:
+## Cómo trabajar en cada ejercicio
 
-1. Cargá la base de SKUs en tu IA.
-2. Indicá exactamente qué columnas debe utilizar.
-3. Pedile que explique fórmulas, supuestos y criterios.
-4. Solicitá una tabla completa y un ranking priorizado.
-5. Revisá resultados extremos y conclusiones dudosas.
-6. Convertí el análisis en una recomendación de negocio.
+1. Leé el contexto y las preguntas en la plataforma.
+2. Abrí el workbook en Excel.
+3. Usá tu IA personal para analizar la hoja correspondiente.
+4. Indicale exactamente qué columnas debe usar.
+5. Pedile que explique fórmulas, supuestos y criterios.
+6. Revisá resultados extremos y conclusiones dudosas.
+7. Convertí el análisis en una recomendación de negocio.
+8. Completá el checkpoint en la plataforma.
 
 ## Reglas para tu IA
 
 ```text
 Actuá como analista senior de retail.
 
-Usá únicamente la información disponible en la hoja Base del archivo Base SKUs.xlsx.
+Usá únicamente la información disponible en el workbook NEXUS_RETAIL_LAB01_WORKBOOK_COMPLETO.xlsx.
 No inventes datos ni variables.
 Explicá todas las fórmulas, supuestos y criterios de clasificación.
 Identificá datos faltantes, resultados extremos y limitaciones del análisis.
@@ -49,4 +68,8 @@ Entregá tablas completas y un resumen ejecutivo priorizado.
 
 ## Resultado final esperado
 
-Un diagnóstico defendible y un plan de acción de 90 días que integre oportunidades de pricing, inventario y portfolio, incluyendo impacto esperado, riesgos y supuestos.
+Un diagnóstico defendible y un plan de captura de valor de 90 días que integre decisiones de portfolio, pricing, forecast e inventario, incluyendo impacto esperado, riesgos y supuestos.
+
+## Si la plataforma falla
+
+Continuá trabajando directamente en el Excel con tu IA. El workbook es la fuente de verdad del recorrido.
