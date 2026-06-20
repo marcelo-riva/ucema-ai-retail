@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AIPromptCards } from "./AIPromptCards";
 import { ConceptExplainer } from "./ConceptExplainer";
+import { Exercise00View } from "./Exercise00View";
 import { ExerciseCheckpointForm } from "./ExerciseCheckpointForm";
 import { ExerciseStepLayout } from "./ExerciseStepLayout";
 import { RequiredOutputsCard } from "./RequiredOutputsCard";
@@ -54,6 +55,36 @@ export function Lab01ExerciseClient({ exerciseId }: { exerciseId: Lab01ExerciseI
       <ExerciseStepLayout eyebrow="Laboratorio 1" title={content.title} subtitle="Cargando..." meta={[]}>
         <p className="lead">Cargando ejercicio...</p>
       </ExerciseStepLayout>
+    );
+  }
+
+  if (exerciseId === "ex-00") {
+    return (
+      <Exercise00View
+        checkpoint={checkpoint}
+        group={group}
+        onSave={async (payload) => {
+          const next = await saveLabCheckpoint({
+            groupId: group.id,
+            labId: "lab-01",
+            exerciseId,
+            ...payload
+          });
+          setCheckpoint(next);
+        }}
+        onSubmit={async (payload) => {
+          const next = await submitLabCheckpoint({
+            groupId: group.id,
+            labId: "lab-01",
+            exerciseId,
+            ...payload
+          });
+          setCheckpoint(next);
+          await reload(group);
+        }}
+        scoreboard={scoreboard}
+        stateVersion={stateVersion}
+      />
     );
   }
 

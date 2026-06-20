@@ -670,6 +670,60 @@ h3 {
   width: 34px;
 }
 
+.simpleList {
+  color: var(--ink);
+  line-height: 1.55;
+  list-style: disc;
+  margin: 14px 0 0;
+  padding-left: 20px;
+}
+
+.simpleList li {
+  margin: 5px 0;
+}
+
+.promptSingle {
+  background: var(--surface-muted);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  margin-top: 18px;
+  overflow: hidden;
+}
+
+.promptSingleHeader {
+  align-items: center;
+  display: flex;
+  font-weight: 850;
+  justify-content: space-between;
+  padding: 14px 16px;
+}
+
+.promptSingle pre {
+  background: #14211b;
+  color: #eff8f1;
+  font-family: "SFMono-Regular", Consolas, monospace;
+  font-size: 13px;
+  line-height: 1.55;
+  margin: 0;
+  overflow-x: auto;
+  padding: 16px;
+  white-space: pre-wrap;
+}
+
+.tipBox {
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  margin-top: 18px;
+  padding: 18px;
+}
+
+.tipBox h3 {
+  color: var(--brand-strong);
+  font-size: 15px;
+  margin: 0 0 10px;
+}
+
 .simpleDetails {
   margin-top: 14px;
 }

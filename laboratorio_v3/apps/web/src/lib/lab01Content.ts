@@ -1,43 +1,31 @@
 export const lab01ExerciseContent = {
   "ex-00": {
     title: "Ejercicio 0: Entender el negocio y explorar la base",
-    subtitle: "Antes de decidir qué productos mantener o retirar, necesitás entender cómo está compuesto el negocio.",
-    context: "Antes de decidir qué productos mantener o retirar, necesitás entender cómo está compuesto el negocio: qué vende, dónde gana margen, dónde tiene stock inmovilizado y qué señales aparecen en los últimos 12 meses.",
-    mainSheets: ["03_GUIA_EXPLORACION", "04_DIAGNOSTICO_INICIAL", "09_SCOREBOARD_ALUMNO"],
-    supportSheets: ["00_CASO_NEGOCIO", "01_BASE_SKUS", "02_DICCIONARIO_DATOS"],
+    subtitle: "Antes de decidir qué productos mantener, ajustar o retirar, necesitás entender cómo está compuesto el negocio.",
+    context: "En este ejercicio vas a usar tu AI personal para explorar una base de SKUs y construir una primera lectura comercial. Todavía no buscamos definir una estrategia final: buscamos detectar patrones, alertas y buenas preguntas para seguir investigando.",
+    mainSheets: ["03_BASE_SKUS"],
+    supportSheets: ["00_INSTRUCCIONES", "01_CASO_NEGOCIO", "02_DICCIONARIO_DATOS"],
     concepts: [
       { term: "Revenue", definition: "Ventas valorizadas." },
       { term: "Margen", definition: "Diferencia entre venta y costo." },
       { term: "DDI", definition: "Días de inventario disponible." },
       { term: "Capital inmovilizado", definition: "Dinero atrapado en stock." },
-      { term: "Tendencia", definition: "Evolución mensual de una variable." },
-      { term: "Elasticidad proxy", definition: "Señal inicial de sensibilidad precio-volumen, no elasticidad definitiva." }
+      { term: "Tendencia", definition: "Evolución mensual de una variable." }
     ],
-    questions: [
-      "¿Qué categorías concentran ventas?",
-      "¿Qué categorías concentran margen?",
-      "¿Dónde hay más stock o DDI?",
-      "¿Qué productos muestran caída reciente?",
-      "¿Qué productos tienen margen negativo o bajo?",
-      "¿Qué preguntas debería investigar el equipo antes de decidir?"
-    ],
+    questions: [],
     prompts: [
-      { title: "Prompt A: explorar la base", body: "Analizá la hoja 01_BASE_SKUS del workbook. Identificá categorías con mayor revenue, margen, stock y DDI. No tomes decisiones todavía." },
-      { title: "Prompt B: explicar variables comerciales", body: "Explicame revenue, margen, DDI, capital inmovilizado, tendencia y elasticidad proxy con ejemplos de la base." },
-      { title: "Prompt C: resumir hallazgos", body: "Ayudame a resumir 5 hallazgos principales y 3 preguntas de negocio que el equipo debería investigar antes de decidir." }
+      {
+        title: "Prompt recomendado: explorar la base",
+        body: "Subí el workbook y analizá principalmente la hoja de SKUs.\n\nQuiero que actúes como analista de inteligencia comercial. El objetivo es explorar la base para entender el negocio antes de definir una estrategia comercial.\n\nPrimero identificá qué hojas y columnas relevantes tiene el archivo. Luego analizá la hoja de SKUs y devolveme:\n\n1. Qué categorías o familias concentran mayor revenue.\n2. Qué categorías o familias concentran mayor margen.\n3. Dónde aparece más stock, DDI o capital inmovilizado.\n4. Qué productos o categorías muestran caída reciente.\n5. Qué productos tienen margen bajo o negativo.\n6. Qué señales parecen relevantes para pensar decisiones de portfolio, pricing, inventario o forecast.\n7. Qué preguntas debería investigar el equipo antes de tomar decisiones.\n\nImportante:\n\n* No inventes datos.\n* Si no encontrás una columna o variable, aclaralo.\n* Separá hallazgos basados en datos de hipótesis.\n* No propongas todavía una estrategia final.\n* Cerrá con una lista de 5 hallazgos principales y 3 preguntas críticas para seguir investigando."
+      }
     ],
-    required: ["03_GUIA_EXPLORACION completa", "04_DIAGNOSTICO_INICIAL completo", "09_SCOREBOARD_ALUMNO sección inicial actualizada"],
+    required: ["Síntesis del equipo guardada en plataforma"],
     fields: [
-      { key: "diagnosticoInicial", label: "Diagnóstico inicial", placeholder: "Qué entendieron del negocio y la base." },
-      { key: "hallazgos", label: "5 hallazgos principales", placeholder: "Listá cinco hallazgos concretos." },
-      { key: "preguntas", label: "3 preguntas de negocio para investigar", placeholder: "Qué investigaría el equipo antes de decidir." },
-      { key: "supuestos", label: "Supuestos o dudas", placeholder: "Limitaciones, dudas o supuestos usados." }
+      { key: "hallazgos", label: "5 hallazgos principales sobre el negocio", placeholder: "Listá cinco hallazgos concretos de la exploración." },
+      { key: "preguntas", label: "3 preguntas que conviene investigar antes de decidir", placeholder: "¿Qué debería investigar el equipo antes de tomar decisiones?" },
+      { key: "alerta", label: "1 alerta sobre los datos o la interpretación de la IA", placeholder: "¿Qué limitación, duda o señal de cautela encontraron?" }
     ],
-    confirmations: [
-      { key: "completedExplorationGuide", label: "Completé 03_GUIA_EXPLORACION." },
-      { key: "completedInitialDiagnosis", label: "Completé 04_DIAGNOSTICO_INICIAL." },
-      { key: "reviewedBaseWithAI", label: "Revisé la base con mi AI personal, sin delegar la decisión." }
-    ]
+    confirmations: []
   },
   "ex-01": {
     title: "Ejercicio 1: Decidir qué portfolio sostener",
