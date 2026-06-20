@@ -29,7 +29,6 @@ Ese workbook es la memoria del laboratorio. Tiene todas las hojas que vas a nece
 - `07_FORECAST_90_DIAS`: Ejercicio 2.
 - `08_INVENTARIO`: Ejercicio 3.
 - `09_PRICING`: Ejercicio 4.
-- `10_JUGADAS_COMERCIALES`: síntesis de jugadas por SKU.
 - `11_SCOREBOARD_ALUMNO`: tu scoreboard. **No lo edites manualmente: se actualiza solo.**
 - `12_PLAN_90_DIAS` y `13_OUTPUT_FINAL`: cierre del laboratorio.
 

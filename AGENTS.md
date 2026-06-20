@@ -55,25 +55,24 @@ Ubicaciones:
 - Fuente: `laboratorio_v3/public/templates/NEXUS_RETAIL_LAB01_WORKBOOK_COMPLETO.xlsx`
 - Next.js: `laboratorio_v3/apps/web/public/templates/NEXUS_RETAIL_LAB01_WORKBOOK_COMPLETO.xlsx`
 
-El workbook es la memoria del laboratorio. Tiene 16 hojas organizadas en flujo de trabajo:
+El workbook es la memoria del laboratorio. Tiene 15 hojas organizadas en flujo de trabajo:
 
 | Hoja | Uso |
 |---|---|
 | `00_INSTRUCCIONES` | Cómo usar el workbook, leyenda de celdas y orden de trabajo |
 | `01_CASO_NEGOCIO` | Contexto del caso |
 | `02_DICCIONARIO_DATOS` | Explicación de campos |
-| `03_BASE_SKUS` | Base histórica M01-M12. **No editar.** |
+| `03_BASE_SKUS` | Base histórica M01-M12. A1 = `sku_id`. **No editar.** |
 | `04_EXPLORACION` | Ejercicio 0: guía y hallazgos de exploración |
 | `05_DIAGNOSTICO_INICIAL` | Ejercicio 0: diagnóstico y preguntas de negocio |
 | `06_PORTFOLIO` | Ejercicio 1: clasificación CORE/REVIEW/ELIMINAR |
 | `07_FORECAST_90_DIAS` | Ejercicio 2: proyección M13-M15 |
 | `08_INVENTARIO` | Ejercicio 3: decisiones de inventario y capital de trabajo |
 | `09_PRICING` | Ejercicio 4: decisiones de pricing |
-| `10_JUGADAS_COMERCIALES` | Síntesis de jugadas comerciales por SKU |
 | `11_SCOREBOARD_ALUMNO` | Scoreboard automático de avance (no editar manualmente) |
 | `12_PLAN_90_DIAS` | Plan de iniciativas 30/60/90 |
 | `13_OUTPUT_FINAL` | Tesis y resumen final |
-| `14_CONTROL_STATUS` | Checklist de avance técnico |
+| `14_CONTROL_STATUS` | Checklist de avance técnico + umbrales de completitud |
 | `15_LISTS` | Listas de validación |
 
 **Diseño**: Excel = trabajo numérico, cálculo y análisis por SKU. Plataforma = guía pedagógica, hallazgos cualitativos, decisiones ejecutivas y plan final. El Scoreboard se actualiza automáticamente a partir de las hojas de trabajo.

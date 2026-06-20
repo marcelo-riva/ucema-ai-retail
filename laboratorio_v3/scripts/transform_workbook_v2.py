@@ -1,9 +1,11 @@
 from __future__ import annotations
 
+import re
 import shutil
 from pathlib import Path
 
 from openpyxl import load_workbook
+from openpyxl.comments import Comment
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 from openpyxl.utils import get_column_letter
 
@@ -42,7 +44,6 @@ FINAL_ORDER = [
     "07_FORECAST_90_DIAS",
     "08_INVENTARIO",
     "09_PRICING",
-    "10_JUGADAS_COMERCIALES",
     "11_SCOREBOARD_ALUMNO",
     "12_PLAN_90_DIAS",
     "13_OUTPUT_FINAL",
@@ -68,6 +69,25 @@ THIN_BORDER = Border(
     top=Side(style="thin", color="CBD5E1"),
     bottom=Side(style="thin", color="CBD5E1"),
 )
+
+# Hojas que reciben el bloque de guia arriba (5 filas)
+GUIDE_SHEETS = ["04_EXPLORACION", "05_DIAGNOSTICO_INICIAL", "06_PORTFOLIO",
+                "07_FORECAST_90_DIAS", "08_INVENTARIO", "09_PRICING",
+                "12_PLAN_90_DIAS", "13_OUTPUT_FINAL"]
+SHEET_ROW_SHIFTS = {sheet: 5 for sheet in GUIDE_SHEETS}
+
+# Configuracion de ejercicios para scoreboard y control
+EXERCISE_CONFIG = [
+    # (exercise, sheet, key_col, key_start_row, min_required, next_action)
+    ("Ejercicio 0", "04_EXPLORACION", "D", 7, 5, "Completar hallazgos e implicancias clave."),
+    ("Ejercicio 0", "05_DIAGNOSTICO_INICIAL", "B", 8, 5, "Completar diagnóstico inicial y preguntas de negocio."),
+    ("Ejercicio 1", "06_PORTFOLIO", "O", 7, 10, "Clasificar al menos 10 SKUs en CORE / REVIEW / ELIMINAR."),
+    ("Ejercicio 2", "07_FORECAST_90_DIAS", "E", 7, 10, "Completar proyección de al menos 10 SKUs."),
+    ("Ejercicio 3", "08_INVENTARIO", "I", 7, 10, "Definir inventario de al menos 10 SKUs."),
+    ("Ejercicio 4", "09_PRICING", "N", 7, 10, "Definir pricing de al menos 10 SKUs."),
+    ("Plan", "12_PLAN_90_DIAS", "C", 7, 3, "Completar al menos 3 iniciativas con owner y estado."),
+    ("Cierre", "13_OUTPUT_FINAL", "B", 8, 5, "Completar tesis y resumen ejecutivo."),
+]
 
 
 def apply_header_style(ws, row: int = 1) -> None:
@@ -100,20 +120,56 @@ def fill_range(ws, col_letter: str, start_row: int, end_row: int, fill: PatternF
         ws[f"{col_letter}{row}"].fill = fill
 
 
-def update_formula_references(wb, rename_map: dict[str, str]) -> None:
-    """Actualiza referencias a hojas en todas las fórmulas del workbook."""
-    # Ordenar de más específico a más general para evitar reemplazos parciales
-    replacements = sorted(rename_map.items(), key=lambda x: len(x[0]), reverse=True)
+def shift_formula_references(formula: str, source_sheet: str, sheet_shifts: dict[str, int]) -> str:
+    """Suma el desplazamiento de filas a las referencias de celda de una formula.
+
+    Solo desplaza referencias a filas >= 2 (zona de datos original), no encabezados.
+    """
+    # Patron que captura referencias como A1, 'Sheet'!A1, Sheet!A1, $A$1, A1:B2, etc.
+    pattern = re.compile(
+        r"((?:'[^']+'|[A-Za-z_][A-Za-z0-9_]*)!)?(\$?[A-Z]{1,3})(\$?\d+)"
+        r"(?::(\$?[A-Z]{1,3})(\$?\d+))?"
+    )
+
+    def replace(match):
+        sheet_ref = match.group(1)
+        col1 = match.group(2)
+        row1_str = match.group(3)
+        col2 = match.group(4)
+        row2_str = match.group(5)
+
+        target_sheet = sheet_ref.rstrip("!").replace("'", "") if sheet_ref else source_sheet
+        if target_sheet in sheet_shifts:
+            shift = sheet_shifts[target_sheet]
+            row1 = int(row1_str.replace("$", ""))
+            if row1 >= 2:
+                new_row1 = row1 + shift
+                row1_str = f"${new_row1}" if "$" in row1_str else str(new_row1)
+            if row2_str:
+                row2 = int(row2_str.replace("$", ""))
+                if row2 >= 2:
+                    new_row2 = row2 + shift
+                    row2_str = f"${new_row2}" if "$" in row2_str else str(new_row2)
+
+        range_part = f":{col2}{row2_str}" if row2_str else ""
+        return f"{sheet_ref or ''}{col1}{row1_str}{range_part}"
+
+    return pattern.sub(replace, formula)
+
+
+def update_all_formula_references(wb) -> None:
+    """Actualiza nombres de hojas y desplazamientos de filas en todas las formulas."""
     for ws in wb.worksheets:
         for row in ws.iter_rows():
             for cell in row:
                 if cell.value and isinstance(cell.value, str) and cell.value.startswith("="):
                     new_formula = cell.value
-                    for old_name, new_name in replacements:
-                        # Formato con comillas simples
+                    # Renombrar hojas
+                    for old_name, new_name in SHEET_RENAME.items():
                         new_formula = new_formula.replace(f"'{old_name}'!", f"'{new_name}'!")
-                        # Formato sin comillas (para nombres sin espacios)
                         new_formula = new_formula.replace(f"{old_name}!", f"{new_name}!")
+                    # Desplazar filas de hojas que insertaron guia
+                    new_formula = shift_formula_references(new_formula, ws.title, SHEET_ROW_SHIFTS)
                     if new_formula != cell.value:
                         cell.value = new_formula
 
@@ -165,29 +221,29 @@ def create_instructions_sheet(wb) -> None:
     ws["A1"].alignment = Alignment(horizontal="left", vertical="center")
     ws.row_dimensions[1].height = 30
 
-    ws["A3"] = "Este workbook es el espacio de trabajo numérico del grupo. Usalo para analizar SKUs, forecast, inventario, pricing y jugadas comerciales. La plataforma web guía el laboratorio y captura los hallazgos cualitativos, decisiones, riesgos y plan final. No copies en la plataforma toda la información línea por línea: llevá solo la síntesis que defenderías frente a un equipo comercial. El Scoreboard se actualiza automáticamente a medida que completás las hojas de trabajo."
+    ws["A3"] = "Este workbook es el espacio de trabajo numérico del grupo. Usalo para analizar SKUs, forecast, inventario, pricing y decisiones operativas. La plataforma web guía el laboratorio y captura los hallazgos cualitativos, decisiones, riesgos y plan final. No copies en la plataforma toda la información línea por línea: llevá solo la síntesis que defenderías frente a un equipo comercial. El Scoreboard se actualiza automáticamente a medida que completás las hojas de trabajo."
     ws.merge_cells("A3:D3")
     ws["A3"].alignment = Alignment(horizontal="left", vertical="top", wrap_text=True)
     ws["A3"].font = Font(size=11)
-    ws.row_dimensions[3].height = 90
+    ws.row_dimensions[3].height = 100
 
     ws["A5"] = "¿Qué se completa en Excel?"
     ws["A5"].font = SUBTITLE_FONT
-    ws["A6"] = "• Cálculos, análisis por SKU, escenarios y jugadas por producto."
-    ws["A7"] = "• Decisiones numéricas: portfolio, pricing, forecast, inventario."
+    ws["A6"] = "• Análisis numérico, simulación, datos por SKU, forecast, inventario, pricing y decisiones operativas."
+    ws["A7"] = "• Cálculos, escenarios y jugadas por producto."
     ws["A8"] = "• Datos de referencia y backup operativo."
 
     ws["A10"] = "¿Qué se registra en la plataforma?"
     ws["A10"].font = SUBTITLE_FONT
-    ws["A11"] = "• Hallazgos principales, criterio de decisión y riesgos."
+    ws["A11"] = "• Hallazgos principales, criterio de decisión, riesgos y trade-offs."
     ws["A12"] = "• Síntesis ejecutiva y plan final narrativo."
-    ws["A13"] = "• Trade-offs, supuestos y justificaciones."
+    ws["A13"] = "• Supuestos, justificaciones y dependencias."
 
     ws["A15"] = "Leyenda de celdas"
     ws["A15"].font = SUBTITLE_FONT
     ws["A16"] = "Celdas editables por el alumno"
     ws["A16"].fill = EDITABLE_FILL
-    ws["B16"] = "Fondo amarillo suave. Son campos que el equipo debe completar."
+    ws["B16"] = "Fondo amarillo suave. Campos que el equipo debe completar."
     ws["A17"] = "Fórmulas / cálculos automáticos"
     ws["A17"].fill = FORMULA_FILL
     ws["B17"] = "Fondo gris claro. No editar."
@@ -208,20 +264,19 @@ def create_instructions_sheet(wb) -> None:
         "4. Proyectar 90 días en 07_FORECAST_90_DIAS.",
         "5. Definir inventario en 08_INVENTARIO.",
         "6. Definir pricing en 09_PRICING.",
-        "7. Sintetizar jugadas en 10_JUGADAS_COMERCIALES.",
-        "8. Revisar 11_SCOREBOARD_ALUMNO (automático).",
-        "9. Cerrar plan en 12_PLAN_90_DIAS y 13_OUTPUT_FINAL.",
+        "7. Revisar 11_SCOREBOARD_ALUMNO (automático).",
+        "8. Cerrar plan en 12_PLAN_90_DIAS y 13_OUTPUT_FINAL.",
     ]
     for i, line in enumerate(order_text, start=22):
         ws[f"A{i}"] = line
 
-    ws["A33"] = "Nota importante"
-    ws["A33"].font = SUBTITLE_FONT
-    ws["A34"] = "El Scoreboard es automático. No hace falta completarlo manualmente. Las hojas 14_CONTROL_STATUS y 15_LISTS son técnicas y pueden quedar al final."
-    ws.merge_cells("A34:D34")
-    ws["A34"].alignment = Alignment(horizontal="left", vertical="top", wrap_text=True)
-    ws["A34"].fill = NOTE_FILL
-    ws.row_dimensions[34].height = 45
+    ws["A31"] = "Nota importante"
+    ws["A31"].font = SUBTITLE_FONT
+    ws["A32"] = "El Scoreboard es automático. No hace falta completarlo manualmente. Las hojas 14_CONTROL_STATUS y 15_LISTS son técnicas y quedan al final."
+    ws.merge_cells("A32:D32")
+    ws["A32"].alignment = Alignment(horizontal="left", vertical="top", wrap_text=True)
+    ws["A32"].fill = NOTE_FILL
+    ws.row_dimensions[32].height = 45
 
     ws.column_dimensions["A"].width = 38
     ws.column_dimensions["B"].width = 60
@@ -230,7 +285,7 @@ def create_instructions_sheet(wb) -> None:
 
 
 def build_scoreboard(wb) -> None:
-    # Reemplazar la hoja de scoreboard por una nueva para evitar merged cells heredados
+    # Reemplazar la hoja de scoreboard por una nueva
     idx = wb.sheetnames.index("11_SCOREBOARD_ALUMNO")
     del wb["11_SCOREBOARD_ALUMNO"]
     ws = wb.create_sheet("11_SCOREBOARD_ALUMNO", idx)
@@ -248,7 +303,7 @@ def build_scoreboard(wb) -> None:
     ws["A2"].fill = NOTE_FILL
     ws.row_dimensions[2].height = 25
 
-    headers = ["Ejercicio", "Hoja", "Estado", "Completos", "Requeridos", "% completitud", "Próxima acción sugerida"]
+    headers = ["Ejercicio", "Hoja", "Estado", "Completos", "Mínimo requerido", "% completitud", "Próxima acción sugerida"]
     for c, h in enumerate(headers, start=1):
         cell = ws.cell(4, c, value=h)
         cell.fill = HEADER_FILL
@@ -256,25 +311,13 @@ def build_scoreboard(wb) -> None:
         cell.alignment = Alignment(horizontal="left", vertical="center", wrap_text=True)
         cell.border = THIN_BORDER
 
-    exercises = [
-        ("Ejercicio 0", "04_EXPLORACION", "D", 7, "A", 7, "Exploración", "Completar hallazgos e implicancias clave."),
-        ("Ejercicio 0", "05_DIAGNOSTICO_INICIAL", "B", 8, "B", 8, "Diagnóstico", "Completar diagnóstico inicial y preguntas de negocio."),
-        ("Ejercicio 1", "06_PORTFOLIO", "O", 7, "A", 7, "Portfolio", "Clasificar SKUs en CORE / REVIEW / ELIMINAR."),
-        ("Ejercicio 2", "07_FORECAST_90_DIAS", "E", 7, "A", 7, "Forecast", "Completar proyección de unidades, precios y escenario."),
-        ("Ejercicio 3", "08_INVENTARIO", "I", 7, "A", 7, "Inventario", "Definir DDI objetivo, stock objetivo y acción."),
-        ("Ejercicio 4", "09_PRICING", "N", 7, "A", 7, "Pricing", "Definir decisión de precio y precios M13-M15."),
-        ("Ejercicio 4", "10_JUGADAS_COMERCIALES", "F", 7, "A", 7, "Jugadas comerciales", "Sintetizar jugadas por SKU."),
-        ("Plan", "12_PLAN_90_DIAS", "C", 7, "A", 7, "Plan 90 días", "Completar iniciativas y responsables."),
-        ("Cierre", "13_OUTPUT_FINAL", "B", 8, "B", 8, "Output final", "Completar tesis y resumen ejecutivo."),
-    ]
-
-    for i, (exercise, sheet, col_letter, col_start, total_col, total_start, short_name, next_action) in enumerate(exercises, start=5):
+    for i, (exercise, sheet, key_col, key_start_row, min_required, next_action) in enumerate(EXERCISE_CONFIG, start=5):
         row = i
         ws.cell(row, 1, value=exercise)
         ws.cell(row, 2, value=sheet)
-        ws.cell(row, 3, value=f'=IF(COUNTA(\'{sheet}\'!{col_letter}{col_start}:{col_letter}8226)=0,"Pendiente",IF(COUNTA(\'{sheet}\'!{col_letter}{col_start}:{col_letter}8226)<COUNTA(\'{sheet}\'!{total_col}{total_start}:{total_col}8226),"En progreso","Completo"))')
-        ws.cell(row, 4, value=f"=COUNTA('{sheet}'!{col_letter}{col_start}:{col_letter}8226)")
-        ws.cell(row, 5, value=f"=COUNTA('{sheet}'!{total_col}{total_start}:{total_col}8226)")
+        ws.cell(row, 3, value=f'=IF(COUNTA(\'{sheet}\'!{key_col}{key_start_row}:{key_col}8226)=0,"Pendiente",IF(COUNTA(\'{sheet}\'!{key_col}{key_start_row}:{key_col}8226)<{min_required},"En progreso","Completo"))')
+        ws.cell(row, 4, value=f"=COUNTA('{sheet}'!{key_col}{key_start_row}:{key_col}8226)")
+        ws.cell(row, 5, value=min_required)
         ws.cell(row, 6, value=f"=IF(E{row}=0,0,D{row}/E{row})")
         ws.cell(row, 6).number_format = "0%"
         ws.cell(row, 7, value=next_action)
@@ -283,7 +326,7 @@ def build_scoreboard(wb) -> None:
             ws.cell(row, c).border = THIN_BORDER
             ws.cell(row, c).alignment = Alignment(vertical="center", wrap_text=True)
 
-    total_row = 5 + len(exercises)
+    total_row = 5 + len(EXERCISE_CONFIG)
     ws.cell(total_row, 1, value="Avance total")
     ws.cell(total_row, 1).font = BOLD_FONT
     ws.cell(total_row, 6, value=f"=AVERAGE(F5:F{total_row-1})")
@@ -296,26 +339,9 @@ def build_scoreboard(wb) -> None:
     ws.column_dimensions["B"].width = 22
     ws.column_dimensions["C"].width = 16
     ws.column_dimensions["D"].width = 12
-    ws.column_dimensions["E"].width = 14
+    ws.column_dimensions["E"].width = 16
     ws.column_dimensions["F"].width = 14
-    ws.column_dimensions["G"].width = 40
-
-
-def style_small_sheet(ws, editable_cols: list[int] = None, formula_cols: list[int] = None, reference_cols: list[int] = None) -> None:
-    editable_cols = editable_cols or []
-    formula_cols = formula_cols or []
-    reference_cols = reference_cols or []
-    for row in range(2, min(ws.max_row + 1, 200)):
-        for c in range(1, ws.max_column + 1):
-            cell = ws.cell(row, c)
-            if c in editable_cols:
-                cell.fill = EDITABLE_FILL
-            elif c in formula_cols:
-                cell.fill = FORMULA_FILL
-            elif c in reference_cols:
-                cell.fill = REF_FILL
-            cell.border = THIN_BORDER
-            cell.alignment = Alignment(vertical="center", wrap_text=True)
+    ws.column_dimensions["G"].width = 45
 
 
 def style_large_sheet(ws, editable_cols: list[int] = None, formula_cols: list[int] = None, reference_cols: list[int] = None) -> None:
@@ -331,9 +357,57 @@ def style_large_sheet(ws, editable_cols: list[int] = None, formula_cols: list[in
         fill_range(ws, get_column_letter(col), 7, max_row, REF_FILL)
 
 
+def style_small_sheet(ws, editable_cols: list[int] = None, formula_cols: list[int] = None, reference_cols: list[int] = None, max_rows: int = 200) -> None:
+    editable_cols = editable_cols or []
+    formula_cols = formula_cols or []
+    reference_cols = reference_cols or []
+    for row in range(2, min(ws.max_row + 1, max_rows + 1)):
+        for c in range(1, ws.max_column + 1):
+            cell = ws.cell(row, c)
+            if c in editable_cols:
+                cell.fill = EDITABLE_FILL
+            elif c in formula_cols:
+                cell.fill = FORMULA_FILL
+            elif c in reference_cols:
+                cell.fill = REF_FILL
+            cell.border = THIN_BORDER
+            cell.alignment = Alignment(vertical="center", wrap_text=True)
+
+
 def add_filters(ws, header_row: int = 6) -> None:
     if ws.max_row > header_row and ws.max_column > 1:
         ws.auto_filter.ref = f"A{header_row}:{get_column_letter(ws.max_column)}{ws.max_row}"
+
+
+def setup_control_status(ws) -> None:
+    """Configura 14_CONTROL_STATUS con columnas de control y umbrales."""
+    # Limpiar y poner headers
+    for row in ws.iter_rows():
+        for cell in row:
+            cell.value = None
+            cell.fill = PatternFill()
+            cell.font = Font()
+
+    headers = ["exercise_id", "exercise_name", "main_sheet", "status", "completed_by_team",
+               "platform_validation", "key_column", "key_start_row", "min_required", "comments"]
+    for c, h in enumerate(headers, start=1):
+        ws.cell(1, c, value=h)
+
+    for i, (exercise, sheet, key_col, key_start_row, min_required, _) in enumerate(EXERCISE_CONFIG, start=2):
+        ws.cell(i, 1, value=f"EX0{i-2:02d}" if "Ejercicio" in exercise else ("PLAN" if "Plan" in exercise else "CLOS"))
+        ws.cell(i, 2, value=exercise)
+        ws.cell(i, 3, value=sheet)
+        ws.cell(i, 4, value="PENDING")
+        ws.cell(i, 5, value="NO")
+        ws.cell(i, 6, value="NOT_VALIDATED")
+        ws.cell(i, 7, value=key_col)
+        ws.cell(i, 8, value=key_start_row)
+        ws.cell(i, 9, value=min_required)
+        ws.cell(i, 10, value=f"Completar al menos {min_required} filas/campos en {sheet}.")
+
+    apply_header_style(ws)
+    set_column_widths(ws, sample_rows=10)
+    style_small_sheet(ws)
 
 
 def main() -> None:
@@ -342,47 +416,82 @@ def main() -> None:
 
     wb = load_workbook(INPUT, data_only=False)
 
+    # Renombrar hojas
     for old_name, new_name in SHEET_RENAME.items():
         if old_name in wb.sheetnames:
             wb[old_name].title = new_name
             print(f"Renombrada: {old_name} -> {new_name}")
 
-    print("Actualizando referencias de formulas...")
-    update_formula_references(wb, SHEET_RENAME)
-    print("Referencias actualizadas.")
+    # Insertar bloques de guia en hojas de ejercicio (antes de actualizar formulas)
+    for sheet_name in GUIDE_SHEETS:
+        if sheet_name not in wb.sheetnames:
+            continue
+        ws = wb[sheet_name]
+        if sheet_name == "04_EXPLORACION":
+            insert_guide_block(ws, "Ejercicio 0 — Exploración Inicial",
+                               "Entender la base, las variables y las señales antes de tomar decisiones.",
+                               "Análisis de la base de SKUs, respuestas a las preguntas guía y hallazgos numéricos.",
+                               "Diagnóstico cualitativo, interpretación de hallazgos, riesgos y síntesis ejecutiva.",
+                               "Completar las columnas de hallazgo e implicancia para cada pregunta.")
+        elif sheet_name == "05_DIAGNOSTICO_INICIAL":
+            insert_guide_block(ws, "Ejercicio 0 — Diagnóstico Inicial",
+                               "Sintetizar el diagnóstico del negocio y las preguntas clave que guiarán las decisiones.",
+                               "Resumen numérico del negocio y señales encontradas en la exploración.",
+                               "Diagnóstico narrativo, hallazgos principales, preguntas de negocio y supuestos.",
+                               "Completar todos los campos de respuesta del equipo.")
+        elif sheet_name == "06_PORTFOLIO":
+            insert_guide_block(ws, "Ejercicio 1 — Portfolio Optimization",
+                               "Clasificar cada SKU en CORE, REVIEW o ELIMINAR y definir la acción a 90 días.",
+                               "Análisis por SKU, clasificación de portfolio, acción, prioridad y riesgo comercial.",
+                               "Criterio de clasificación, hallazgos por categoría, riesgos y síntesis de decisión.",
+                               "Completar decisión de portfolio, acción, prioridad y riesgo para los SKUs relevantes.")
+        elif sheet_name == "07_FORECAST_90_DIAS":
+            insert_guide_block(ws, "Ejercicio 2 — Forecast Engine",
+                               "Proyectar unidades, precios, costos y stock para M13-M15, y estimar revenue y margen.",
+                               "Proyección numérica por SKU, escenario, revenue y margen proyectado.",
+                               "Supuestos del forecast, riesgos y síntesis de escenarios.",
+                               "Completar escenario, unidades proyectadas, precios, costos y supuestos.")
+        elif sheet_name == "08_INVENTARIO":
+            insert_guide_block(ws, "Ejercicio 3 — Inventory & Working Capital",
+                               "Definir stock objetivo, DDI objetivo y acción de inventario para liberar capital o evitar quiebres.",
+                               "Cálculo de DDI objetivo, stock gap, capital liberado y riesgo de quiebre.",
+                               "Riesgos de inventario, trade-offs capital-servicio y síntesis de acciones.",
+                               "Completar DDI objetivo, stock objetivo, acción de inventario, capital liberado y riesgo.")
+        elif sheet_name == "09_PRICING":
+            insert_guide_block(ws, "Ejercicio 4 — Pricing Optimization",
+                               "Definir la decisión de precio por SKU y los precios M13-M15, estimando el efecto en volumen.",
+                               "Análisis de precio actual, costo, margen, competencia y decisión de precio.",
+                               "Justificación de pricing, riesgos y síntesis de jugadas de precio.",
+                               "Completar decisión de pricing, precios M13-M15, efecto esperado y riesgo.")
+        elif sheet_name == "12_PLAN_90_DIAS":
+            insert_guide_block(ws, "Plan de captura de valor — 90 días",
+                               "Traducir las decisiones en iniciativas concretas con acciones a 30, 60 y 90 días.",
+                               "Resumen de iniciativas, impactos esperados y responsables.",
+                               "Narrativa del plan, dependencias y riesgos de ejecución.",
+                               "Completar al menos 3 iniciativas con impacto, owner y estado.")
+        elif sheet_name == "13_OUTPUT_FINAL":
+            insert_guide_block(ws, "Output final — Tesis y resumen ejecutivo",
+                               "Cerrar el laboratorio con una tesis clara, decisiones adoptadas e impacto esperado.",
+                               "Resumen de números clave y decisiones tomadas.",
+                               "Tesis final, riesgos, quick wins y roadmap de implementación.",
+                               "Completar los campos de resumen ejecutivo.")
+        print(f"Guía insertada en {sheet_name}")
 
+    # Crear hoja de instrucciones
     create_instructions_sheet(wb)
 
-    print("Creando 10_JUGADAS_COMERCIALES...")
-    target = wb.create_sheet("10_JUGADAS_COMERCIALES")
-    new_headers = ["sku_id", "sku_name", "family", "department", "portfolio_decision", "jugada_comercial",
-                   "accion_30_dias", "accion_60_dias", "accion_90_dias", "impacto_revenue_est",
-                   "impacto_margen_est", "impacto_capital_est", "prioridad", "riesgo", "supuestos",
-                   "comentario_ai", "comentario_equipo"]
-    for c, h in enumerate(new_headers, start=1):
-        target.cell(1, c, value=h)
-    for row in range(2, 100):
-        target.cell(row, 1, value=f"='06_PORTFOLIO'!A{row}")
-        target.cell(row, 2, value=f"='06_PORTFOLIO'!B{row}")
-        target.cell(row, 3, value=f"='06_PORTFOLIO'!C{row}")
-        target.cell(row, 4, value=f"='06_PORTFOLIO'!D{row}")
-        target.cell(row, 5, value=f"='06_PORTFOLIO'!O{row}")
-    apply_header_style(target)
-    add_filters(target, header_row=1)
-    set_column_widths(target, sample_rows=50)
-    style_small_sheet(target, editable_cols=[6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17], reference_cols=[1, 2, 3, 4, 5])
-    print("10_JUGADAS_COMERCIALES lista.")
+    # Actualizar todas las referencias de formulas (nombres de hoja y desplazamientos de fila)
+    print("Actualizando referencias de formulas...")
+    update_all_formula_references(wb)
+    print("Referencias actualizadas.")
 
+    # Reordenar hojas
     ordered = {ws.title: ws for ws in wb.worksheets}
     wb._sheets = [ordered[name] for name in FINAL_ORDER if name in ordered]
 
+    # Aplicar estilos y filtros a hojas de ejercicio
     # 04_EXPLORACION
     ws = wb["04_EXPLORACION"]
-    insert_guide_block(ws, "Ejercicio 0 — Exploración Inicial",
-                       "Entender la base, las variables y las señales antes de tomar decisiones.",
-                       "Análisis de la base de SKUs, respuestas a las preguntas guía y hallazgos numéricos.",
-                       "Diagnóstico cualitativo, interpretación de hallazgos, riesgos y síntesis ejecutiva.",
-                       "Completar las columnas de hallazgo e implicancia para cada pregunta.")
     apply_header_style(ws, row=6)
     add_filters(ws)
     set_column_widths(ws, sample_rows=20)
@@ -391,21 +500,11 @@ def main() -> None:
 
     # 05_DIAGNOSTICO_INICIAL
     ws = wb["05_DIAGNOSTICO_INICIAL"]
-    insert_guide_block(ws, "Ejercicio 0 — Diagnóstico Inicial",
-                       "Sintetizar el diagnóstico del negocio y las preguntas clave que guiarán las decisiones.",
-                       "Resumen numérico del negocio y señales encontradas en la exploración.",
-                       "Diagnóstico narrativo, hallazgos principales, preguntas de negocio y supuestos.",
-                       "Completar todos los campos de respuesta del equipo.")
     set_column_widths(ws, sample_rows=30)
     style_small_sheet(ws, editable_cols=[2])
 
     # 06_PORTFOLIO
     ws = wb["06_PORTFOLIO"]
-    insert_guide_block(ws, "Ejercicio 1 — Portfolio Optimization",
-                       "Clasificar cada SKU en CORE, REVIEW o ELIMINAR y definir la acción a 90 días.",
-                       "Análisis por SKU, clasificación de portfolio, acción, prioridad y riesgo comercial.",
-                       "Criterio de clasificación, hallazgos por categoría, riesgos y síntesis de decisión.",
-                       "Completar decisión de portfolio, acción, prioridad y riesgo para los SKUs relevantes.")
     apply_header_style(ws, row=6)
     add_filters(ws)
     set_column_widths(ws, sample_rows=10)
@@ -414,11 +513,6 @@ def main() -> None:
 
     # 07_FORECAST_90_DIAS
     ws = wb["07_FORECAST_90_DIAS"]
-    insert_guide_block(ws, "Ejercicio 2 — Forecast Engine",
-                       "Proyectar unidades, precios, costos y stock para M13-M15, y estimar revenue y margen.",
-                       "Proyección numérica por SKU, escenario, revenue y margen proyectado.",
-                       "Supuestos del forecast, riesgos y síntesis de escenarios.",
-                       "Completar escenario, unidades proyectadas, precios, costos y supuestos.")
     apply_header_style(ws, row=6)
     add_filters(ws)
     set_column_widths(ws, sample_rows=10)
@@ -428,11 +522,6 @@ def main() -> None:
 
     # 08_INVENTARIO
     ws = wb["08_INVENTARIO"]
-    insert_guide_block(ws, "Ejercicio 3 — Inventory & Working Capital",
-                       "Definir stock objetivo, DDI objetivo y acción de inventario para liberar capital o evitar quiebres.",
-                       "Cálculo de DDI objetivo, stock gap, capital liberado y riesgo de quiebre.",
-                       "Riesgos de inventario, trade-offs capital-servicio y síntesis de acciones.",
-                       "Completar DDI objetivo, stock objetivo, acción de inventario, capital liberado y riesgo.")
     apply_header_style(ws, row=6)
     add_filters(ws)
     set_column_widths(ws, sample_rows=10)
@@ -441,11 +530,6 @@ def main() -> None:
 
     # 09_PRICING
     ws = wb["09_PRICING"]
-    insert_guide_block(ws, "Ejercicio 4 — Pricing Optimization",
-                       "Definir la decisión de precio por SKU y los precios M13-M15, estimando el efecto en volumen.",
-                       "Análisis de precio actual, costo, margen, competencia y decisión de precio.",
-                       "Justificación de pricing, riesgos y síntesis de jugadas de precio.",
-                       "Completar decisión de pricing, precios M13-M15, efecto esperado y riesgo.")
     apply_header_style(ws, row=6)
     add_filters(ws)
     set_column_widths(ws, sample_rows=10)
@@ -454,11 +538,6 @@ def main() -> None:
 
     # 12_PLAN_90_DIAS
     ws = wb["12_PLAN_90_DIAS"]
-    insert_guide_block(ws, "Plan de captura de valor — 90 días",
-                       "Traducir las decisiones en iniciativas concretas con acciones a 30, 60 y 90 días.",
-                       "Resumen de iniciativas, impactos esperados y responsables.",
-                       "Narrativa del plan, dependencias y riesgos de ejecución.",
-                       "Completar al menos 3-5 iniciativas con impacto, owner y estado.")
     apply_header_style(ws, row=6)
     add_filters(ws)
     set_column_widths(ws, sample_rows=30)
@@ -467,27 +546,16 @@ def main() -> None:
 
     # 13_OUTPUT_FINAL
     ws = wb["13_OUTPUT_FINAL"]
-    insert_guide_block(ws, "Output final — Tesis y resumen ejecutivo",
-                       "Cerrar el laboratorio con una tesis clara, decisiones adoptadas e impacto esperado.",
-                       "Resumen de números clave y decisiones tomadas.",
-                       "Tesis final, riesgos, quick wins y roadmap de implementación.",
-                       "Completar los campos de resumen ejecutivo.")
     set_column_widths(ws, sample_rows=20)
     style_small_sheet(ws, editable_cols=[2])
 
-    print("Construyendo scoreboard...")
-    build_scoreboard(wb)
-    print("Scoreboard listo.")
-
-    # 03_BASE_SKUS
+    # 03_BASE_SKUS: no mover filas, A1 = sku_id, agregar comentario
     ws = wb["03_BASE_SKUS"]
-    ws["A1"] = "NO EDITAR: esta hoja conserva la base histórica M01-M12 del Laboratorio 1."
-    ws["A1"].fill = NOTE_FILL
-    ws["A1"].font = BOLD_FONT
-    apply_header_style(ws, row=2)
-    ws.freeze_panes = "A3"
+    ws["A1"].comment = Comment("NO EDITAR: esta hoja conserva la base histórica M01-M12 del Laboratorio 1.", "NEXUS Retail")
+    apply_header_style(ws, row=1)
+    ws.freeze_panes = "A2"
     set_column_widths(ws, sample_rows=10)
-    fill_range(ws, "A", 3, ws.max_row, REF_FILL)
+    fill_range(ws, "A", 2, ws.max_row, REF_FILL)
 
     # 02_DICCIONARIO_DATOS
     ws = wb["02_DICCIONARIO_DATOS"]
@@ -505,9 +573,7 @@ def main() -> None:
 
     # 14_CONTROL_STATUS
     ws = wb["14_CONTROL_STATUS"]
-    apply_header_style(ws)
-    set_column_widths(ws, sample_rows=7)
-    style_small_sheet(ws)
+    setup_control_status(ws)
 
     # 15_LISTS
     ws = wb["15_LISTS"]
@@ -515,6 +581,12 @@ def main() -> None:
     set_column_widths(ws, sample_rows=7)
     style_small_sheet(ws)
 
+    # Scoreboard
+    print("Construyendo scoreboard...")
+    build_scoreboard(wb)
+    print("Scoreboard listo.")
+
+    # Guardar
     wb.save(OUTPUT)
     APP_OUTPUT.parent.mkdir(parents=True, exist_ok=True)
     shutil.copyfile(OUTPUT, APP_OUTPUT)
