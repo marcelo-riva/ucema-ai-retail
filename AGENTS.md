@@ -13,10 +13,11 @@ El trabajo nuevo debe concentrarse en `laboratorio_v3/`.
 
 ## Estado actual
 
-- **Versión marcada**: `mock_review_1` (tag y commit `4feabd4`). Punto estable antes de productivizar.
+- **Versión marcada**: `mock_review_1` (tag y commit `53409a1`). Punto estable antes de productivizar.
 - **Rama de trabajo**: `laboratorio_v3/laboratorio-v3-mock`.
 - **Deploy**: AWS Amplify, app root `laboratorio_v3/apps/web`, build estático exportado a `out/`.
 - **Backend**: no hay backend real. Persistencia mock en `localStorage`.
+- **Ingesta de artefactos**: carpeta `ingest/` para nuevas versiones del workbook. Ver sección "Ingestión de artefactos".
 
 ## Principio del producto
 
@@ -118,6 +119,8 @@ Campos principales de `01_BASE_SKUS`:
 - `laboratorio_v3/data/mock/`: JSONs mock (labs, ejercicios, grupos, scoreboard).
 - `laboratorio_v3/public/templates/NEXUS_RETAIL_LAB01_WORKBOOK_COMPLETO.xlsx`: workbook fuente.
 - `laboratorio_v3/scripts/generate_lab01_workbook.py`: generador del workbook (desactualizado respecto al Excel actual; usar con precaución).
+- `laboratorio_v3/scripts/README.md`: documentación del estado del generador y discrepancias con el workbook actual.
+- `ingest/`: inbox de nuevas versiones del workbook y otros artefactos.
 - `old/index.html`: experiencia HTML legacy.
 - `contexto-alumno.md`: contexto descargable para trabajar con una IA.
 - `brief/simulador01-brief.md`: definición funcional y pedagógica del HTML legacy.
@@ -146,6 +149,27 @@ Configuración: `amplify.yml` en la raíz.
 - Confirmar que el workbook descargable es el correcto.
 - Buscar referencias descartadas (cinco variables, base de clientes, carga de decisiones, escenarios prearmados, motor interno).
 - No modificar el Excel directamente sin actualizar el script generador (o al menos documentar la excepción).
+
+## Ingestión de artefactos
+
+La carpeta `ingest/` es el inbox de nuevas versiones del workbook y otros artefactos.
+
+Flujo:
+
+1. El equipo sube el archivo nuevo a `ingest/` (por ejemplo, `NEXUS_RETAIL_LAB01_WORKBOOK_v2.xlsx`).
+2. El agente revisa el archivo, lo compara con la versión actual y lo distribuye a los destinos correspondientes.
+3. Para un nuevo workbook del Laboratorio 1, los destinos son:
+   - `laboratorio_v3/public/templates/NEXUS_RETAIL_LAB01_WORKBOOK_COMPLETO.xlsx`
+   - `laboratorio_v3/apps/web/public/templates/NEXUS_RETAIL_LAB01_WORKBOOK_COMPLETO.xlsx`
+4. El agente revisa si el script generador `laboratorio_v3/scripts/generate_lab01_workbook.py` sigue alineado con el Excel. Si no, lo actualiza o documenta la discrepancia.
+5. El agente actualiza `AGENTS.md`, `contexto-alumno.md` y cualquier otra documentación afectada.
+6. El agente hace commit y push.
+
+Reglas:
+
+- No se commitean archivos en `ingest/` como destino final.
+- Si un archivo no se puede procesar, el agente deja una nota en `ingest/` explicando por qué.
+- Ver documentación detallada en `ingest/README.md`.
 
 ## Preguntas abiertas / próximos pasos
 
