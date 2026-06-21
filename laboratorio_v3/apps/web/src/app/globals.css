@@ -724,6 +724,67 @@ h3 {
   margin: 0 0 10px;
 }
 
+.criterionGrid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-top: 18px;
+}
+
+.criterionCard {
+  background: var(--surface-muted);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 18px;
+}
+
+.criterionHeader {
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 12px;
+}
+
+.criterionHeader h3 {
+  color: var(--brand-strong);
+  font-size: 20px;
+  margin: 0 0 4px;
+}
+
+.criterionHeader span {
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 750;
+}
+
+.criterionCard > .muted {
+  line-height: 1.45;
+  margin: 0;
+}
+
+.criterionBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.criterionBlock strong {
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.criterionBlock .simpleList {
+  margin: 0;
+}
+
+@media (max-width: 980px) {
+  .criterionGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
 .simpleDetails {
   margin-top: 14px;
 }

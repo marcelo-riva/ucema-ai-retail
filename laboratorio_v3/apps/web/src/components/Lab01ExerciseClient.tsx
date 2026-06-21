@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { AIPromptCards } from "./AIPromptCards";
 import { ConceptExplainer } from "./ConceptExplainer";
 import { Exercise00View } from "./Exercise00View";
+import { Exercise01View } from "./Exercise01View";
 import { ExerciseCheckpointForm } from "./ExerciseCheckpointForm";
 import { ExerciseStepLayout } from "./ExerciseStepLayout";
 import { RequiredOutputsCard } from "./RequiredOutputsCard";
@@ -63,6 +64,36 @@ export function Lab01ExerciseClient({ exerciseId }: { exerciseId: Lab01ExerciseI
       <Exercise00View
         checkpoint={checkpoint}
         group={group}
+        onSave={async (payload) => {
+          const next = await saveLabCheckpoint({
+            groupId: group.id,
+            labId: "lab-01",
+            exerciseId,
+            ...payload
+          });
+          setCheckpoint(next);
+        }}
+        onSubmit={async (payload) => {
+          const next = await submitLabCheckpoint({
+            groupId: group.id,
+            labId: "lab-01",
+            exerciseId,
+            ...payload
+          });
+          setCheckpoint(next);
+          await reload(group);
+        }}
+      />
+    );
+  }
+
+  if (exerciseId === "ex-01") {
+    return (
+      <Exercise01View
+        checkpoint={checkpoint}
+        group={group}
+        scoreboard={scoreboard}
+        stateVersion={stateVersion}
         onSave={async (payload) => {
           const next = await saveLabCheckpoint({
             groupId: group.id,

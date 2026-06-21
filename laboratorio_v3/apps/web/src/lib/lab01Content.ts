@@ -28,45 +28,38 @@ export const lab01ExerciseContent = {
     confirmations: []
   },
   "ex-01": {
-    title: "Ejercicio 1: Decidir qué portfolio sostener",
-    subtitle: "Clasificar SKUs como CORE, REVIEW o ELIMINAR y justificar la decisión con datos.",
-    context: "El foco es decidir portfolio. Usá el diagnóstico del Ejercicio 0, la base histórica M01-M12 y el scoreboard inicial para definir qué productos mantener, revisar o retirar.",
-    mainSheets: ["05_DECISIONES_PORTFOLIO"],
-    supportSheets: ["01_BASE_SKUS", "04_DIAGNOSTICO_INICIAL", "09_SCOREBOARD_ALUMNO", "10_PLAN_90_DIAS"],
+    title: "Ejercicio 1: Definir decisiones de portfolio",
+    subtitle: "Clasificar SKUs como Core, Review o Eliminar y justificar la decisión con datos.",
+    context: "En este ejercicio vas a definir una primera estrategia de portfolio. Antes de clasificar productos SKU por SKU, necesitás entender cómo se comporta el negocio por familias o categorías. Después vas a usar tu AI personal para aplicar criterios de portfolio y completar una propuesta por producto en el workbook. La decisión operativa por producto queda en el Excel. La síntesis del criterio queda en la plataforma.",
+    mainSheets: ["06_PORTFOLIO"],
+    supportSheets: ["03_BASE_SKUS", "04_EXPLORACION", "05_DIAGNOSTICO_INICIAL", "11_SCOREBOARD_ALUMNO"],
     concepts: [
-      { term: "CORE", definition: "SKU que conviene sostener por venta, margen, cobertura o rol comercial." },
-      { term: "REVIEW", definition: "SKU que requiere análisis o acción antes de decidir retiro." },
-      { term: "ELIMINAR", definition: "SKU candidato a retirar, liquidar o discontinuar." },
+      { term: "Core", definition: "Producto a proteger, sostener o potenciar." },
+      { term: "Review", definition: "Producto que requiere revisión antes de decidir." },
+      { term: "Eliminar", definition: "Candidato a salida controlada, liquidación o no reposición." },
       { term: "Revenue en riesgo", definition: "Ventas que podrían perderse si se retiran productos." },
       { term: "Capital inmovilizado", definition: "Dinero atrapado en stock." }
     ],
-    questions: [
-      "¿Qué productos concentran ventas y margen?",
-      "¿Qué productos tienen bajo margen o margen negativo?",
-      "¿Qué productos tienen mucho stock o DDI alto?",
-      "¿Qué productos venden poco pero ocupan capital?",
-      "¿Qué productos conviene revisar antes de eliminar?"
-    ],
+    questions: [],
     prompts: [
-      { title: "Explorar portfolio", body: "Usá 01_BASE_SKUS y 04_DIAGNOSTICO_INICIAL para detectar productos CORE, REVIEW y ELIMINAR. No decidas sólo por baja venta." },
-      { title: "Proponer criterios", body: "Proponé criterios simples combinando ventas, margen, DDI, stock, cobertura y rol comercial. Explicá excepciones." },
-      { title: "Preparar checkpoint", body: "Ayudame a completar 05_DECISIONES_PORTFOLIO y la sección Portfolio de 09_SCOREBOARD_ALUMNO con diagnóstico, criterios y riesgos." }
+      {
+        title: "Prompt recomendado: completar portfolio por SKU",
+        body: "Usando el workbook del Laboratorio 1, analizá la hoja de SKUs y la hoja de portfolio.\n\nQuiero que actúes como analista de inteligencia comercial. El objetivo es construir una primera estrategia de portfolio y completar una propuesta por SKU.\n\nPrimero hacé una lectura agregada por familia o categoría:\n1. Qué familias concentran revenue.\n2. Qué familias concentran margen.\n3. Dónde hay más stock, DDI o capital inmovilizado.\n4. Dónde hay productos suspendidos con stock.\n5. Dónde hay caída reciente o bajo margen.\n6. Qué señales deberían influir en la decisión de portfolio.\n\nDespués, clasificá cada SKU usando estas categorías:\n\nCore: Producto a proteger, sostener o potenciar. Usalo para SKUs activos con alta contribución a revenue o margen, tendencia estable o positiva, margen saludable, relevancia comercial o riesgo alto si se discontinuaran.\n\nReview: Producto que requiere revisión antes de decidir. Usalo para SKUs con señales mixtas: buen revenue pero margen bajo, buen margen pero baja rotación, stock alto, DDI elevado, caída reciente, precio desalineado, datos contradictorios o dudas comerciales.\n\nEliminar: Producto candidato a salida controlada, liquidación o no reposición. Usalo para SKUs suspendidos o con baja contribución, margen bajo o negativo, tendencia negativa, baja rotación, alto capital inmovilizado sin justificación o bajo riesgo comercial si se retiran.\n\nCompletá o proponé valores para estas columnas del workbook:\n\n- decision_portfolio: Core / Review / Eliminar.\n- action_90_days: acción recomendada para los próximos 90 días.\n- decision_reason: razón principal de la clasificación.\n- priority: Alta / Media / Baja.\n- commercial_risk: principal riesgo comercial.\n- ai_comment: comentario breve que explique la lógica de la recomendación.\n- team_comment: dejar vacío salvo que el equipo quiera corregir o desafiar la recomendación.\n\nCriterio para priority:\n- Alta: requiere acción rápida por alto impacto, alto riesgo, alto capital inmovilizado, riesgo de quiebre o decisión crítica.\n- Media: relevante, pero no urgente o de impacto moderado.\n- Baja: bajo impacto, bajo riesgo o baja urgencia.\n\nImportante:\n- No inventes datos.\n- Si una variable no existe o no es clara, aclaralo.\n- No clasifiques usando una sola variable aislada.\n- Si el caso es dudoso, marcá Review.\n- Separá hallazgos basados en datos de hipótesis.\n- Priorizá la explicación comercial por sobre la aparente precisión matemática."
+      }
     ],
     required: [
-      "05_DECISIONES_PORTFOLIO completa.",
-      "09_SCOREBOARD_ALUMNO actualizada en sección portfolio.",
-      "Diagnóstico de portfolio, criterios de clasificación, riesgos y cuidados."
+      "06_PORTFOLIO completa con propuesta de portfolio por SKU.",
+      "Síntesis del criterio guardada en plataforma."
     ],
     fields: [
-      { key: "portfolioDiagnosis", label: "Diagnóstico de portfolio", placeholder: "Qué problema detectaron en el portfolio." },
-      { key: "classificationCriteria", label: "Criterios de clasificación", placeholder: "Reglas para CORE, REVIEW o ELIMINAR." },
-      { key: "risks", label: "Riesgos y cuidados", placeholder: "Qué puede salir mal y cómo controlarlo." }
+      { key: "criterio", label: "¿Qué criterio usó el equipo para clasificar Core / Review / Eliminar?", placeholder: "Resumí las reglas o lógica que aplicó el equipo." },
+      { key: "familias", label: "¿Qué familias o grupos de productos aparecen como más importantes o problemáticos?", placeholder: "Identificá las familias que concentran resultados o generan riesgos." },
+      { key: "revisionesManuales", label: "¿Qué decisiones revisarían manualmente antes de ejecutar?", placeholder: "Casos dudosos, críticos o de alto impacto comercial." },
+      { key: "riesgos", label: "¿Qué riesgos comerciales detectaron?", placeholder: "Riesgos de revenue, margen, stock, quiebre o ejecución." }
     ],
     confirmations: [
-      { key: "completedPortfolio", label: "Completé 05_DECISIONES_PORTFOLIO." },
-      { key: "updatedScoreboardPortfolio", label: "Actualicé la sección Portfolio de 09_SCOREBOARD_ALUMNO." },
-      { key: "reviewedExecutiveCriteria", label: "Revisé la recomendación con criterio ejecutivo, no solo con la AI." },
-      { key: "firstPlan90", label: "Completé una primera versión del plan 90 días.", optional: true }
+      { key: "completedPortfolio", label: "Completé la hoja de portfolio en el workbook." },
+      { key: "reviewedExecutiveCriteria", label: "Revisé las recomendaciones con criterio ejecutivo, no solo con la AI." }
     ]
   },
   "ex-02": {
