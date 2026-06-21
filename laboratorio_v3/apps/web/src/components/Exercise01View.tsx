@@ -7,19 +7,26 @@ import { ExerciseStepLayout } from "./ExerciseStepLayout";
 import { WorkbookStatusCard } from "./WorkbookStatusCard";
 import type { Group, LabCheckpoint, SystemScoreboard } from "../types/lab";
 
-const recommendedPrompt = `Usando el workbook del Laboratorio 1, analizá la hoja de SKUs y la hoja de portfolio.
+const prompt1 = `Usando el workbook del Laboratorio 1, analizá la hoja de SKUs.
+
+Quiero que actúes como analista de inteligencia comercial. Antes de clasificar producto por producto, ayudame a entender el portfolio por familias o categorías.
+
+Devolveme:
+
+1. Qué familias concentran revenue.
+2. Qué familias concentran margen.
+3. Qué familias tienen mayor stock, DDI o capital inmovilizado.
+4. Qué familias tienen más productos suspendidos o con baja rotación.
+5. Qué familias muestran caída reciente, margen bajo o señales de riesgo.
+6. Qué señales deberían influir en la decisión de portfolio.
+
+No completes todavía la clasificación SKU por SKU. Primero quiero entender el negocio por familias y las señales más importantes.`;
+
+const prompt2 = `Usando el workbook del Laboratorio 1, analizá la hoja de SKUs y la hoja de portfolio.
 
 Quiero que actúes como analista de inteligencia comercial. El objetivo es construir una primera estrategia de portfolio y completar una propuesta por SKU.
 
-Primero hacé una lectura agregada por familia o categoría:
-1. Qué familias concentran revenue.
-2. Qué familias concentran margen.
-3. Dónde hay más stock, DDI o capital inmovilizado.
-4. Dónde hay productos suspendidos con stock.
-5. Dónde hay caída reciente o bajo margen.
-6. Qué señales deberían influir en la decisión de portfolio.
-
-Después, clasificá cada SKU usando estas categorías:
+Clasificá cada SKU usando estas categorías:
 
 Core:
 Producto a proteger, sostener o potenciar. Usalo para SKUs activos con alta contribución a revenue o margen, tendencia estable o positiva, margen saludable, relevancia comercial o riesgo alto si se discontinuaran.
@@ -53,7 +60,35 @@ Importante:
 - Separá hallazgos basados en datos de hipótesis.
 - Priorizá la explicación comercial por sobre la aparente precisión matemática.`;
 
-const familySignals = [
+const prompt3 = `Ahora analizá cómo quedó el portfolio después de completar la clasificación Core / Review / Eliminar.
+
+Necesito un resumen para contestar en la plataforma.
+
+Devolveme:
+
+1. Cantidad total de SKUs clasificados como Core, Review y Eliminar.
+2. Cantidad de SKUs en cada clasificación por familia o categoría.
+3. Revenue total asociado a cada clasificación.
+4. Margen bruto total asociado a cada clasificación.
+5. Stock actual y capital inmovilizado asociado a cada clasificación.
+6. Principales familias donde se concentra la decisión de Eliminar.
+7. Principales familias donde se concentra la decisión de Review.
+8. Principales familias que quedan como Core.
+9. Riesgos comerciales de la nueva clasificación.
+10. Qué decisiones deberían revisarse manualmente antes de ejecutar.
+
+Si es posible, compará:
+- Antes: portfolio sin decisión explícita.
+- Después: portfolio clasificado en Core / Review / Eliminar.
+
+Cerrá con un resumen ejecutivo de 5 bullets sobre cómo impacta esta decisión al negocio.
+
+Importante:
+- No presentes el impacto como resultado financiero garantizado.
+- Hablá de impacto potencial o exposición asociada a la clasificación.
+- Si no podés calcular alguna métrica con los datos disponibles, aclaralo.`;
+
+const metrics = [
   "Revenue total.",
   "Margen bruto total.",
   "Margen porcentual.",
@@ -62,19 +97,9 @@ const familySignals = [
   "DDI.",
   "Capital inmovilizado.",
   "Tendencia reciente.",
-  "Cantidad de SKUs activos o suspendidos.",
+  "Estatus activo o suspendido.",
   "Precio vs mercado, si está disponible.",
   "Elasticidad proxy, si está disponible."
-];
-
-const portfolioColumns = [
-  "decision_portfolio: Core / Review / Eliminar.",
-  "action_90_days: acción recomendada para los próximos 90 días.",
-  "decision_reason: razón principal de la clasificación.",
-  "priority: Alta / Media / Baja.",
-  "commercial_risk: principal riesgo comercial.",
-  "ai_comment: comentario breve que explique la lógica de la recomendación.",
-  "team_comment: dejar vacío salvo que el equipo quiera corregir o desafiar la recomendación."
 ];
 
 const criteria = [
@@ -145,6 +170,36 @@ const criteria = [
   }
 ];
 
+function CopyPromptBlock({ label, intro, prompt }: { label: string; intro: string; prompt: string }) {
+  const [copied, setCopied] = useState(false);
+
+  async function copy() {
+    await navigator.clipboard.writeText(prompt);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }
+
+  return (
+    <div className="promptSingle">
+      <div className="promptSingleHeader">
+        <span>{label}</span>
+        <button
+          aria-label={copied ? "Copiado" : "Copiar prompt"}
+          className="iconButton"
+          onClick={copy}
+          type="button"
+        >
+          {copied ? <Check size={16} /> : <Copy size={16} />}
+        </button>
+      </div>
+      <div className="panel" style={{ margin: 0, border: "none", borderRadius: 0, background: "rgba(255,255,255,0.72)" }}>
+        <p className="muted" style={{ margin: 0 }}>{intro}</p>
+      </div>
+      <pre>{prompt}</pre>
+    </div>
+  );
+}
+
 export function Exercise01View({
   group,
   stateVersion,
@@ -160,19 +215,11 @@ export function Exercise01View({
   onSave: (payload: { fields: Record<string, string>; confirmations: Record<string, boolean>; workbookName?: string; reportName?: string }) => Promise<void>;
   onSubmit: (payload: { fields: Record<string, string>; confirmations: Record<string, boolean>; workbookName?: string; reportName?: string; requiredFields: string[]; requiredConfirmations: string[] }) => Promise<void>;
 }) {
-  const [copied, setCopied] = useState(false);
-
-  async function copyPrompt() {
-    await navigator.clipboard.writeText(recommendedPrompt);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  }
-
   const fieldLabels = [
-    { key: "criterio", label: "¿Qué criterio usó el equipo para clasificar Core / Review / Eliminar?", placeholder: "Resumí las reglas o lógica que aplicó el equipo." },
-    { key: "familias", label: "¿Qué familias o grupos de productos aparecen como más importantes o problemáticos?", placeholder: "Identificá las familias que concentran resultados o generan riesgos." },
-    { key: "revisionesManuales", label: "¿Qué decisiones revisarían manualmente antes de ejecutar?", placeholder: "Casos dudosos, críticos o de alto impacto comercial." },
-    { key: "riesgos", label: "¿Qué riesgos comerciales detectaron?", placeholder: "Riesgos de revenue, margen, stock, quiebre o ejecución." }
+    { key: "resumenClasificacion", label: "1. Resumen de clasificación", placeholder: "Ejemplo: cuántos SKUs quedaron como Core, Review y Eliminar, y en qué familias se concentran." },
+    { key: "impactoPotencial", label: "2. Impacto potencial en el negocio", placeholder: "Ejemplo: qué implica la clasificación sobre revenue, margen, inventario, capital inmovilizado o riesgo comercial." },
+    { key: "decisionesRevisar", label: "3. Decisiones a revisar antes de ejecutar", placeholder: "Ejemplo: casos dudosos, SKUs críticos, familias sensibles o decisiones que requieren validación con negocio." },
+    { key: "limitesCuidados", label: "4. Límites o cuidados de la recomendación", placeholder: "Ejemplo: supuestos de la IA, datos a validar, variables faltantes o riesgos de interpretar mal el workbook." }
   ];
 
   const requiredFields = fieldLabels.map((field) => field.key);
@@ -198,31 +245,26 @@ export function Exercise01View({
           En este ejercicio vas a definir una primera estrategia de portfolio.
         </p>
         <p className="muted">
-          Antes de clasificar productos SKU por SKU, necesitás entender cómo se comporta el negocio por familias o categorías: dónde está el revenue, dónde está el margen, dónde hay inventario inmovilizado, qué productos están suspendidos y dónde aparecen señales de caída o riesgo.
+          Una estrategia de portfolio no se define producto por producto a ojo. Primero necesitás entender cómo se comporta el negocio por familias o categorías: dónde está el revenue, dónde está el margen, dónde hay inventario inmovilizado, qué productos están suspendidos y dónde aparecen señales de caída o riesgo.
         </p>
         <p className="muted">
           Después vas a usar tu AI personal para aplicar criterios de portfolio y completar una propuesta por producto en el workbook.
         </p>
         <p className="muted">
-          La decisión operativa por producto queda en el Excel. La síntesis del criterio queda en la plataforma.
+          La decisión operativa por producto queda en el Excel. La síntesis del impacto y los riesgos queda en la plataforma.
         </p>
       </section>
 
       <section className="card">
-        <div className="eyebrow">Paso 1</div>
-        <h2>Entendé el portfolio por familias</h2>
+        <div className="eyebrow">Parte A</div>
+        <h2>Entender el criterio de portfolio</h2>
         <p className="muted">
-          Antes de completar decisiones por SKU, mirá el portfolio a nivel familias o categorías. Esto te ayuda a no clasificar productos de forma aislada.
+          Antes de pedirle a la IA que clasifique productos, revisá cómo pensar Core, Review y Eliminar. La plataforma te da el marco conceptual; después la IA te ayuda a aplicarlo al negocio real.
         </p>
-        <ul className="simpleList">
-          {familySignals.map((item) => (
-            <li key={item}>{item}</li>
-          ))}
-        </ul>
       </section>
 
       <section className="card">
-        <div className="eyebrow">Paso 2</div>
+        <div className="eyebrow">Criterios</div>
         <h2>Criterios de decisión de portfolio</h2>
         <p className="muted">
           Usá estos criterios para orientar la clasificación. No son reglas rígidas: la IA propone una primera lectura y el equipo revisa los casos críticos o dudosos.
@@ -257,45 +299,58 @@ export function Exercise01View({
       </section>
 
       <section className="card">
-        <div className="eyebrow">Paso 3</div>
-        <h2>Usá tu AI personal para completar la propuesta por SKU</h2>
+        <div className="eyebrow">Métricas</div>
+        <h2>Métricas que ayudan a decidir</h2>
         <p className="muted">
-          Ahora usá tu AI personal para aplicar estos criterios a la hoja de portfolio.
+          Para aplicar el criterio, mirá señales combinadas. No clasifiques usando una sola variable aislada.
         </p>
-        <p className="muted">
-          La IA debería proponer una clasificación por SKU y completar las columnas de decisión del workbook. Después, el equipo revisa los casos críticos, dudosos o de alto impacto antes de subir el archivo actualizado.
-        </p>
-
-        <div className="panel">
-          <h3>Columnas que la IA debe completar o proponer</h3>
-          <ul className="simpleList">
-            {portfolioColumns.map((item) => (
-              <li key={item}>{item}</li>
-            ))}
-          </ul>
-          <p className="muted" style={{ marginTop: 12, marginBottom: 0 }}>
-            La prioridad no es un score matemático exacto. Es una prioridad comercial para gestionar en los próximos 90 días.
-          </p>
-        </div>
-
-        <div className="promptSingle">
-          <div className="promptSingleHeader">
-            <span>Prompt recomendado</span>
-            <button
-              aria-label={copied ? "Copiado" : "Copiar prompt"}
-              className="iconButton"
-              onClick={copyPrompt}
-              type="button"
-            >
-              {copied ? <Check size={16} /> : <Copy size={16} />}
-            </button>
-          </div>
-          <pre>{recommendedPrompt}</pre>
-        </div>
+        <ul className="simpleList">
+          {metrics.map((item) => (
+            <li key={item}>{item}</li>
+          ))}
+        </ul>
       </section>
 
       <section className="card">
-        <div className="eyebrow">Paso 4</div>
+        <div className="eyebrow">Prompt 1</div>
+        <h2>Lectura por familias</h2>
+        <CopyPromptBlock
+          intro="Usá este prompt para que tu AI personal identifique familias motor, familias con riesgo, stock atrapado y señales relevantes para la decisión de portfolio. Todavía no le pidas completar todas las filas."
+          label="Prompt recomendado"
+          prompt={prompt1}
+        />
+      </section>
+
+      <section className="card">
+        <div className="eyebrow">Parte B</div>
+        <h2>Aplicar el criterio al workbook</h2>
+        <p className="muted">
+          Ahora usá tu AI personal para aplicar los criterios al workbook. La IA debería proponer una clasificación por SKU y completar las columnas de decisión. Después, el equipo revisa los casos críticos, dudosos o de alto impacto antes de subir el archivo actualizado.
+        </p>
+      </section>
+
+      <section className="card">
+        <div className="eyebrow">Prompt 2</div>
+        <h2>Completar decisiones SKU por SKU</h2>
+        <CopyPromptBlock
+          intro="Usá este prompt para que la IA proponga una clasificación por producto y complete las columnas de portfolio en el workbook."
+          label="Prompt recomendado"
+          prompt={prompt2}
+        />
+      </section>
+
+      <section className="card">
+        <div className="eyebrow">Prompt 3</div>
+        <h2>Resumir portfolio resultante e impacto</h2>
+        <CopyPromptBlock
+          intro="Después de completar la clasificación, pedile a la IA un resumen de cómo quedó el portfolio y qué impacto potencial tiene sobre el negocio. Este resumen te sirve para completar la síntesis final en la plataforma."
+          label="Prompt recomendado"
+          prompt={prompt3}
+        />
+      </section>
+
+      <section className="card">
+        <div className="eyebrow">Subir workbook</div>
         <h2>Subí el workbook actualizado</h2>
         <p className="muted">
           Cuando el equipo haya revisado la propuesta y completado el workbook, subí el archivo actualizado para registrar el checkpoint del Ejercicio 1.
@@ -303,10 +358,10 @@ export function Exercise01View({
       </section>
 
       <section className="card">
-        <div className="eyebrow">Síntesis del equipo</div>
-        <h2>Guardá la síntesis del criterio</h2>
+        <div className="eyebrow">Síntesis final</div>
+        <h2>Síntesis final del Ejercicio 1</h2>
         <p className="muted">
-          La plataforma no pide copiar toda la tabla. Capturá la síntesis del criterio y los riesgos que el equipo se lleva del ejercicio.
+          No copies toda la respuesta de la IA ni toda la tabla del Excel. Guardá la síntesis del resultado y las decisiones que revisarías antes de ejecutar.
         </p>
 
         <ExerciseCheckpointForm

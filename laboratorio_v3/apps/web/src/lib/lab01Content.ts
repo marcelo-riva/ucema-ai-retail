@@ -52,10 +52,10 @@ export const lab01ExerciseContent = {
       "Síntesis del criterio guardada en plataforma."
     ],
     fields: [
-      { key: "criterio", label: "¿Qué criterio usó el equipo para clasificar Core / Review / Eliminar?", placeholder: "Resumí las reglas o lógica que aplicó el equipo." },
-      { key: "familias", label: "¿Qué familias o grupos de productos aparecen como más importantes o problemáticos?", placeholder: "Identificá las familias que concentran resultados o generan riesgos." },
-      { key: "revisionesManuales", label: "¿Qué decisiones revisarían manualmente antes de ejecutar?", placeholder: "Casos dudosos, críticos o de alto impacto comercial." },
-      { key: "riesgos", label: "¿Qué riesgos comerciales detectaron?", placeholder: "Riesgos de revenue, margen, stock, quiebre o ejecución." }
+      { key: "resumenClasificacion", label: "1. Resumen de clasificación", placeholder: "Ejemplo: cuántos SKUs quedaron como Core, Review y Eliminar, y en qué familias se concentran." },
+      { key: "impactoPotencial", label: "2. Impacto potencial en el negocio", placeholder: "Ejemplo: qué implica la clasificación sobre revenue, margen, inventario, capital inmovilizado o riesgo comercial." },
+      { key: "decisionesRevisar", label: "3. Decisiones a revisar antes de ejecutar", placeholder: "Ejemplo: casos dudosos, SKUs críticos, familias sensibles o decisiones que requieren validación con negocio." },
+      { key: "limitesCuidados", label: "4. Límites o cuidados de la recomendación", placeholder: "Ejemplo: supuestos de la IA, datos a validar, variables faltantes o riesgos de interpretar mal el workbook." }
     ],
     confirmations: [
       { key: "completedPortfolio", label: "Completé la hoja de portfolio en el workbook." },
