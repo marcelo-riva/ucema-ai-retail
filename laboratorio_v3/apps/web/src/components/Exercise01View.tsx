@@ -91,7 +91,14 @@ Cerrá con un resumen ejecutivo de 5 bullets sobre cómo impacta esta decisión 
 Importante:
 - No presentes el impacto como resultado financiero garantizado.
 - Hablá de impacto potencial o exposición asociada a la clasificación.
-- Si no podés calcular alguna métrica con los datos disponibles, aclaralo.`;
+- Si no podés calcular alguna métrica con los datos disponibles, aclaralo.
+
+Cerrá tu respuesta con una sección llamada 'Respuesta para plataforma' usando exactamente estos 4 bloques:
+
+1. Resumen de clasificación
+2. Impacto potencial en el negocio
+3. Decisiones a revisar antes de ejecutar
+4. Datos o supuestos a validar`;
 
 const metrics = [
   "Revenue total.",
@@ -224,7 +231,7 @@ export function Exercise01View({
     { key: "resumenClasificacion", label: "1. Resumen de clasificación", placeholder: "Ejemplo: cuántos SKUs quedaron como Core, Review y Eliminar, y en qué familias se concentran." },
     { key: "impactoPotencial", label: "2. Impacto potencial en el negocio", placeholder: "Ejemplo: qué implica la clasificación sobre revenue, margen, inventario, capital inmovilizado o riesgo comercial." },
     { key: "decisionesRevisar", label: "3. Decisiones a revisar antes de ejecutar", placeholder: "Ejemplo: casos dudosos, SKUs críticos, familias sensibles o decisiones que requieren validación con negocio." },
-    { key: "limitesCuidados", label: "4. Límites o cuidados de la recomendación", placeholder: "Ejemplo: supuestos de la IA, datos a validar, variables faltantes o riesgos de interpretar mal el workbook." }
+    { key: "limitesCuidados", label: "4. Datos o supuestos a validar", placeholder: "Ejemplo: supuestos de la IA, datos a validar, variables faltantes o criterios que conviene revisar antes de confiar plenamente en la recomendación." }
   ];
 
   const requiredFields = fieldLabels.map((field) => field.key);

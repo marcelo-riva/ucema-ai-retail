@@ -55,7 +55,7 @@ export const lab01ExerciseContent = {
       { key: "resumenClasificacion", label: "1. Resumen de clasificación", placeholder: "Ejemplo: cuántos SKUs quedaron como Core, Review y Eliminar, y en qué familias se concentran." },
       { key: "impactoPotencial", label: "2. Impacto potencial en el negocio", placeholder: "Ejemplo: qué implica la clasificación sobre revenue, margen, inventario, capital inmovilizado o riesgo comercial." },
       { key: "decisionesRevisar", label: "3. Decisiones a revisar antes de ejecutar", placeholder: "Ejemplo: casos dudosos, SKUs críticos, familias sensibles o decisiones que requieren validación con negocio." },
-      { key: "limitesCuidados", label: "4. Límites o cuidados de la recomendación", placeholder: "Ejemplo: supuestos de la IA, datos a validar, variables faltantes o riesgos de interpretar mal el workbook." }
+      { key: "limitesCuidados", label: "4. Datos o supuestos a validar", placeholder: "Ejemplo: supuestos de la IA, datos a validar, variables faltantes o criterios que conviene revisar antes de confiar plenamente en la recomendación." }
     ],
     confirmations: [
       { key: "completedPortfolio", label: "Completé la hoja de portfolio en el workbook." },
