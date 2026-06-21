@@ -7,7 +7,7 @@ import { ExerciseStepLayout } from "./ExerciseStepLayout";
 import { WorkbookStatusCard } from "./WorkbookStatusCard";
 import type { Group, LabCheckpoint, SystemScoreboard } from "../types/lab";
 
-const prompt1 = `Usando el workbook del Laboratorio 1, analizá la hoja de SKUs.
+const prompt1 = `Usando el workbook del Laboratorio 1, analizá la hoja 03_BASE_SKUS.
 
 Quiero que actúes como analista de inteligencia comercial. Antes de clasificar producto por producto, ayudame a entender el portfolio por familias o categorías.
 
@@ -22,7 +22,12 @@ Devolveme:
 
 No completes todavía la clasificación SKU por SKU. Primero quiero entender el negocio por familias y las señales más importantes.`;
 
-const prompt2 = `Usando el workbook del Laboratorio 1, analizá la hoja de SKUs y la hoja de portfolio.
+const prompt2 = `Usando el workbook del Laboratorio 1, trabajá con estas hojas:
+
+- 03_BASE_SKUS: usala como fuente de datos del negocio.
+- 06_PORTFOLIO: usala como hoja de trabajo para completar la propuesta de portfolio.
+
+No modifiques la hoja 03_BASE_SKUS. La clasificación debe completarse o proponerse en 06_PORTFOLIO.
 
 Quiero que actúes como analista de inteligencia comercial. El objetivo es construir una primera estrategia de portfolio y completar una propuesta por SKU.
 
@@ -37,7 +42,7 @@ Producto que requiere revisión antes de decidir. Usalo para SKUs con señales m
 Eliminar:
 Producto candidato a salida controlada, liquidación o no reposición. Usalo para SKUs suspendidos o con baja contribución, margen bajo o negativo, tendencia negativa, baja rotación, alto capital inmovilizado sin justificación o bajo riesgo comercial si se retiran.
 
-Completá o proponé valores para estas columnas del workbook:
+Completá o proponé valores para estas columnas de 06_PORTFOLIO:
 
 - decision_portfolio: Core / Review / Eliminar.
 - action_90_days: acción recomendada para los próximos 90 días.
@@ -58,11 +63,11 @@ Importante:
 - No clasifiques usando una sola variable aislada.
 - Si el caso es dudoso, marcá Review.
 - Separá hallazgos basados en datos de hipótesis.
-- Priorizá la explicación comercial por sobre la aparente precisión matemática.`;
+- Priorizá la explicación comercial por sobre la aparente precisión matemática.
 
-const prompt3 = `Ahora analizá cómo quedó el portfolio después de completar la clasificación Core / Review / Eliminar.
+Si no podés editar el archivo directamente, devolveme una tabla lista para copiar a 06_PORTFOLIO, respetando sku_id y las columnas solicitadas.`;
 
-Necesito un resumen para contestar en la plataforma.
+const prompt3 = `Usá la hoja 06_PORTFOLIO ya completada como fuente principal para resumir cómo quedó el portfolio. Si necesitás revenue, margen, stock, DDI o familia, cruzalo contra 03_BASE_SKUS usando sku_id.
 
 Devolveme:
 
@@ -77,7 +82,7 @@ Devolveme:
 9. Riesgos comerciales de la nueva clasificación.
 10. Qué decisiones deberían revisarse manualmente antes de ejecutar.
 
-Si es posible, compará:
+Compará:
 - Antes: portfolio sin decisión explícita.
 - Después: portfolio clasificado en Core / Review / Eliminar.
 
@@ -255,8 +260,8 @@ export function Exercise01View({
         </p>
       </section>
 
-      <section className="card">
-        <div className="eyebrow">Parte A</div>
+      <section className="card" style={{ background: "rgba(15, 107, 93, 0.06)", borderColor: "var(--brand)" }}>
+        <div className="eyebrow" style={{ color: "var(--brand-strong)" }}>Parte A</div>
         <h2>Entender el criterio de portfolio</h2>
         <p className="muted">
           Antes de pedirle a la IA que clasifique productos, revisá cómo pensar Core, Review y Eliminar. La plataforma te da el marco conceptual; después la IA te ayuda a aplicarlo al negocio real.
@@ -321,9 +326,9 @@ export function Exercise01View({
         />
       </section>
 
-      <section className="card">
-        <div className="eyebrow">Parte B</div>
-        <h2>Aplicar el criterio al workbook</h2>
+      <section className="card" style={{ background: "rgba(191, 111, 40, 0.06)", borderColor: "var(--accent)" }}>
+        <div className="eyebrow" style={{ color: "var(--accent)" }}>Parte B</div>
+        <h2>Aplicar el criterio al workbook y medir impacto</h2>
         <p className="muted">
           Ahora usá tu AI personal para aplicar los criterios al workbook. La IA debería proponer una clasificación por SKU y completar las columnas de decisión. Después, el equipo revisa los casos críticos, dudosos o de alto impacto antes de subir el archivo actualizado.
         </p>
@@ -333,7 +338,7 @@ export function Exercise01View({
         <div className="eyebrow">Prompt 2</div>
         <h2>Completar decisiones SKU por SKU</h2>
         <CopyPromptBlock
-          intro="Usá este prompt para que la IA proponga una clasificación por producto y complete las columnas de portfolio en el workbook."
+          intro="Usá este prompt para que la IA proponga una clasificación por producto y complete la hoja 06_PORTFOLIO, usando 03_BASE_SKUS como fuente de datos."
           label="Prompt recomendado"
           prompt={prompt2}
         />
@@ -359,7 +364,7 @@ export function Exercise01View({
 
       <section className="card">
         <div className="eyebrow">Síntesis final</div>
-        <h2>Síntesis final del Ejercicio 1</h2>
+        <h2>Guardá la síntesis del impacto</h2>
         <p className="muted">
           No copies toda la respuesta de la IA ni toda la tabla del Excel. Guardá la síntesis del resultado y las decisiones que revisarías antes de ejecutar.
         </p>
@@ -368,10 +373,12 @@ export function Exercise01View({
           checkpoint={checkpoint}
           confirmations={[]}
           fieldLabels={fieldLabels}
+          hideReportUpload
+          introText="Subí el workbook actualizado del Laboratorio 1 en formato .xlsx para registrar el checkpoint. La síntesis del impacto queda en la plataforma."
           onSave={onSave}
           onSubmit={onSubmit}
           requiredFields={requiredFields}
-          title="Subir checkpoint del workbook"
+          title="Guardá la síntesis del impacto"
         />
       </section>
     </ExerciseStepLayout>

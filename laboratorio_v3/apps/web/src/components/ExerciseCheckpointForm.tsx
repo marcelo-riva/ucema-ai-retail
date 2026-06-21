@@ -14,6 +14,7 @@ export function ExerciseCheckpointForm({
   onSubmit,
   onContinue,
   hideUploads = false,
+  hideReportUpload = false,
   introText,
   saveLabel = "Guardar checkpoint",
   showSubmit = true,
@@ -29,6 +30,7 @@ export function ExerciseCheckpointForm({
   onSubmit: (payload: { fields: Record<string, string>; confirmations: Record<string, boolean>; workbookName?: string; reportName?: string; requiredFields: string[]; requiredConfirmations: string[]; skipWorkbookValidation?: boolean }) => Promise<void>;
   onContinue?: () => void;
   hideUploads?: boolean;
+  hideReportUpload?: boolean;
   introText?: string;
   saveLabel?: string;
   showSubmit?: boolean;
@@ -67,7 +69,7 @@ export function ExerciseCheckpointForm({
         ))}
       </div>
       {hideUploads ? null : (
-        <div className="grid two" style={{ marginTop: 16 }}>
+        <div className={`grid ${hideReportUpload ? "" : "two"}`} style={{ marginTop: 16 }}>
           <label className="dropBox">
             <span>
               <strong>Workbook actualizado</strong>
@@ -76,14 +78,16 @@ export function ExerciseCheckpointForm({
             </span>
             <input accept=".xlsx" onChange={(event) => setWorkbookName(event.target.files?.[0]?.name)} type="file" />
           </label>
-          <label className="dropBox">
-            <span>
-              <strong>Reporte AI opcional</strong>
-              <br />
-              <span className="muted">{reportName ?? "Opcional"}</span>
-            </span>
-            <input onChange={(event) => setReportName(event.target.files?.[0]?.name)} type="file" />
-          </label>
+          {hideReportUpload ? null : (
+            <label className="dropBox">
+              <span>
+                <strong>Reporte AI opcional</strong>
+                <br />
+                <span className="muted">{reportName ?? "Opcional"}</span>
+              </span>
+              <input onChange={(event) => setReportName(event.target.files?.[0]?.name)} type="file" />
+            </label>
+          )}
         </div>
       )}
       <div className="checkList" style={{ marginTop: 16 }}>
