@@ -53,9 +53,10 @@ export const lab01ExerciseContent = {
     ],
     fields: [
       { key: "resumenClasificacion", label: "1. Resumen de clasificación", placeholder: "Ejemplo: cuántos SKUs quedaron como Core, Review y Eliminar, y en qué familias se concentran." },
-      { key: "impactoPotencial", label: "2. Impacto potencial en el negocio", placeholder: "Ejemplo: qué implica la clasificación sobre revenue, margen, inventario, capital inmovilizado o riesgo comercial." },
-      { key: "decisionesRevisar", label: "3. Decisiones a revisar antes de ejecutar", placeholder: "Ejemplo: casos dudosos, SKUs críticos, familias sensibles o decisiones que requieren validación con negocio." },
-      { key: "limitesCuidados", label: "4. Datos o supuestos a validar", placeholder: "Ejemplo: supuestos de la IA, datos a validar, variables faltantes o criterios que conviene revisar antes de confiar plenamente en la recomendación." }
+      { key: "escenarioElegido", label: "2. Escenario recomendado o elegido", placeholder: "Ejemplo: escenario Conservador, Balanceado o Agresivo; prioridad estratégica elegida; y por qué ese escenario tiene sentido para el caso." },
+      { key: "impactoPotencial", label: "3. Impacto potencial en el negocio", placeholder: "Ejemplo: capital potencialmente liberable, cobertura final estimada, revenue en riesgo, margen en riesgo, margen negativo evitado o leakage comercial." },
+      { key: "decisionesRevisar", label: "4. Decisiones a revisar antes de ejecutar", placeholder: "Ejemplo: casos dudosos, SKUs críticos, familias sensibles, productos con alto revenue, productos con buena cobertura o decisiones que requieren validación con negocio." },
+      { key: "limitesCuidados", label: "5. Datos o supuestos a validar", placeholder: "Ejemplo: supuestos de recupero de inventario, calidad del dato de cobertura, vigencia de precios, sustitutos disponibles, elasticidad, tendencia de demanda o reglas usadas por la IA." }
     ],
     confirmations: [
       { key: "completedPortfolio", label: "Completé la hoja de portfolio en el workbook." },
