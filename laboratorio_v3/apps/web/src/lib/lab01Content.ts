@@ -65,36 +65,39 @@ export const lab01ExerciseContent = {
   },
   "ex-02": {
     title: "Ejercicio 2: Pricing Optimization",
-    subtitle: "Definir precios para capturar margen sin destruir volumen ni competitividad.",
-    context: "Ahora que el portfolio está clasificado, el equipo debe revisar precios. Algunos productos pueden estar subvaluados, otros pueden requerir liquidación y otros deberían mantener precio para proteger volumen.",
+    subtitle: "Definir una arquitectura de precios que capture margen sin destruir volumen ni competitividad.",
+    context: "Después de clasificar el portfolio en el Ejercicio 1, el equipo debe definir una arquitectura de precios para los próximos meses. Algunos SKUs pueden estar subvaluados, otros pueden estar sobrevaluados, algunos deben proteger volumen y otros pueden requerir liquidación por su rol dentro del portfolio. El desafío es decidir dónde capturar margen, dónde defender competitividad, dónde mantener posición y dónde usar precio como herramienta táctica.",
     mainSheets: ["06_PRICING_DECISIONS"],
-    supportSheets: ["01_BASE_SKUS", "05_DECISIONES_PORTFOLIO", "09_SCOREBOARD_ALUMNO"],
+    supportSheets: ["01_BASE_SKUS", "05_DECISIONES_PORTFOLIO", "02_HISTORICO_PRECIOS_VOLUMEN", "03_COMPETIDORES"],
     concepts: [
-      { term: "Elasticidad proxy", definition: "Indicador direccional de sensibilidad precio-volumen. No controla promociones, estacionalidad, quiebres ni competencia." },
-      { term: "Pricing estructural", definition: "Cambio de precio para productos que seguirán en el portfolio." },
-      { term: "Liquidación", definition: "Precio táctico para reducir stock de SKUs a retirar." }
+      { term: "Elasticidad proxy", definition: "Señal direccional de sensibilidad precio-volumen. No debe interpretarse como verdad estadística perfecta." },
+      { term: "Índice de competitividad", definition: "Compara el precio propio contra el precio de mercado. La decisión no debe ser automática." },
+      { term: "Pricing leakage", definition: "Margen potencial que se pierde por vender por debajo del precio que el producto podría sostener." },
+      { term: "Arquitectura de precios", definition: "Ordena la relación entre productos, familias, roles y posicionamiento competitivo." },
+      { term: "Liquidación", definition: "Precio táctico para acelerar salida de SKUs clasificados como Eliminar." }
     ],
-    questions: [
-      "¿Qué SKUs CORE o REVIEW podrían capturar margen?",
-      "¿Qué productos parecen subvaluados?",
-      "¿Qué productos no soportan suba de precio?",
-      "¿Qué SKUs ELIMINAR requieren precio de liquidación?"
-    ],
+    questions: [],
     prompts: [
-      { title: "Analizar precio vs volumen", body: "Usá PVP M01-M12 y volumen M01-M12 para detectar sensibilidad precio-volumen. Tratá elasticity proxy como señal, no verdad absoluta." },
-      { title: "Detectar oportunidades", body: "Separá productos subvaluados, sobrevaluados, liquidación y revisar competitividad. Usá margen, stock, DDI y rol comercial." },
-      { title: "Preparar decisiones", body: "Ayudame a completar conceptualmente 06_PRICING_DECISIONS con pricing_decision, price_m13-m15, efecto esperado, rationale y riesgo." }
+      { title: "Prompt 1 — Explorar pricing por familia", body: "Actuá como analista senior de pricing retail. Analizá por familia revenue, margen, volumen, precio promedio, índice de competitividad, elasticidad proxy y clasificación de portfolio." },
+      { title: "Prompt 2 — Detectar SKUs subvaluados y sobrevaluados", body: "Identificá SKUs subvaluados, sobrevaluados, para mantener precio y para liquidar, combinando precios, costos, competidores, elasticidad y clasificación de portfolio." },
+      { title: "Prompt 3 — Definir estrategia competitiva", body: "Evaluá tres posicionamientos: más barato que mercado, igual mercado y premium. Recomendá una estrategia principal conectada con la clasificación del portfolio." },
+      { title: "Prompt 4 — Completar decisiones por SKU", body: "Completá la hoja 06_PRICING_DECISIONS con precio recomendado, tipo de decisión, posicionamiento, efectos esperados, rationale, riesgo y confianza." },
+      { title: "Prompt 5 — Recalcular impacto del escenario", body: "Con los precios recomendados, recalculá volumen, revenue, margen, índice de competitividad y variación versus situación actual. Separá por familia y clasificación de portfolio." },
+      { title: "Prompt 6 — Auditar la recomendación final", body: "Revisá críticamente la propuesta de precios, buscá alertas, ajustes sugeridos y decisiones que requieren validación comercial." }
     ],
-    required: ["06_PRICING_DECISIONS completa", "09_SCOREBOARD_ALUMNO sección pricing actualizada"],
+    required: ["06_PRICING_DECISIONS completa", "Síntesis de estrategia, criterios, impacto y riesgos guardada en plataforma."],
     fields: [
-      { key: "pricingStrategy", label: "Estrategia de pricing", placeholder: "Qué tipo de cambios de precio proponen." },
-      { key: "criteria", label: "Criterios usados", placeholder: "Qué reglas usaron para subir, bajar, mantener o liquidar." },
-      { key: "risks", label: "Riesgos de elasticidad / volumen", placeholder: "Qué puede salir mal en volumen, margen o competitividad." }
+      { key: "estrategia", label: "1. Estrategia de pricing elegida", placeholder: "Explicá si la estrategia fue más barata que mercado, igual mercado, premium o mixta por familia." },
+      { key: "criterios", label: "2. Criterios usados", placeholder: "Explicá qué reglas usaron para subir, bajar, mantener, liquidar o revisar SKUs." },
+      { key: "impacto", label: "3. Impacto esperado", placeholder: "Resumí el impacto esperado en revenue, margen, volumen y competitividad." },
+      { key: "riesgos", label: "4. Riesgos y validaciones", placeholder: "Identificá SKUs sensibles, familias riesgosas, supuestos débiles o decisiones que requieren validación comercial." }
     ],
     confirmations: [
       { key: "completedPricing", label: "Completé 06_PRICING_DECISIONS." },
-      { key: "updatedScoreboardPricing", label: "Actualicé 09_SCOREBOARD_ALUMNO sección pricing." },
-      { key: "reviewedElasticityProxy", label: "Usé elasticidad proxy como señal, no como verdad absoluta." }
+      { key: "definedStrategy", label: "Definí una estrategia de pricing por familia o general." },
+      { key: "reviewedSkus", label: "Revisé SKUs subvaluados y sobrevaluados." },
+      { key: "elasticityAsSignal", label: "Usé elasticidad proxy como señal, no como verdad absoluta." },
+      { key: "identifiedRisks", label: "Identifiqué riesgos y decisiones a validar." }
     ]
   },
   "ex-03": {
