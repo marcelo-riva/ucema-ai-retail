@@ -17,6 +17,7 @@ export function ExerciseCheckpointForm({
   hideReportUpload = false,
   introText,
   saveLabel = "Guardar checkpoint",
+  submitLabel = "Subir checkpoint del workbook",
   showSubmit = true,
   continueLabel = "Continuar",
   skipWorkbookValidation = false
@@ -33,6 +34,7 @@ export function ExerciseCheckpointForm({
   hideReportUpload?: boolean;
   introText?: string;
   saveLabel?: string;
+  submitLabel?: string;
   showSubmit?: boolean;
   continueLabel?: string;
   skipWorkbookValidation?: boolean;
@@ -116,10 +118,10 @@ export function ExerciseCheckpointForm({
         {showSubmit ? (
           <button
             className="button primary"
-            onClick={() => onSubmit({ fields, confirmations: checks, workbookName, reportName, requiredFields, requiredConfirmations })}
+            onClick={() => onSubmit({ fields, confirmations: checks, workbookName, reportName, requiredFields, requiredConfirmations, skipWorkbookValidation })}
             type="button"
           >
-            <Send size={17} /> Subir checkpoint del workbook
+            <Send size={17} /> {submitLabel}
           </button>
         ) : null}
         {onContinue ? (
