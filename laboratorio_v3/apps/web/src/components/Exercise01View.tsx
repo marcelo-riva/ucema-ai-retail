@@ -2,10 +2,10 @@
 
 import { Check, Copy } from "lucide-react";
 import { useState } from "react";
-import { ExerciseCheckpointForm } from "./ExerciseCheckpointForm";
 import { ExerciseStepLayout } from "./ExerciseStepLayout";
 import { WorkbookStatusCard } from "./WorkbookStatusCard";
-import type { Group, LabCheckpoint, SystemScoreboard } from "../types/lab";
+import { CheckpointForm } from "./labs/CheckpointForm";
+import type { Group, SystemScoreboard } from "../types/lab";
 
 const prompt1 = `Usando el workbook del Laboratorio 1, analizá la hoja 03_BASE_SKUS.
 
@@ -443,28 +443,16 @@ function CopyPromptBlock({ label, intro, prompt }: { label: string; intro: strin
 export function Exercise01View({
   group,
   stateVersion,
-  checkpoint,
   scoreboard,
-  onSave,
-  onSubmit
+  onSave: _onSave,
+  onSubmit: _onSubmit
 }: {
   group: Group;
   stateVersion: string;
-  checkpoint: LabCheckpoint | null;
   scoreboard: SystemScoreboard;
-  onSave: (payload: { fields: Record<string, string>; confirmations: Record<string, boolean>; workbookName?: string; reportName?: string }) => Promise<void>;
-  onSubmit: (payload: { fields: Record<string, string>; confirmations: Record<string, boolean>; workbookName?: string; reportName?: string; requiredFields: string[]; requiredConfirmations: string[] }) => Promise<void>;
+  onSave?: (payload: { fields: Record<string, string>; confirmations: Record<string, boolean>; workbookName?: string; reportName?: string }) => Promise<void>;
+  onSubmit?: (payload: { fields: Record<string, string>; confirmations: Record<string, boolean>; workbookName?: string; reportName?: string; requiredFields: string[]; requiredConfirmations: string[] }) => Promise<void>;
 }) {
-  const fieldLabels = [
-    { key: "resumenClasificacion", label: "1. Resumen de clasificación", placeholder: "Ejemplo: cuántos SKUs quedaron como Core, Review y Eliminar, y en qué familias se concentran." },
-    { key: "escenarioElegido", label: "2. Escenario recomendado o elegido", placeholder: "Ejemplo: escenario Conservador, Balanceado o Agresivo; prioridad estratégica elegida; y por qué ese escenario tiene sentido para el caso." },
-    { key: "impactoPotencial", label: "3. Impacto potencial en el negocio", placeholder: "Ejemplo: capital potencialmente liberable, cobertura final estimada, revenue en riesgo, margen en riesgo, margen negativo evitado o leakage comercial." },
-    { key: "decisionesRevisar", label: "4. Decisiones a revisar antes de ejecutar", placeholder: "Ejemplo: casos dudosos, SKUs críticos, familias sensibles, productos con alto revenue, productos con buena cobertura o decisiones que requieren validación con negocio." },
-    { key: "limitesCuidados", label: "5. Datos o supuestos a validar", placeholder: "Ejemplo: supuestos de recupero de inventario, calidad del dato de cobertura, vigencia de precios, sustitutos disponibles, elasticidad, tendencia de demanda o reglas usadas por la IA." }
-  ];
-
-  const requiredFields = fieldLabels.map((field) => field.key);
-
   return (
     <ExerciseStepLayout
       eyebrow="AI Revenue & Inventory Copilot"
@@ -474,7 +462,7 @@ export function Exercise01View({
         { label: "Grupo", value: group.name },
         { label: "Estado", value: stateVersion },
         { label: "Workbook", value: "único" },
-        { label: "Checkpoint", value: checkpoint?.status ?? "borrador" }
+        { label: "Checkpoint", value: "borrador" }
       ]}
     >
       <WorkbookStatusCard stateVersion={stateVersion} lastWorkbookName={scoreboard.lastWorkbookName} />
@@ -745,25 +733,49 @@ export function Exercise01View({
         </p>
       </section>
 
-      <section className="card">
-        <div className="eyebrow">Síntesis final</div>
-        <h2>Guardá la síntesis del impacto</h2>
-        <p className="muted">
-          No copies toda la respuesta de la IA ni toda la tabla del Excel. Guardá la síntesis del resultado, la decisión estratégica y los riesgos que revisarías antes de ejecutar.
-        </p>
-
-        <ExerciseCheckpointForm
-          checkpoint={checkpoint}
-          confirmations={[]}
-          fieldLabels={fieldLabels}
-          hideReportUpload
-          introText="Subí el workbook actualizado del Laboratorio 1 en formato .xlsx para registrar el checkpoint. La síntesis del impacto queda en la plataforma."
-          onSave={onSave}
-          onSubmit={onSubmit}
-          requiredFields={requiredFields}
-          title="Guardá la síntesis del impacto"
-        />
-      </section>
+      <CheckpointForm
+        exerciseId="ex-01"
+        exerciseVersion={1}
+        fields={[
+          {
+            id: "classification_summary",
+            label: "1. Resumen de clasificación",
+            type: "textarea",
+            placeholder: "Ejemplo: cuántos SKUs quedaron como Core, Review y Eliminar, y en qué familias se concentran.",
+            required: true
+          },
+          {
+            id: "selected_scenario",
+            label: "2. Escenario recomendado o elegido",
+            type: "textarea",
+            placeholder: "Ejemplo: escenario Conservador, Balanceado o Agresivo; prioridad estratégica elegida; y por qué ese escenario tiene sentido para el caso.",
+            required: true
+          },
+          {
+            id: "business_impact",
+            label: "3. Impacto potencial en el negocio",
+            type: "textarea",
+            placeholder: "Ejemplo: capital potencialmente liberable, cobertura final estimada, revenue en riesgo, margen en riesgo, margen negativo evitado o leakage comercial.",
+            required: true
+          },
+          {
+            id: "decisions_to_review",
+            label: "4. Decisiones a revisar antes de ejecutar",
+            type: "textarea",
+            placeholder: "Ejemplo: casos dudosos, SKUs críticos, familias sensibles, productos con alto revenue, productos con buena cobertura o decisiones que requieren validación con negocio.",
+            required: true
+          },
+          {
+            id: "assumptions_to_validate",
+            label: "5. Datos o supuestos a validar",
+            type: "textarea",
+            placeholder: "Ejemplo: supuestos de recupero de inventario, calidad del dato de cobertura, vigencia de precios, sustitutos disponibles, elasticidad, tendencia de demanda o reglas usadas por la IA.",
+            required: true
+          }
+        ]}
+        saveLabel="Guardar checkpoint"
+        submitLabel="Subir checkpoint del workbook"
+      />
     </ExerciseStepLayout>
   );
 }
