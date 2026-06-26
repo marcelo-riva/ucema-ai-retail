@@ -1,5 +1,5 @@
 import { defineBackend } from "@aws-amplify/backend";
-import { data } from "./data/resource";
+import { data } from "./data/resource.js";
 
 /**
  * Amplify Gen 2 backend definition for NEXUS Retail Labs.
