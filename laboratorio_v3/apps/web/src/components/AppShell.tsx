@@ -3,20 +3,16 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { ClipboardList, Home, LayoutDashboard, LogOut, ShieldCheck, User } from "lucide-react";
+import {
+  ClipboardList,
+  Home,
+  LayoutDashboard,
+  LogOut,
+  ShieldCheck,
+  User
+} from "lucide-react";
 import { getLabRepository } from "../lib/repositories/labRepository";
-import type { Session } from "../lib/repositories/labRepository.types";
-
-const lab01Links = [
-  { href: "/labs/lab-01", label: "Overview" },
-  { href: "/labs/lab-01/exercises/ex-00", label: "Ejercicio 0" },
-  { href: "/labs/lab-01/exercises/ex-01", label: "Ejercicio 1" },
-  { href: "/labs/lab-01/exercises/ex-02", label: "Ejercicio 2" },
-  { href: "/labs/lab-01/exercises/ex-03", label: "Ejercicio 3" },
-  { href: "/labs/lab-01/exercises/ex-04", label: "Ejercicio 4" },
-  { href: "/labs/lab-01/scoreboard", label: "Scoreboard" },
-  { href: "/labs/lab-01/final-plan", label: "Plan final" }
-];
+import type { ExerciseMeta, Session } from "../lib/repositories/labRepository.types";
 
 const exerciseLabels: Record<string, string> = {
   "ex-00": "Ejercicio 0",
@@ -26,16 +22,14 @@ const exerciseLabels: Record<string, string> = {
   "ex-04": "Ejercicio 4"
 };
 
-const allLinks = [
-  { href: "/" },
-  { href: "/labs" },
-  { href: "/admin" },
-  ...lab01Links
-];
-
-function getActiveHref(pathname: string): string | null {
+function getActiveHref(
+  pathname: string,
+  allLinks: Array<{ href: string }>
+): string | null {
   if (pathname === "/") return "/";
-  const candidates = allLinks.filter(link => link.href !== "/" && pathname.startsWith(link.href));
+  const candidates = allLinks.filter(
+    (link) => link.href !== "/" && pathname.startsWith(link.href)
+  );
   if (candidates.length === 0) return null;
   return candidates.sort((a, b) => b.href.length - a.href.length)[0].href;
 }
@@ -71,18 +65,45 @@ function buildBreadcrumbs(pathname: string) {
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
-  const activeHref = getActiveHref(pathname);
-  const inLab01 = pathname.startsWith("/labs/lab-01");
-  const inLab02 = pathname.startsWith("/labs/lab-02");
-  const breadcrumbs = buildBreadcrumbs(pathname);
   const [session, setSession] = useState<Session | null>(null);
+  const [lab01Links, setLab01Links] = useState<Array<{ href: string; label: string }>>([]);
+  const [allLinks, setAllLinks] = useState<Array<{ href: string }>>([
+    { href: "/" },
+    { href: "/labs" },
+    { href: "/admin" }
+  ]);
 
   useEffect(() => {
     getLabRepository()
       .getSession()
-      .then(setSession)
-      .catch(() => setSession(null));
+      .then(async (currentSession) => {
+        setSession(currentSession);
+        const role = currentSession?.role ?? "group";
+        const allExercises = await getLabRepository().listExercises({ role });
+        const visible =
+          role === "admin"
+            ? allExercises
+            : allExercises.filter((exercise) => exercise.status === "active");
+
+        const links = [
+          { href: "/labs/lab-01", label: "Overview" },
+          ...visible.map((exercise: ExerciseMeta) => ({
+            href: exercise.path,
+            label: exercise.title
+          }))
+        ];
+        setLab01Links(links);
+        setAllLinks([{ href: "/" }, { href: "/labs" }, { href: "/admin" }, ...links]);
+      })
+      .catch(() => {
+        setLab01Links([]);
+      });
   }, []);
+
+  const activeHref = getActiveHref(pathname, allLinks);
+  const inLab01 = pathname.startsWith("/labs/lab-01");
+  const inLab02 = pathname.startsWith("/labs/lab-02");
+  const breadcrumbs = buildBreadcrumbs(pathname);
 
   async function handleLogout() {
     await getLabRepository().logout();

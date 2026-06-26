@@ -16,6 +16,8 @@ import { WorkbookStatusCard } from "./WorkbookStatusCard";
 import { TrendProjectionChart } from "./TrendProjectionChart";
 import type { Group, LabCheckpoint, SystemScoreboard } from "../types/lab";
 import { lab01ExerciseContent, type Lab01ExerciseId } from "../lib/lab01Content";
+import type { ExerciseMeta, Session } from "../lib/repositories/labRepository.types";
+import { getLabRepository } from "../lib/repositories/labRepository";
 import {
   getCurrentGroup,
   getLab01State,
@@ -25,34 +27,79 @@ import {
   submitLabCheckpoint
 } from "../services/mockLabService";
 
+const customViews: Partial<Record<Lab01ExerciseId, React.ComponentType<any>>> = {
+  "ex-00": Exercise00View,
+  "ex-01": Exercise01View,
+  "ex-02": Exercise02View
+};
+
 export function Lab01ExerciseClient({ exerciseId }: { exerciseId: Lab01ExerciseId }) {
   const router = useRouter();
   const content = lab01ExerciseContent[exerciseId];
   const [group, setGroup] = useState<Group | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
+  const [exerciseMeta, setExerciseMeta] = useState<ExerciseMeta | null>(null);
   const [stateVersion, setStateVersion] = useState("state_v0");
   const [checkpoint, setCheckpoint] = useState<LabCheckpoint | null>(null);
   const [scoreboard, setScoreboard] = useState<SystemScoreboard | null>(null);
 
-  const reload = useCallback(async (currentGroup: Group) => {
-    setStateVersion(await getLab01State(currentGroup.id));
-    setCheckpoint(await getLabCheckpoint(currentGroup.id, exerciseId));
-    setScoreboard(await getSystemScoreboard(currentGroup.id, "lab-01"));
-  }, [exerciseId]);
+  const effectiveGroup: Group = group ?? {
+    id: session?.groupId ?? "admin",
+    name: session?.role === "admin" ? "Admin" : (session?.username ?? "Sin grupo"),
+    role: session?.role === "admin" ? "admin" : "student"
+  };
+
+  const groupId = effectiveGroup.id;
+
+  const reload = useCallback(async () => {
+    setStateVersion(await getLab01State(groupId));
+    setCheckpoint(await getLabCheckpoint(groupId, exerciseId));
+    setScoreboard(await getSystemScoreboard(groupId, "lab-01"));
+  }, [exerciseId, groupId]);
 
   useEffect(() => {
     async function load() {
-      const currentGroup = await getCurrentGroup();
-      if (!currentGroup) {
+      const currentSession = await getLabRepository().getSession();
+      if (!currentSession) {
         router.push("/login");
         return;
       }
+      setSession(currentSession);
+
+      const meta = await getLabRepository().getExerciseMeta({ exerciseId });
+      setExerciseMeta(meta);
+
+      if (meta && currentSession.role === "group" && meta.status !== "active") {
+        return; // grupo no puede acceder; mostramos mensaje de bloqueo
+      }
+
+      const currentGroup = await getCurrentGroup();
       setGroup(currentGroup);
-      await reload(currentGroup);
+      await reload();
     }
     load();
   }, [router, exerciseId, reload]);
 
-  if (!group || !scoreboard) {
+  if (session && exerciseMeta && session.role === "group" && exerciseMeta.status !== "active") {
+    return (
+      <ExerciseStepLayout
+        eyebrow="Laboratorio 1"
+        title="Ejercicio no habilitado todavía"
+        subtitle="Este ejercicio todavía no está disponible para tu grupo."
+        meta={[]}
+      >
+        <section className="card">
+          <div className="eyebrow">Acceso no habilitado</div>
+          <h2>Ejercicio no habilitado todavía</h2>
+          <p className="muted">
+            Cuando el docente active este ejercicio, vas a poder acceder desde la navegación del laboratorio.
+          </p>
+        </section>
+      </ExerciseStepLayout>
+    );
+  }
+
+  if (!session || !scoreboard) {
     return (
       <ExerciseStepLayout eyebrow="Laboratorio 1" title={content.title} subtitle="Cargando..." meta={[]}>
         <p className="lead">Cargando ejercicio...</p>
@@ -60,89 +107,49 @@ export function Lab01ExerciseClient({ exerciseId }: { exerciseId: Lab01ExerciseI
     );
   }
 
-  if (exerciseId === "ex-00") {
-    return (
-      <Exercise00View
-        checkpoint={checkpoint}
-        group={group}
-        onSave={async (payload) => {
-          const next = await saveLabCheckpoint({
-            groupId: group.id,
-            labId: "lab-01",
-            exerciseId,
-            ...payload
-          });
-          setCheckpoint(next);
-        }}
-        onSubmit={async (payload) => {
-          const next = await submitLabCheckpoint({
-            groupId: group.id,
-            labId: "lab-01",
-            exerciseId,
-            ...payload
-          });
-          setCheckpoint(next);
-          await reload(group);
-        }}
-      />
-    );
-  }
+  const handleSave = async (payload: {
+    fields: Record<string, string>;
+    confirmations: Record<string, boolean>;
+    workbookName?: string;
+    reportName?: string;
+  }) => {
+    const next = await saveLabCheckpoint({
+      groupId,
+      labId: "lab-01",
+      exerciseId,
+      ...payload
+    });
+    setCheckpoint(next);
+  };
 
-  if (exerciseId === "ex-01") {
+  const handleSubmit = async (payload: {
+    fields: Record<string, string>;
+    confirmations: Record<string, boolean>;
+    workbookName?: string;
+    reportName?: string;
+    requiredFields: string[];
+    requiredConfirmations: string[];
+  }) => {
+    const next = await submitLabCheckpoint({
+      groupId,
+      labId: "lab-01",
+      exerciseId,
+      ...payload
+    });
+    setCheckpoint(next);
+    await reload();
+  };
+
+  const CustomView = customViews[exerciseId];
+  if (CustomView) {
     return (
-      <Exercise01View
+      <CustomView
         checkpoint={checkpoint}
-        group={group}
+        group={effectiveGroup}
         scoreboard={scoreboard}
         stateVersion={stateVersion}
-        onSave={async (payload) => {
-          const next = await saveLabCheckpoint({
-            groupId: group.id,
-            labId: "lab-01",
-            exerciseId,
-            ...payload
-          });
-          setCheckpoint(next);
-        }}
-        onSubmit={async (payload) => {
-          const next = await submitLabCheckpoint({
-            groupId: group.id,
-            labId: "lab-01",
-            exerciseId,
-            ...payload
-          });
-          setCheckpoint(next);
-          await reload(group);
-        }}
-      />
-    );
-  }
-
-  if (exerciseId === "ex-02") {
-    return (
-      <Exercise02View
-        checkpoint={checkpoint}
-        group={group}
-        stateVersion={stateVersion}
-        onSave={async (payload) => {
-          const next = await saveLabCheckpoint({
-            groupId: group.id,
-            labId: "lab-01",
-            exerciseId,
-            ...payload
-          });
-          setCheckpoint(next);
-        }}
-        onSubmit={async (payload) => {
-          const next = await submitLabCheckpoint({
-            groupId: group.id,
-            labId: "lab-01",
-            exerciseId,
-            ...payload
-          });
-          setCheckpoint(next);
-          await reload(group);
-        }}
+        onSave={handleSave}
+        onSubmit={handleSubmit}
       />
     );
   }
@@ -153,7 +160,7 @@ export function Lab01ExerciseClient({ exerciseId }: { exerciseId: Lab01ExerciseI
       title={content.title}
       subtitle={content.subtitle}
       meta={[
-        { label: "Grupo", value: group.name },
+        { label: "Grupo", value: effectiveGroup.name },
         { label: "Estado", value: stateVersion },
         { label: "Workbook", value: "único" },
         { label: "Checkpoint", value: checkpoint?.status ?? "borrador" }
@@ -199,27 +206,10 @@ export function Lab01ExerciseClient({ exerciseId }: { exerciseId: Lab01ExerciseI
         checkpoint={checkpoint}
         confirmations={[...content.confirmations]}
         fieldLabels={[...content.fields]}
-        onSave={async (payload) => {
-          const next = await saveLabCheckpoint({
-            groupId: group.id,
-            labId: "lab-01",
-            exerciseId,
-            ...payload
-          });
-          setCheckpoint(next);
-        }}
-        onSubmit={async (payload) => {
-          const next = await submitLabCheckpoint({
-            groupId: group.id,
-            labId: "lab-01",
-            exerciseId,
-            ...payload
-          });
-          setCheckpoint(next);
-          await reload(group);
-        }}
+        onSave={handleSave}
+        onSubmit={handleSubmit}
         requiredFields={content.fields.map((field) => field.key)}
-        title={`Subir checkpoint del workbook`}
+        title="Subir checkpoint del workbook"
       />
     </ExerciseStepLayout>
   );

@@ -1,19 +1,24 @@
-import Link from "next/link";
+"use client";
 
-type ProgressItem = {
-  id: string;
-  order: number;
-  title: string;
-  route: string;
-  objective: string;
-  status: string;
-  checkpointName: string;
-  mainSheet: string;
-  supportSheets: string[];
-  output: string;
+import Link from "next/link";
+import type { ExerciseMeta, Role } from "../lib/repositories/labRepository.types";
+
+type ExerciseProgressNavProps = {
+  items: ExerciseMeta[];
+  role?: Role;
 };
 
-export function ExerciseProgressNav({ items }: { items: ProgressItem[] }) {
+export function ExerciseProgressNav({ items, role = "group" }: ExerciseProgressNavProps) {
+  if (items.length === 0) {
+    return (
+      <section className="card">
+        <div className="eyebrow">Secuencia Laboratorio 1</div>
+        <h2>Ejercicios del laboratorio</h2>
+        <p className="muted">No hay ejercicios habilitados para este rol.</p>
+      </section>
+    );
+  }
+
   return (
     <section className="card">
       <div className="eyebrow">Secuencia Laboratorio 1</div>
@@ -22,24 +27,14 @@ export function ExerciseProgressNav({ items }: { items: ProgressItem[] }) {
         {items.map((item) => (
           <article className="exerciseCard" key={item.id}>
             <div className="exerciseCardTop">
-              <div className="exerciseNumber">{item.id === "final-plan" ? "Cierre" : `Ej. ${item.order}`}</div>
-              <div className={`statusPill ${item.status}`}>{item.status}</div>
+              <div className="exerciseNumber">{`Ej. ${item.order}`}</div>
+              {role === "admin" ? (
+                <div className={`statusPill ${item.status}`}>{item.status}</div>
+              ) : null}
             </div>
             <h3>{item.title}</h3>
-            <p className="muted">{item.objective}</p>
-            <div className="exerciseMeta">
-              <span>Hoja principal</span>
-              <strong>{item.mainSheet}</strong>
-            </div>
-            <div className="exerciseMeta">
-              <span>Checkpoint</span>
-              <strong>{item.checkpointName}</strong>
-            </div>
-            <Link
-              className={`button ${item.status === "locked" ? "secondary" : "primary"}`}
-              href={item.route}
-              prefetch={false}
-            >
+            <p className="muted">{item.path}</p>
+            <Link className="button primary" href={item.path} prefetch={false}>
               Abrir
             </Link>
           </article>
