@@ -7,11 +7,9 @@ import type { Lab } from "../../types/lab";
 import { getLabs } from "../../services/mockLabService";
 
 function statusLabel(status: Lab["status"]) {
-  if (status === "mock_available") return "En construcción / Mock disponible";
   if (status === "coming_soon") return "Próximamente";
-  if (status === "available") return "Disponible";
   if (status === "completed") return "Completado";
-  return "Bloqueado";
+  return null;
 }
 
 export default function LabsPage() {
@@ -34,9 +32,11 @@ export default function LabsPage() {
       <section className="grid two">
         {labs.map((lab) => (
           <article className="card labSelectionCard" key={lab.id}>
-            <div className={`statusPill ${lab.status === "coming_soon" ? "locked" : "available"}`}>
-              {statusLabel(lab.status)}
-            </div>
+            {statusLabel(lab.status) ? (
+              <div className={`statusPill ${lab.status === "coming_soon" ? "locked" : "available"}`}>
+                {statusLabel(lab.status)}
+              </div>
+            ) : null}
             <h2>{lab.title}</h2>
             <p className="muted">{lab.description}</p>
             <Link
