@@ -1,8 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { ClipboardList, Home, LayoutDashboard, ShieldCheck } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { ClipboardList, Home, LayoutDashboard, LogOut, ShieldCheck, User } from "lucide-react";
+import { getLabRepository } from "../lib/repositories/labRepository";
+import type { Session } from "../lib/repositories/labRepository.types";
 
 const lab01Links = [
   { href: "/labs/lab-01", label: "Overview" },
@@ -67,10 +70,25 @@ function buildBreadcrumbs(pathname: string) {
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const router = useRouter();
   const activeHref = getActiveHref(pathname);
   const inLab01 = pathname.startsWith("/labs/lab-01");
   const inLab02 = pathname.startsWith("/labs/lab-02");
   const breadcrumbs = buildBreadcrumbs(pathname);
+  const [session, setSession] = useState<Session | null>(null);
+
+  useEffect(() => {
+    getLabRepository()
+      .getSession()
+      .then(setSession)
+      .catch(() => setSession(null));
+  }, []);
+
+  async function handleLogout() {
+    await getLabRepository().logout();
+    setSession(null);
+    router.push("/login");
+  }
 
   return (
     <div className="page">
@@ -125,6 +143,27 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </nav>
 
         <p className="sideNote">La plataforma guía. Tu AI analiza. Tu equipo decide.</p>
+
+        {session ? (
+          <div className="panel" style={{ marginTop: "auto", background: "rgba(255,255,255,0.08)", borderColor: "rgba(255,255,255,0.12)" }}>
+            <div className="eyebrow" style={{ color: "#8fc6b9" }}>Sesión</div>
+            <div style={{ alignItems: "center", display: "flex", gap: 8, marginTop: 8 }}>
+              <User size={16} />
+              <span style={{ fontWeight: 600 }}>{session.username}</span>
+            </div>
+            <p className="muted" style={{ color: "rgba(246,250,246,0.64)", fontSize: 12, margin: "6px 0 12px" }}>
+              {session.role === "admin" ? "Administrador" : `Grupo: ${session.groupId ?? "-"}`}
+            </p>
+            <button
+              className="button secondary"
+              onClick={handleLogout}
+              style={{ width: "100%" }}
+              type="button"
+            >
+              <LogOut size={16} /> Cerrar sesión
+            </button>
+          </div>
+        ) : null}
       </aside>
 
       <main className="main">

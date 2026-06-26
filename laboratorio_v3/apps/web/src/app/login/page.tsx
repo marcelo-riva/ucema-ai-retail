@@ -3,21 +3,42 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { LogIn } from "lucide-react";
-import type { Group } from "../../types/lab";
-import { getGroups, setCurrentGroup } from "../../services/mockLabService";
+import { getLabRepository } from "../../lib/repositories/labRepository";
+
+// TODO: migrar a backend real / Amplify Auth en producción.
+// Este login es localStorage-only para el entorno mock de desarrollo.
 
 export default function LoginPage() {
   const router = useRouter();
-  const [groups, setGroups] = useState<Group[]>([]);
-  const [selectedGroupId, setSelectedGroupId] = useState("group_01");
+  const repo = getLabRepository();
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    getGroups().then(setGroups);
-  }, []);
+    repo.getSession().then((session) => {
+      if (session) {
+        router.push(session.role === "admin" ? "/admin" : "/labs");
+      }
+    });
+  }, [router, repo]);
 
-  async function handleLogin() {
-    await setCurrentGroup(selectedGroupId);
-    router.push(selectedGroupId === "admin" ? "/admin" : "/labs");
+  async function handleSubmit(event: React.FormEvent) {
+    event.preventDefault();
+    setError(null);
+    setLoading(true);
+
+    const result = await repo.login({ username, password });
+    setLoading(false);
+
+    if (!result.ok || !result.session) {
+      setError(result.error ?? "Usuario o contraseña incorrectos.");
+      return;
+    }
+
+    await repo.setSession(result.session);
+    router.push(result.session.role === "admin" ? "/admin" : "/labs");
   }
 
   return (
@@ -26,26 +47,50 @@ export default function LoginPage() {
         <div className="eyebrow">NEXUS Retail Labs</div>
         <h1>Laboratorio ejecutivo de decisiones con AI personal</h1>
         <p className="lead">
-          Seleccioná tu grupo para entrar al entorno mock. Esta versión no tiene backend:
-          todo se guarda localmente en este navegador.
+          Ingresá con tu usuario de grupo o admin. En este entorno mock la
+          autenticación es local; en producción debe reemplazarse por backend/Auth.
         </p>
 
-        <div className="card" style={{ marginTop: 28 }}>
+        <form className="card" onSubmit={handleSubmit} style={{ marginTop: 28 }}>
           <label className="formField">
-            <span className="formLabel">Grupo</span>
-            <select value={selectedGroupId} onChange={(event) => setSelectedGroupId(event.target.value)}>
-              {groups.map((group) => (
-                <option key={group.id} value={group.id}>
-                  {group.name}
-                </option>
-              ))}
-            </select>
+            <span className="formLabel">Usuario</span>
+            <input
+              autoComplete="username"
+              onChange={(event) => setUsername(event.target.value)}
+              placeholder="grupo01 o admin"
+              required
+              type="text"
+              value={username}
+            />
           </label>
 
-          <button className="button primary" onClick={handleLogin} style={{ marginTop: 18 }} type="button">
-            <LogIn size={17} /> Entrar
+          <label className="formField" style={{ marginTop: 14 }}>
+            <span className="formLabel">Contraseña</span>
+            <input
+              autoComplete="current-password"
+              onChange={(event) => setPassword(event.target.value)}
+              placeholder="••••••••"
+              required
+              type="password"
+              value={password}
+            />
+          </label>
+
+          {error ? (
+            <div className="message error" style={{ marginTop: 16 }}>
+              {error}
+            </div>
+          ) : null}
+
+          <button
+            className="button primary"
+            disabled={loading}
+            style={{ marginTop: 18 }}
+            type="submit"
+          >
+            <LogIn size={17} /> {loading ? "Entrando..." : "Entrar"}
           </button>
-        </div>
+        </form>
       </section>
     </main>
   );

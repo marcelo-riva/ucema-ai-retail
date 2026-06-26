@@ -7,6 +7,7 @@ import type {
   SystemScoreboard,
   ValidationMessage
 } from "../types/lab";
+import type { Session } from "../lib/repositories/labRepository.types";
 import exercises from "../../../../data/mock/exercises.json";
 import groups from "../../../../data/mock/groups.json";
 import labs from "../../../../data/mock/labs.json";
@@ -403,6 +404,21 @@ export async function setCurrentGroup(groupId: string): Promise<void> {
 
 export async function getCurrentGroup(): Promise<Group | null> {
   if (!hasStorage()) return null;
+
+  // TODO: migrar todo el sistema a labRepository.getSession; este fallback es transitorio.
+  const sessionRaw = window.localStorage.getItem("nexus:session");
+  if (sessionRaw) {
+    try {
+      const session = JSON.parse(sessionRaw) as Session;
+      if (session.groupId) {
+        return (groups as Group[]).find((group) => group.id === session.groupId) ?? null;
+      }
+      return null; // admin no tiene grupo
+    } catch {
+      // malformed session; fallback a legacy key
+    }
+  }
+
   const groupId = window.localStorage.getItem(CURRENT_GROUP_KEY);
   return ((groups as Group[]).find((group) => group.id === groupId) ?? null);
 }
