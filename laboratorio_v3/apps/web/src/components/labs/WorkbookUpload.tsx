@@ -10,32 +10,54 @@ export type WorkbookMetadata = {
   selectedAt: string;
 };
 
-export type WorkbookUploadProps = {
-  value?: WorkbookMetadata | null;
-  onChange: (metadata: WorkbookMetadata | null) => void;
-  error?: boolean;
+export type WorkbookUploadData = {
+  metadata: WorkbookMetadata;
+  file?: File;
 };
 
-export function WorkbookUpload({ value, onChange, error }: WorkbookUploadProps) {
+export type WorkbookUploadProps = {
+  value?: WorkbookUploadData | null;
+  onChange: (data: WorkbookUploadData | null) => void;
+  error?: boolean;
+  mode?: "local" | "amplify";
+};
+
+const MAX_WORKBOOK_SIZE_BYTES = 50 * 1024 * 1024; // 50 MB
+
+export function WorkbookUpload({ value, onChange, error, mode = "local" }: WorkbookUploadProps) {
   const [localError, setLocalError] = useState<string | null>(null);
 
   function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    // Validación de extensión .xlsx
     if (!file.name.toLowerCase().endsWith(".xlsx")) {
       setLocalError("El archivo debe ser un workbook de Excel (.xlsx).");
       onChange(null);
       return;
     }
 
+    if (file.size === 0) {
+      setLocalError("El archivo está vacío.");
+      onChange(null);
+      return;
+    }
+
+    if (file.size > MAX_WORKBOOK_SIZE_BYTES) {
+      setLocalError("El archivo excede el límite de 50 MB.");
+      onChange(null);
+      return;
+    }
+
     setLocalError(null);
     onChange({
-      filename: file.name,
-      size: file.size,
-      type: file.type,
-      selectedAt: new Date().toISOString()
+      file,
+      metadata: {
+        filename: file.name,
+        size: file.size,
+        type: file.type,
+        selectedAt: new Date().toISOString()
+      }
     });
   }
 
@@ -53,8 +75,13 @@ export function WorkbookUpload({ value, onChange, error }: WorkbookUploadProps) 
             <div>
               <strong style={{ display: "block" }}>Workbook seleccionado</strong>
               <span className="muted">
-                {value.filename} · {(value.size / 1024).toFixed(1)} KB
+                {value.metadata.filename} · {(value.metadata.size / 1024).toFixed(1)} KB
               </span>
+              {mode === "local" ? (
+                <span className="muted" style={{ display: "block", fontSize: 12, marginTop: 4 }}>
+                  Modo local: se guardará la metadata, no el archivo.
+                </span>
+              ) : null}
             </div>
           </div>
           <button
@@ -72,8 +99,11 @@ export function WorkbookUpload({ value, onChange, error }: WorkbookUploadProps) 
           <span>
             <strong>Seleccionar workbook .xlsx</strong>
             <br />
-            <span className="muted">Solo se guarda metadata en modo local.</span>
-            {/* TODO: en producción con Amplify, subir el archivo a Storage y guardar workbookUploadKey en filesJson. */}
+            <span className="muted">
+              {mode === "local"
+                ? "Modo local: se guarda sólo la metadata del archivo."
+                : "Modo Amplify: el archivo se subirá a Storage."}
+            </span>
           </span>
           <input
             accept=".xlsx"
@@ -92,7 +122,7 @@ export function WorkbookUpload({ value, onChange, error }: WorkbookUploadProps) 
 
       {value ? (
         <p className="muted" style={{ margin: 0, fontSize: 12 }}>
-          Workbook seleccionado previamente: {value.filename}
+          Workbook seleccionado previamente: {value.metadata.filename}
         </p>
       ) : null}
     </div>

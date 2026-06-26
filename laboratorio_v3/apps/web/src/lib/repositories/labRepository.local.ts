@@ -7,9 +7,12 @@ import type {
   Role,
   SaveSubmissionInput,
   Session,
+  SubmitSubmissionInput,
   Submission,
-  SubmitSubmissionInput
+  WorkbookUploadInput,
+  WorkbookUploadResult
 } from "./labRepository.types";
+
 
 const SESSION_KEY = "nexus:session";
 const EXERCISE_META_KEY = "nexus:exercise-meta";
@@ -89,7 +92,7 @@ export const INITIAL_EXERCISES: ExerciseMeta[] = [
     workbookBaseKey: "NEXUS_RETAIL_LAB01_WORKBOOK_COMPLETO.xlsx"
   },
   {
-    id: "ex-02",
+    id: "ex02",
     labId: "lab-01",
     title: "Ejercicio 2: Pricing Optimization",
     path: "/labs/lab-01/exercises/ex-02",
@@ -147,8 +150,8 @@ function saveSubmissionCore(input: SaveSubmissionInput): Submission {
     status: input.status ?? existing?.status ?? "draft",
     responsesJson: { ...existing?.responsesJson, ...input.responsesJson },
     filesJson: { ...existing?.filesJson, ...input.filesJson },
-    workbookUploadKey: input.filesJson?.workbookUploadKey as string | undefined,
-    reportUploadKey: input.filesJson?.reportUploadKey as string | undefined,
+    workbookUploadKey: input.workbookUploadKey ?? (input.filesJson?.workbookUploadKey as string | undefined) ?? existing?.workbookUploadKey,
+    reportUploadKey: input.reportUploadKey ?? (input.filesJson?.reportUploadKey as string | undefined) ?? existing?.reportUploadKey,
     createdAt: existing?.createdAt ?? now,
     updatedAt: now,
     submittedAt: existing?.submittedAt
@@ -286,6 +289,16 @@ export const localLabRepository: LabRepository = {
         // skip malformed entries
       }
     }
+  },
+
+  async uploadWorkbook(_input: WorkbookUploadInput): Promise<WorkbookUploadResult | null> {
+    // Modo local: no subimos el archivo real. La metadata se guarda en filesJson.
+    return null;
+  },
+
+  async getWorkbookDownloadUrl(_key: string): Promise<string | null> {
+    // Modo local: no hay URLs de descarga de Storage.
+    return null;
   }
 };
 
@@ -358,12 +371,12 @@ export async function verifyLocalRepository(): Promise<VerificationResult[]> {
   }
 
   try {
-    await repo.updateExerciseStatus({ exerciseId: "ex-02", status: "active" });
-    const meta = await repo.getExerciseMeta({ exerciseId: "ex-02" });
-    results.push({ name: "updateExerciseStatus cambia ex-02 a active", ok: meta?.status === "active" });
-    await repo.updateExerciseStatus({ exerciseId: "ex-02", status: "draft" });
+    await repo.updateExerciseStatus({ exerciseId: "ex02", status: "active" });
+    const meta = await repo.getExerciseMeta({ exerciseId: "ex02" });
+    results.push({ name: "updateExerciseStatus cambia ex02 a active", ok: meta?.status === "active" });
+    await repo.updateExerciseStatus({ exerciseId: "ex02", status: "draft" });
   } catch (error) {
-    results.push({ name: "updateExerciseStatus cambia ex-02 a active", ok: false, error: String(error) });
+    results.push({ name: "updateExerciseStatus cambia ex02 a active", ok: false, error: String(error) });
   }
 
   try {

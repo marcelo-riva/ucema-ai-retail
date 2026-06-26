@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import "./globals.css";
+import { ConfigureAmplify } from "../components/ConfigureAmplify";
 
 export const metadata: Metadata = {
   title: "NEXUS Retail Labs",
@@ -10,7 +11,10 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="es">
-      <body>{children}</body>
+      <body>
+        <ConfigureAmplify />
+        {children}
+      </body>
     </html>
   );
 }

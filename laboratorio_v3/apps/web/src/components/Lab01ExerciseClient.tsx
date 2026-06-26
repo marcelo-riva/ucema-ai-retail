@@ -6,7 +6,7 @@ import { AIPromptCards } from "./AIPromptCards";
 import { ConceptExplainer } from "./ConceptExplainer";
 import { Exercise00View } from "./Exercise00View";
 import { Exercise01View } from "./Exercise01View";
-import { Exercise02View } from "./Exercise02View";
+import { Exercise02InitialView } from "./Exercise02InitialView";
 import { ExerciseCheckpointForm } from "./ExerciseCheckpointForm";
 import { ExerciseStepLayout } from "./ExerciseStepLayout";
 import { RequiredOutputsCard } from "./RequiredOutputsCard";
@@ -30,7 +30,7 @@ import {
 const customViews: Partial<Record<Lab01ExerciseId, React.ComponentType<any>>> = {
   "ex-00": Exercise00View,
   "ex-01": Exercise01View,
-  "ex-02": Exercise02View
+  ex02: Exercise02InitialView
 };
 
 export function Lab01ExerciseClient({ exerciseId }: { exerciseId: Lab01ExerciseId }) {

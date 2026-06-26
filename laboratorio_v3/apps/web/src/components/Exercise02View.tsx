@@ -1,9 +1,11 @@
 "use client";
 
-import { Check, Copy, Download } from "lucide-react";
-import { useState } from "react";
-import { ExerciseCheckpointForm } from "./ExerciseCheckpointForm";
-import { ExerciseStepLayout } from "./ExerciseStepLayout";
+import { Download } from "lucide-react";
+import { ExerciseHeader } from "./labs/ExerciseHeader";
+import { PromptBlock } from "./labs/PromptBlock";
+import { CriteriaGrid } from "./labs/CriteriaGrid";
+import { MetricList } from "./labs/MetricList";
+import { CheckpointForm } from "./labs/CheckpointForm";
 import type { Group, LabCheckpoint } from "../types/lab";
 import { LAB01_EJ02_WORKBOOK_FILENAME } from "../lib/constants";
 
@@ -276,6 +278,13 @@ const concepts = [
   }
 ];
 
+const conceptItems = concepts.map((concept) => ({
+  id: concept.term,
+  title: concept.term,
+  description: "",
+  blocks: [{ title: "Definición", content: concept.definition }]
+}));
+
 const metrics = [
   "Precio actual.",
   "Precio histórico.",
@@ -337,6 +346,17 @@ const strategies = [
   }
 ];
 
+const strategyItems = strategies.map((strategy) => ({
+  id: strategy.key,
+  title: strategy.title,
+  subtitle: strategy.subtitle,
+  description: "",
+  blocks: [
+    { title: "Cuándo usarlo", items: strategy.when },
+    { title: "Riesgo", content: strategy.risk }
+  ]
+}));
+
 const portfolioRules = [
   {
     key: "core",
@@ -373,42 +393,30 @@ const portfolioRules = [
   }
 ];
 
-function CopyPromptBlock({ label, intro, prompt }: { label: string; intro: string; prompt: string }) {
-  const [copied, setCopied] = useState(false);
+const portfolioRuleItems = portfolioRules.map((rule) => ({
+  id: rule.key,
+  title: rule.title,
+  description: rule.description,
+  blocks: [{ title: "Acciones típicas", items: rule.actions }]
+}));
 
-  async function copy() {
-    await navigator.clipboard.writeText(prompt);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  }
-
-  return (
-    <div className="promptSingle">
-      <div className="promptSingleHeader">
-        <span>{label}</span>
-        <button
-          aria-label={copied ? "Copiado" : "Copiar prompt"}
-          className="iconButton"
-          onClick={copy}
-          type="button"
-        >
-          {copied ? <Check size={16} /> : <Copy size={16} />}
-        </button>
-      </div>
-      <div className="panel" style={{ margin: 0, border: "none", borderRadius: 0, background: "rgba(255,255,255,0.72)" }}>
-        <p className="muted" style={{ margin: 0 }}>{intro}</p>
-      </div>
-      <pre>{prompt}</pre>
-    </div>
-  );
-}
+const evaluationItems = [
+  { id: "1", title: "Entiende diferencias entre familias." },
+  { id: "2", title: "Usa elasticidad como señal y no como verdad absoluta." },
+  { id: "3", title: "Diferencia decisiones para Core, Review y Eliminar." },
+  { id: "4", title: "Detecta pricing leakage." },
+  { id: "5", title: "Evita romper la arquitectura de precios." },
+  { id: "6", title: "Justifica excepciones." },
+  { id: "7", title: "Identifica riesgos comerciales." },
+  { id: "8", title: "Puede defender la estrategia recomendada." }
+];
 
 export function Exercise02View({
   group,
   stateVersion,
   checkpoint,
-  onSave,
-  onSubmit
+  onSave: _onSave,
+  onSubmit: _onSubmit
 }: {
   group: Group;
   stateVersion: string;
@@ -416,26 +424,17 @@ export function Exercise02View({
   onSave: (payload: { fields: Record<string, string>; confirmations: Record<string, boolean>; workbookName?: string; reportName?: string }) => Promise<void>;
   onSubmit: (payload: { fields: Record<string, string>; confirmations: Record<string, boolean>; workbookName?: string; reportName?: string; requiredFields: string[]; requiredConfirmations: string[] }) => Promise<void>;
 }) {
-  const fieldLabels = [
-    { key: "estrategia", label: "1. Estrategia de pricing elegida", placeholder: "Ejemplo: capturar margen, defender volumen, liquidar o estrategia mixta por familia; explicar por qué." },
-    { key: "impacto", label: "2. Impacto esperado en el negocio", placeholder: "Ejemplo: impacto esperado en revenue, margen, volumen, competitividad y pricing leakage capturado." },
-    { key: "decisionesRevisar", label: "3. Decisiones a revisar antes de ejecutar", placeholder: "Ejemplo: SKUs con subas agresivas, familias sensibles, productos Core con riesgo de volumen, SKUs Eliminar con liquidación dudosa o inconsistencias de arquitectura." },
-    { key: "datosValidar", label: "4. Datos o supuestos a validar", placeholder: "Ejemplo: elasticidad proxy, precios de competidores, costos unitarios, vigencia de promociones, disponibilidad de stock, sustitutos y supuestos de reacción del mercado." }
-  ];
-
-  const requiredFields = fieldLabels.map((field) => field.key);
+  const checkpointStatus = checkpoint?.status ?? "Pendiente";
 
   return (
-    <ExerciseStepLayout
+    <ExerciseHeader
       eyebrow="AI Revenue & Inventory Copilot"
       title="Ejercicio 2: Pricing Optimization"
       subtitle="Definir una arquitectura de precios que capture margen sin destruir volumen ni competitividad."
-      meta={[
-        { label: "Grupo", value: group.name },
-        { label: "Estado", value: stateVersion },
-        { label: "Workbook", value: "Ejercicio 2" },
-        { label: "Checkpoint", value: checkpoint?.status ?? "Pendiente" }
-      ]}
+      groupName={group.name}
+      stateVersion={stateVersion}
+      workbookLabel="Ejercicio 2"
+      checkpointStatus={checkpointStatus}
     >
       <section className="panel">
         <div className="eyebrow">Memoria del laboratorio</div>
@@ -512,43 +511,25 @@ export function Exercise02View({
         </p>
       </section>
 
-      <section className="card">
-        <div className="eyebrow">Conceptos</div>
-        <h2>Cómo pensar la decisión de pricing</h2>
-        <div className="criterionGrid">
-          {concepts.map((concept) => (
-            <article className="criterionCard" key={concept.term}>
-              <div className="criterionHeader">
-                <h3>{concept.term}</h3>
-              </div>
-              <p className="muted">{concept.definition}</p>
-            </article>
-          ))}
-        </div>
-      </section>
+      <CriteriaGrid
+        eyebrow="Conceptos"
+        title="Cómo pensar la decisión de pricing"
+        items={conceptItems}
+      />
 
-      <section className="card">
-        <div className="eyebrow">Métricas</div>
-        <h2>Métricas que ayudan a decidir</h2>
-        <p className="muted">
-          Para recomendar precios, mirá señales combinadas. No decidas usando una sola variable aislada.
-        </p>
-        <ul className="simpleList">
-          {metrics.map((item) => (
-            <li key={item}>{item}</li>
-          ))}
-        </ul>
-      </section>
+      <MetricList
+        eyebrow="Métricas"
+        title="Métricas que ayudan a decidir"
+        intro="Para recomendar precios, mirá señales combinadas. No decidas usando una sola variable aislada."
+        items={metrics}
+      />
 
-      <section className="card">
-        <div className="eyebrow">Prompt 1</div>
-        <h2>Lectura por familias</h2>
-        <CopyPromptBlock
-          intro="Usá este prompt para que tu IA personal entienda primero el problema por familia o categoría. Todavía no le pidas completar precios SKU por SKU."
-          label="Prompt recomendado"
-          prompt={prompt1}
-        />
-      </section>
+      <PromptBlock
+        eyebrow="Prompt 1"
+        title="Lectura por familias"
+        helperText="Usá este prompt para que tu IA personal entienda primero el problema por familia o categoría. Todavía no le pidas completar precios SKU por SKU."
+        prompt={prompt1}
+      />
 
       <section className="card" style={{ background: "rgba(191, 111, 40, 0.06)", borderColor: "var(--accent)" }}>
         <div className="eyebrow" style={{ color: "var(--accent)" }}>Parte B</div>
@@ -561,42 +542,18 @@ export function Exercise02View({
         </p>
       </section>
 
-      <section className="card">
-        <div className="eyebrow">Criterios estratégicos</div>
-        <h2>Criterios estratégicos de pricing</h2>
-        <div className="criterionGrid">
-          {strategies.map((strategy) => (
-            <article className="criterionCard" key={strategy.key}>
-              <div className="criterionHeader">
-                <h3>{strategy.title}</h3>
-                <span>{strategy.subtitle}</span>
-              </div>
-              <div className="criterionBlock">
-                <strong>Cuándo usarlo</strong>
-                <ul className="simpleList">
-                  {strategy.when.map((item) => (
-                    <li key={item}>{item}</li>
-                  ))}
-                </ul>
-              </div>
-              <div className="criterionBlock">
-                <strong>Riesgo</strong>
-                <p className="muted" style={{ margin: 0 }}>{strategy.risk}</p>
-              </div>
-            </article>
-          ))}
-        </div>
-      </section>
+      <CriteriaGrid
+        eyebrow="Criterios estratégicos"
+        title="Criterios estratégicos de pricing"
+        items={strategyItems}
+      />
 
-      <section className="card">
-        <div className="eyebrow">Prompt 2</div>
-        <h2>Definir estrategia de pricing</h2>
-        <CopyPromptBlock
-          intro="Usá este prompt para que la IA compare caminos estratégicos y recomiende una lógica general o mixta por familia antes de completar precios SKU por SKU."
-          label="Prompt recomendado"
-          prompt={prompt2}
-        />
-      </section>
+      <PromptBlock
+        eyebrow="Prompt 2"
+        title="Definir estrategia de pricing"
+        helperText="Usá este prompt para que la IA compare caminos estratégicos y recomiende una lógica general o mixta por familia antes de completar precios SKU por SKU."
+        prompt={prompt2}
+      />
 
       <section className="card" style={{ background: "rgba(15, 107, 93, 0.06)", borderColor: "var(--brand)" }}>
         <div className="eyebrow" style={{ color: "var(--brand-strong)" }}>Parte C</div>
@@ -609,38 +566,18 @@ export function Exercise02View({
         </p>
       </section>
 
-      <section className="card">
-        <div className="eyebrow">Reglas por rol</div>
-        <h2>Reglas de decisión por rol de portfolio</h2>
-        <div className="criterionGrid">
-          {portfolioRules.map((rule) => (
-            <article className="criterionCard" key={rule.key}>
-              <div className="criterionHeader">
-                <h3>{rule.title}</h3>
-              </div>
-              <p className="muted">{rule.description}</p>
-              <div className="criterionBlock">
-                <strong>Acciones típicas</strong>
-                <ul className="simpleList">
-                  {rule.actions.map((item) => (
-                    <li key={item}>{item}</li>
-                  ))}
-                </ul>
-              </div>
-            </article>
-          ))}
-        </div>
-      </section>
+      <CriteriaGrid
+        eyebrow="Reglas por rol"
+        title="Reglas de decisión por rol de portfolio"
+        items={portfolioRuleItems}
+      />
 
-      <section className="card">
-        <div className="eyebrow">Prompt 3</div>
-        <h2>Completar decisiones de pricing</h2>
-        <CopyPromptBlock
-          intro="Usá este prompt para que la IA complete o proponga completar 09_PRICING, usando la estrategia elegida y las señales de 03_BASE_SKUS y 06_PORTFOLIO."
-          label="Prompt recomendado"
-          prompt={prompt3}
-        />
-      </section>
+      <PromptBlock
+        eyebrow="Prompt 3"
+        title="Completar decisiones de pricing"
+        helperText="Usá este prompt para que la IA complete o proponga completar 09_PRICING, usando la estrategia elegida y las señales de 03_BASE_SKUS y 06_PORTFOLIO."
+        prompt={prompt3}
+      />
 
       <section className="card" style={{ background: "rgba(191, 111, 40, 0.06)", borderColor: "var(--accent)" }}>
         <div className="eyebrow" style={{ color: "var(--accent)" }}>Parte D</div>
@@ -653,15 +590,12 @@ export function Exercise02View({
         </p>
       </section>
 
-      <section className="card">
-        <div className="eyebrow">Prompt 4</div>
-        <h2>Reporte final</h2>
-        <CopyPromptBlock
-          intro="Usá este prompt para que la IA resuma la recomendación de pricing, el impacto esperado y los riesgos comerciales, usando 09_PRICING como fuente principal."
-          label="Prompt recomendado"
-          prompt={prompt4}
-        />
-      </section>
+      <PromptBlock
+        eyebrow="Prompt 4"
+        title="Reporte final"
+        helperText="Usá este prompt para que la IA resuma la recomendación de pricing, el impacto esperado y los riesgos comerciales, usando 09_PRICING como fuente principal."
+        prompt={prompt4}
+      />
 
       <section className="card">
         <div className="eyebrow">Síntesis final</div>
@@ -670,40 +604,51 @@ export function Exercise02View({
           No copies toda la respuesta de la IA ni toda la tabla del Excel. Guardá la síntesis de la estrategia elegida, el impacto esperado y las decisiones que revisarías antes de ejecutar.
         </p>
 
-        <ExerciseCheckpointForm
-          checkpoint={checkpoint}
-          confirmations={[]}
-          fieldLabels={fieldLabels}
-          introText="La síntesis del impacto queda en la plataforma. Podés adjuntar el workbook actualizado como respaldo, pero el checkpoint principal es la decisión y su justificación."
-          onSave={onSave}
-          onSubmit={onSubmit}
-          requiredFields={requiredFields}
-          skipWorkbookValidation
-          submitLabel="Guardar checkpoint"
-          title="Guardá la síntesis del impacto"
+        <CheckpointForm
+          exerciseId="ex-02"
+          exerciseVersion={1}
+          fields={[
+            {
+              id: "estrategia",
+              label: "1. Estrategia de pricing elegida",
+              type: "textarea",
+              placeholder: "Ejemplo: capturar margen, defender volumen, liquidar o estrategia mixta por familia; explicar por qué.",
+              required: true
+            },
+            {
+              id: "impacto",
+              label: "2. Impacto esperado en el negocio",
+              type: "textarea",
+              placeholder: "Ejemplo: impacto esperado en revenue, margen, volumen, competitividad y pricing leakage capturado.",
+              required: true
+            },
+            {
+              id: "decisionesRevisar",
+              label: "3. Decisiones a revisar antes de ejecutar",
+              type: "textarea",
+              placeholder: "Ejemplo: SKUs con subas agresivas, familias sensibles, productos Core con riesgo de volumen, SKUs Eliminar con liquidación dudosa o inconsistencias de arquitectura.",
+              required: true
+            },
+            {
+              id: "datosValidar",
+              label: "4. Datos o supuestos a validar",
+              type: "textarea",
+              placeholder: "Ejemplo: elasticidad proxy, precios de competidores, costos unitarios, vigencia de promociones, disponibilidad de stock, sustitutos y supuestos de reacción del mercado.",
+              required: true
+            }
+          ]}
+          requiresWorkbookUpload
+          saveLabel="Guardar checkpoint"
+          submitLabel="Subir checkpoint del workbook"
         />
       </section>
 
-      <section className="card">
-        <div className="eyebrow">Criterio de evaluación</div>
-        <h2>Qué hace buena una recomendación de pricing</h2>
-        <p className="muted">
-          Una buena entrega no es la que más sube precios. Una buena entrega es la que demuestra criterio para equilibrar margen, volumen, competitividad y rol del SKU dentro del portfolio.
-        </p>
-        <ul className="simpleList">
-          <li>Entiende diferencias entre familias.</li>
-          <li>Usa elasticidad como señal y no como verdad absoluta.</li>
-          <li>Diferencia decisiones para Core, Review y Eliminar.</li>
-          <li>Detecta pricing leakage.</li>
-          <li>Evita romper la arquitectura de precios.</li>
-          <li>Justifica excepciones.</li>
-          <li>Identifica riesgos comerciales.</li>
-          <li>Puede defender la estrategia recomendada.</li>
-        </ul>
-        <p className="muted">
-          La IA ayuda a calcular y ordenar señales, pero la decisión final debe ser defendible por el equipo.
-        </p>
-      </section>
-    </ExerciseStepLayout>
+      <MetricList
+        eyebrow="Criterio de evaluación"
+        title="Qué hace buena una recomendación de pricing"
+        intro="Una buena entrega no es la que más sube precios. Una buena entrega es la que demuestra criterio para equilibrar margen, volumen, competitividad y rol del SKU dentro del portfolio."
+        items={evaluationItems.map((item) => item.title)}
+      />
+    </ExerciseHeader>
   );
 }

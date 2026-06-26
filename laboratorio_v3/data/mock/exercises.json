@@ -18,7 +18,7 @@
     "nextStateVersion": "state_v1_portfolio"
   },
   {
-    "id": "ex-02",
+    "id": "ex02",
     "labId": "lab-01",
     "title": "Pricing Optimization",
     "objective": "Definir precios para capturar margen sin destruir volumen ni competitividad.",

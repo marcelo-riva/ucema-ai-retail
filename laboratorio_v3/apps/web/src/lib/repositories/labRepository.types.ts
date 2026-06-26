@@ -48,12 +48,27 @@ export type LoginResult = {
   error?: string;
 };
 
+export type WorkbookUploadInput = {
+  file: File;
+  groupId: string;
+  labId: string;
+  exerciseId: string;
+  exerciseVersion: number;
+};
+
+export type WorkbookUploadResult = {
+  key: string;
+  url?: string;
+};
+
 export type SaveSubmissionInput = {
   groupId: string;
   exerciseId: string;
   exerciseVersion: number;
   responsesJson: Record<string, unknown>;
   filesJson?: Record<string, unknown>;
+  workbookUploadKey?: string;
+  reportUploadKey?: string;
   status?: SubmissionStatus;
 };
 
@@ -96,4 +111,16 @@ export type LabRepository = {
   resetExerciseSubmissions(input: {
     exerciseId: string;
   }): Promise<void>;
+
+  /**
+   * Upload a workbook file to storage. In local mode this should not upload
+   * the actual file and instead return a metadata-only result or null.
+   */
+  uploadWorkbook(input: WorkbookUploadInput): Promise<WorkbookUploadResult | null>;
+
+  /**
+   * Get a temporary download URL for a previously uploaded workbook.
+   * Returns null in local mode or if the key is not available.
+   */
+  getWorkbookDownloadUrl?(key: string): Promise<string | null>;
 };

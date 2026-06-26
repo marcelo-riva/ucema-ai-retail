@@ -1,8 +1,10 @@
 "use client";
 
-import { Check, Copy } from "lucide-react";
-import { useState } from "react";
-import { ExerciseStepLayout } from "./ExerciseStepLayout";
+import { ExerciseHeader } from "./labs/ExerciseHeader";
+import { PromptBlock } from "./labs/PromptBlock";
+import { CriteriaGrid } from "./labs/CriteriaGrid";
+import { MetricList } from "./labs/MetricList";
+import { ScenarioGrid } from "./labs/ScenarioGrid";
 import { WorkbookStatusCard } from "./WorkbookStatusCard";
 import { CheckpointForm } from "./labs/CheckpointForm";
 import type { Group, SystemScoreboard } from "../types/lab";
@@ -248,8 +250,7 @@ const criteria = [
       "Ajustar forecast.",
       "Validar con negocio.",
       "Reducir compras.",
-      "Hacer prueba comercial.",
-      "Promoción selectiva."
+      "Hacer prueba comercial."
     ]
   },
   {
@@ -279,9 +280,20 @@ const criteria = [
   }
 ];
 
+const criteriaItems = criteria.map((criterion) => ({
+  id: criterion.key,
+  title: criterion.title,
+  subtitle: criterion.subtitle,
+  description: criterion.description,
+  blocks: [
+    { title: "Cuándo usarlo", items: criterion.when },
+    { title: "Acciones típicas", items: criterion.actions }
+  ]
+}));
+
 const scenarios = [
   {
-    key: "conservative",
+    id: "conservative",
     title: "Escenario Conservador",
     objective: "Reducir destrucción de valor con bajo riesgo comercial.",
     logic: "Solo recomienda eliminar SKUs donde la evidencia es fuerte. Prioriza proteger revenue, margen existente y cobertura de mercado.",
@@ -304,7 +316,7 @@ const scenarios = [
     tradeoff: "Libera menos caja y simplifica menos el portfolio, pero reduce el riesgo de eliminar productos comercialmente relevantes."
   },
   {
-    key: "balanced",
+    id: "balanced",
     title: "Escenario Balanceado",
     objective: "Mejorar eficiencia económica sin descuidar demasiado la cobertura comercial.",
     logic: "Combina liberación de capital, mejora de margen y cuidado de revenue. Es el escenario base para discutir una primera decisión de portfolio.",
@@ -326,7 +338,7 @@ const scenarios = [
     tradeoff: "Libera más caja que el escenario conservador y mejora la eficiencia del portfolio, pero asume cierto riesgo de revenue, margen o cobertura."
   },
   {
-    key: "aggressive",
+    id: "aggressive",
     title: "Escenario Agresivo",
     objective: "Simplificar el portfolio y liberar capital rápidamente.",
     logic: "Acepta mayor riesgo comercial para acelerar la salida de SKUs ineficientes, dudosos o con alto capital inmovilizado.",
@@ -399,6 +411,16 @@ const priorities = [
   }
 ];
 
+const priorityItems = priorities.map((priority) => ({
+  id: priority.key,
+  title: priority.title,
+  description: priority.when,
+  blocks: [
+    { title: "Prestá especial atención a", items: priority.focus },
+    { title: "Riesgo principal", content: priority.risk }
+  ]
+}));
+
 const impactVariables = [
   { term: "Cobertura actual", definition: "Nivel de cobertura del portfolio antes de tomar decisiones de eliminación." },
   { term: "Cobertura final estimada", definition: "Nivel de cobertura esperado si se ejecuta el escenario. No debe interpretarse como predicción exacta, sino como exposición o riesgo potencial." },
@@ -409,36 +431,6 @@ const impactVariables = [
   { term: "Margen en riesgo", definition: "Margen histórico positivo asociado a SKUs candidatos a eliminación." },
   { term: "Leakage comercial", definition: "Pérdida potencial de valor comercial por eliminar SKUs que todavía tenían revenue, margen, cobertura o valor estratégico." }
 ];
-
-function CopyPromptBlock({ label, intro, prompt }: { label: string; intro: string; prompt: string }) {
-  const [copied, setCopied] = useState(false);
-
-  async function copy() {
-    await navigator.clipboard.writeText(prompt);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  }
-
-  return (
-    <div className="promptSingle">
-      <div className="promptSingleHeader">
-        <span>{label}</span>
-        <button
-          aria-label={copied ? "Copiado" : "Copiar prompt"}
-          className="iconButton"
-          onClick={copy}
-          type="button"
-        >
-          {copied ? <Check size={16} /> : <Copy size={16} />}
-        </button>
-      </div>
-      <div className="panel" style={{ margin: 0, border: "none", borderRadius: 0, background: "rgba(255,255,255,0.72)" }}>
-        <p className="muted" style={{ margin: 0 }}>{intro}</p>
-      </div>
-      <pre>{prompt}</pre>
-    </div>
-  );
-}
 
 export function Exercise01View({
   group,
@@ -454,16 +446,14 @@ export function Exercise01View({
   onSubmit?: (payload: { fields: Record<string, string>; confirmations: Record<string, boolean>; workbookName?: string; reportName?: string; requiredFields: string[]; requiredConfirmations: string[] }) => Promise<void>;
 }) {
   return (
-    <ExerciseStepLayout
+    <ExerciseHeader
       eyebrow="AI Revenue & Inventory Copilot"
       title="Ejercicio 1: Portfolio Optimization"
       subtitle="Clasificar SKUs como Core, Review o Eliminar bajo un escenario y una prioridad estratégica."
-      meta={[
-        { label: "Grupo", value: group.name },
-        { label: "Estado", value: stateVersion },
-        { label: "Workbook", value: "único" },
-        { label: "Checkpoint", value: "borrador" }
-      ]}
+      groupName={group.name}
+      stateVersion={stateVersion}
+      workbookLabel="único"
+      checkpointStatus="borrador"
     >
       <WorkbookStatusCard stateVersion={stateVersion} lastWorkbookName={scoreboard.lastWorkbookName} />
 
@@ -492,63 +482,26 @@ export function Exercise01View({
         </p>
       </section>
 
-      <section className="card">
-        <div className="eyebrow">Criterios</div>
-        <h2>Criterios de decisión de portfolio</h2>
-        <p className="muted">
-          Usá estos criterios para orientar la clasificación. No son reglas rígidas: la IA propone una primera lectura y el equipo revisa los casos críticos o dudosos.
-        </p>
-        <div className="criterionGrid">
-          {criteria.map((criterion) => (
-            <article className="criterionCard" key={criterion.key}>
-              <div className="criterionHeader">
-                <h3>{criterion.title}</h3>
-                <span>{criterion.subtitle}</span>
-              </div>
-              <p className="muted">{criterion.description}</p>
-              <div className="criterionBlock">
-                <strong>Cuándo usarlo</strong>
-                <ul className="simpleList">
-                  {criterion.when.map((item) => (
-                    <li key={item}>{item}</li>
-                  ))}
-                </ul>
-              </div>
-              <div className="criterionBlock">
-                <strong>Acciones típicas</strong>
-                <ul className="simpleList">
-                  {criterion.actions.map((item) => (
-                    <li key={item}>{item}</li>
-                  ))}
-                </ul>
-              </div>
-            </article>
-          ))}
-        </div>
-      </section>
+      <CriteriaGrid
+        eyebrow="Criterios"
+        title="Criterios de decisión de portfolio"
+        intro="Usá estos criterios para orientar la clasificación. No son reglas rígidas: la IA propone una primera lectura y el equipo revisa los casos críticos o dudosos."
+        items={criteriaItems}
+      />
 
-      <section className="card">
-        <div className="eyebrow">Métricas</div>
-        <h2>Métricas que ayudan a decidir</h2>
-        <p className="muted">
-          Para aplicar el criterio, mirá señales combinadas. No clasifiques usando una sola variable aislada.
-        </p>
-        <ul className="simpleList">
-          {metrics.map((item) => (
-            <li key={item}>{item}</li>
-          ))}
-        </ul>
-      </section>
+      <MetricList
+        eyebrow="Métricas"
+        title="Métricas que ayudan a decidir"
+        intro="Para aplicar el criterio, mirá señales combinadas. No clasifiques usando una sola variable aislada."
+        items={metrics}
+      />
 
-      <section className="card">
-        <div className="eyebrow">Prompt 1</div>
-        <h2>Lectura por familias</h2>
-        <CopyPromptBlock
-          intro="Usá este prompt para que tu AI personal identifique familias motor, familias con riesgo, stock atrapado, tensiones comerciales y señales relevantes para la decisión de portfolio."
-          label="Prompt recomendado"
-          prompt={prompt1}
-        />
-      </section>
+      <PromptBlock
+        eyebrow="Prompt 1"
+        title="Lectura por familias"
+        helperText="Usá este prompt para que tu AI personal identifique familias motor, familias con riesgo, stock atrapado, tensiones comerciales y señales relevantes para la decisión de portfolio."
+        prompt={prompt1}
+      />
 
       <section className="card" style={{ background: "rgba(191, 111, 40, 0.06)", borderColor: "var(--accent)" }}>
         <div className="eyebrow" style={{ color: "var(--accent)" }}>Parte B</div>
@@ -561,41 +514,11 @@ export function Exercise01View({
         </p>
       </section>
 
-      <section className="card">
-        <div className="eyebrow">Escenarios</div>
-        <h2>Escenarios de optimización</h2>
-        <div className="criterionGrid">
-          {scenarios.map((scenario) => (
-            <article className="criterionCard" key={scenario.key}>
-              <div className="criterionHeader">
-                <h3>{scenario.title}</h3>
-                <span>{scenario.objective}</span>
-              </div>
-              <p className="muted">{scenario.logic}</p>
-              <div className="criterionBlock">
-                <strong>Tiende a eliminar</strong>
-                <ul className="simpleList">
-                  {scenario.eliminate.map((item) => (
-                    <li key={item}>{item}</li>
-                  ))}
-                </ul>
-              </div>
-              <div className="criterionBlock">
-                <strong>Tiende a mantener o revisar</strong>
-                <ul className="simpleList">
-                  {scenario.maintain.map((item) => (
-                    <li key={item}>{item}</li>
-                  ))}
-                </ul>
-              </div>
-              <div className="criterionBlock">
-                <strong>Trade-off</strong>
-                <p className="muted" style={{ margin: 0 }}>{scenario.tradeoff}</p>
-              </div>
-            </article>
-          ))}
-        </div>
-      </section>
+      <ScenarioGrid
+        eyebrow="Escenarios"
+        title="Escenarios de optimización"
+        items={scenarios}
+      />
 
       <section className="card">
         <div className="eyebrow">Variables de impacto</div>
@@ -613,15 +536,12 @@ export function Exercise01View({
         </div>
       </section>
 
-      <section className="card">
-        <div className="eyebrow">Prompt 2</div>
-        <h2>Explorar escenarios potenciales</h2>
-        <CopyPromptBlock
-          intro="Usá este prompt para que la IA proponga tres escenarios y compare sus trade-offs antes de clasificar SKU por SKU."
-          label="Prompt recomendado"
-          prompt={prompt2}
-        />
-      </section>
+      <PromptBlock
+        eyebrow="Prompt 2"
+        title="Explorar escenarios potenciales"
+        helperText="Usá este prompt para que la IA proponga tres escenarios y compare sus trade-offs antes de clasificar SKU por SKU."
+        prompt={prompt2}
+      />
 
       <section className="card" style={{ background: "rgba(15, 107, 93, 0.06)", borderColor: "var(--brand)" }}>
         <div className="eyebrow" style={{ color: "var(--brand-strong)" }}>Parte C</div>
@@ -641,32 +561,11 @@ export function Exercise01View({
         </ul>
       </section>
 
-      <section className="card">
-        <div className="eyebrow">Prioridad</div>
-        <h2>Elegí una prioridad estratégica</h2>
-        <div className="criterionGrid">
-          {priorities.map((priority) => (
-            <article className="criterionCard" key={priority.key}>
-              <div className="criterionHeader">
-                <h3>{priority.title}</h3>
-              </div>
-              <p className="muted">{priority.when}</p>
-              <div className="criterionBlock">
-                <strong>Prestá especial atención a</strong>
-                <ul className="simpleList">
-                  {priority.focus.map((item) => (
-                    <li key={item}>{item}</li>
-                  ))}
-                </ul>
-              </div>
-              <div className="criterionBlock">
-                <strong>Riesgo principal</strong>
-                <p className="muted" style={{ margin: 0 }}>{priority.risk}</p>
-              </div>
-            </article>
-          ))}
-        </div>
-      </section>
+      <CriteriaGrid
+        eyebrow="Prioridad"
+        title="Elegí una prioridad estratégica"
+        items={priorityItems}
+      />
 
       <section className="card">
         <div className="eyebrow">Combinación</div>
@@ -705,25 +604,19 @@ export function Exercise01View({
         </p>
       </section>
 
-      <section className="card">
-        <div className="eyebrow">Prompt 3</div>
-        <h2>Completar decisiones SKU por SKU</h2>
-        <CopyPromptBlock
-          intro="Usá este prompt para que la IA clasifique SKU por SKU en 06_PORTFOLIO, usando el escenario y la prioridad estratégica elegidos por el equipo."
-          label="Prompt recomendado"
-          prompt={prompt3}
-        />
-      </section>
+      <PromptBlock
+        eyebrow="Prompt 3"
+        title="Completar decisiones SKU por SKU"
+        helperText="Usá este prompt para que la IA clasifique SKU por SKU en 06_PORTFOLIO, usando el escenario y la prioridad estratégica elegidos por el equipo."
+        prompt={prompt3}
+      />
 
-      <section className="card">
-        <div className="eyebrow">Prompt 4</div>
-        <h2>Reporte final</h2>
-        <CopyPromptBlock
-          intro="Usá este prompt para que la IA resuma el portfolio resultante, el impacto potencial y los riesgos comerciales, usando 06_PORTFOLIO y 03_BASE_SKUS."
-          label="Prompt recomendado"
-          prompt={prompt4}
-        />
-      </section>
+      <PromptBlock
+        eyebrow="Prompt 4"
+        title="Reporte final"
+        helperText="Usá este prompt para que la IA resuma el portfolio resultante, el impacto potencial y los riesgos comerciales, usando 06_PORTFOLIO y 03_BASE_SKUS."
+        prompt={prompt4}
+      />
 
       <CheckpointForm
         exerciseId="ex-01"
@@ -765,10 +658,9 @@ export function Exercise01View({
             required: true
           }
         ]}
-        requiresWorkbookUpload
-        saveLabel="Guardar checkpoint"
-        submitLabel="Subir checkpoint del workbook"
+        saveLabel="Guardar borrador"
+        submitLabel="Enviar checkpoint"
       />
-    </ExerciseStepLayout>
+    </ExerciseHeader>
   );
 }

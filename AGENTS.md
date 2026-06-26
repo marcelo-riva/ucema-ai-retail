@@ -15,8 +15,8 @@ El trabajo nuevo debe concentrarse en `laboratorio_v3/`.
 
 - **Versión marcada**: `mock_review_1` (tag y commit `53409a1`). Punto estable antes de productivizar.
 - **Rama de trabajo**: `laboratorio_v3/laboratorio-v3-mock`.
-- **Deploy**: AWS Amplify, app root `laboratorio_v3/apps/web`, build estático exportado a `out/`.
-- **Backend**: no hay backend real. Persistencia mock en `localStorage`.
+- **Deploy**: AWS Amplify, app root `laboratorio_v3/apps/web`, build estático exportado a `out/`. El deploy ahora incluye backend Gen 2 (`amplify.yml` en la raíz).
+- **Backend**: scaffold de backend real con Amplify Data (modelos `ExerciseMeta` y `Submission`). El modo por defecto sigue siendo `localStorage` (`NEXT_PUBLIC_DATA_MODE=local`). El modo Amplify requiere sandbox o deploy con backend provisionado.
 - **Ingesta de artefactos**: carpeta `ingest/` para nuevas versiones del workbook. Ver sección "Ingestión de artefactos".
 
 ## Principio del producto
@@ -118,8 +118,10 @@ Campos principales de `03_BASE_SKUS`:
 - `laboratorio_v3/apps/web/src/`: frontend Next.js.
 - `laboratorio_v3/apps/web/src/app/labs/`: rutas de laboratorios.
 - `laboratorio_v3/apps/web/src/lib/lab01Content.ts`: contenido pedagógico de los ejercicios.
+- `laboratorio_v3/apps/web/src/lib/repositories/`: capa de persistencia (local, Amplify, tipos).
 - `laboratorio_v3/apps/web/src/services/mockLabService.ts`: lógica mock, estados y scoreboard.
 - `laboratorio_v3/data/mock/`: JSONs mock (labs, ejercicios, grupos, scoreboard).
+- `laboratorio_v3/apps/web/amplify/`: backend Gen 2 (`backend.ts`, `data/resource.ts`).
 - `laboratorio_v3/public/templates/NEXUS_RETAIL_LAB01_WORKBOOK_COMPLETO.xlsx`: workbook fuente.
 - `laboratorio_v3/scripts/generate_lab01_workbook.py`: generador base del workbook (desactualizado; genera la estructura antigua).
 - `laboratorio_v3/scripts/transform_workbook_v2.py`: script que transforma la estructura antigua en la nueva versión con mejor UX y scoreboard automático.
@@ -144,7 +146,28 @@ URL: `http://localhost:3000/labs`
 
 El deploy es automático por AWS Amplify al hacer push a `laboratorio_v3/laboratorio-v3-mock`.
 
-Configuración: `amplify.yml` en la raíz.
+Configuración: `amplify.yml` en la raíz. Ahora incluye el backend Gen 2 (`npx ampx pipeline-deploy`) y el frontend Next.js con `NEXT_PUBLIC_DATA_MODE=amplify`.
+
+## Modo Amplify
+
+La persistencia está abstraída en `laboratorio_v3/apps/web/src/lib/repositories/`:
+
+- `labRepository.ts` elige la implementación según `NEXT_PUBLIC_DATA_MODE`.
+- `labRepository.local.ts` es la implementación mock con `localStorage` (modo por defecto).
+- `labRepository.amplify.ts` implementa persistencia real con Amplify Data (modelos `ExerciseMeta` y `Submission`). Storage no se usa en este MVP; los workbooks se entregan por fuera.
+
+Para desarrollar con backend real:
+
+```bash
+cd laboratorio_v3/apps/web
+npx ampx sandbox
+# en otra terminal:
+NEXT_PUBLIC_DATA_MODE=amplify npm run dev
+```
+
+`npx ampx sandbox` genera `amplify_outputs.json` en `laboratorio_v3/apps/web`. La primera vez que se abre `/admin` en modo Amplify hay que hacer clic en **Crear ejercicios iniciales** para cargar los metadatos de EX00 a EX04.
+
+Ver `laboratorio_v3/README.md` para el checklist completo de implementación real.
 
 ## Verificación mínima después de editar
 
@@ -177,8 +200,8 @@ Reglas:
 
 ## Preguntas abiertas / próximos pasos
 
-- Productivizar: backend real, autenticación, validación de Excel, persistencia compartida.
+- Productivizar: autenticación real (Cognito), autorización por rol, validación de Excel, persistencia compartida.
 - Decidir si se actualiza o se elimina `generate_lab01_workbook.py`.
-- Definir cómo el alumno sube el workbook y cómo la plataforma lo valida.
+- Definir si el alumno sube el workbook y cómo la plataforma lo valida.
 - Definir métricas de evaluación del docente.
 - Revisar si la experiencia HTML legacy (`old/index.html`) se mantiene o se elimina.

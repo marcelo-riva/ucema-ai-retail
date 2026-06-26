@@ -12,7 +12,9 @@ import {
   User
 } from "lucide-react";
 import { getLabRepository } from "../lib/repositories/labRepository";
-import type { ExerciseMeta, Session } from "../lib/repositories/labRepository.types";
+import type { ExerciseMeta, ExerciseStatus, Session } from "../lib/repositories/labRepository.types";
+
+const DATA_MODE = process.env.NEXT_PUBLIC_DATA_MODE ?? "local";
 
 const exerciseLabels: Record<string, string> = {
   "ex-00": "Ejercicio 0",
@@ -66,7 +68,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const [session, setSession] = useState<Session | null>(null);
-  const [lab01Links, setLab01Links] = useState<Array<{ href: string; label: string }>>([]);
+  const [lab01Links, setLab01Links] = useState<Array<{ href: string; label: string; status?: ExerciseStatus }>>([]);
   const [allLinks, setAllLinks] = useState<Array<{ href: string }>>([
     { href: "/" },
     { href: "/labs" },
@@ -89,11 +91,16 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           { href: "/labs/lab-01", label: "Overview" },
           ...visible.map((exercise: ExerciseMeta) => ({
             href: exercise.path,
-            label: exercise.title
+            label: exercise.title,
+            status: exercise.status
           }))
         ];
         setLab01Links(links);
-        setAllLinks([{ href: "/" }, { href: "/labs" }, { href: "/admin" }, ...links]);
+        const baseLinks = [{ href: "/" }, { href: "/labs" }];
+        if (role === "admin") {
+          baseLinks.push({ href: "/admin" });
+        }
+        setAllLinks([...baseLinks, ...links]);
       })
       .catch(() => {
         setLab01Links([]);
@@ -142,6 +149,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 >
                   <ClipboardList aria-hidden size={15} />
                   <span>{item.label}</span>
+                  {item.status && session?.role === "admin" ? (
+                    <span className={`statusPill ${item.status}`} style={{ marginLeft: "auto", fontSize: 10 }}>
+                      {item.status}
+                    </span>
+                  ) : null}
                 </Link>
               ))}
             </div>
@@ -157,13 +169,22 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             </div>
           ) : null}
 
-          <Link className={`navLink ${activeHref === "/admin" ? "active" : ""}`} href="/admin" prefetch={false}>
-            <ShieldCheck aria-hidden size={18} />
-            <span>Admin</span>
-          </Link>
+          {session?.role === "admin" ? (
+            <Link className={`navLink ${activeHref === "/admin" ? "active" : ""}`} href="/admin" prefetch={false}>
+              <ShieldCheck aria-hidden size={18} />
+              <span>Admin</span>
+            </Link>
+          ) : null}
         </nav>
 
         <p className="sideNote">La plataforma guía. Tu AI analiza. Tu equipo decide.</p>
+
+        <div className="panel" style={{ marginTop: "auto", background: "rgba(255,255,255,0.08)", borderColor: "rgba(255,255,255,0.12)", padding: 10 }}>
+          <div className="eyebrow" style={{ color: "#8fc6b9" }}>Data mode</div>
+          <span className={`statusPill ${DATA_MODE === "local" ? "active" : "draft"}`} style={{ marginTop: 6 }}>
+            {DATA_MODE === "local" ? "local (default)" : DATA_MODE}
+          </span>
+        </div>
 
         {session ? (
           <div className="panel" style={{ marginTop: "auto", background: "rgba(255,255,255,0.08)", borderColor: "rgba(255,255,255,0.12)" }}>
@@ -174,6 +195,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             </div>
             <p className="muted" style={{ color: "rgba(246,250,246,0.64)", fontSize: 12, margin: "6px 0 12px" }}>
               {session.role === "admin" ? "Administrador" : `Grupo: ${session.groupId ?? "-"}`}
+              {" · "}
+              Data mode: {DATA_MODE}
             </p>
             <button
               className="button secondary"

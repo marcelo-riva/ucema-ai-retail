@@ -140,14 +140,14 @@ export const lab01ExerciseSpecs = [
     nextState: "state_v1_portfolio"
   },
   {
-    id: "ex-02",
+    id: "ex02",
     order: 2,
     title: "Pricing Optimization",
     route: "/labs/lab-01/exercises/ex-02",
     objective: "Definir precios para capturar margen sin destruir volumen.",
     checkpointName: "Checkpoint de Pricing",
-    mainSheet: "06_PRICING_DECISIONS",
-    supportSheets: ["01_BASE_SKUS", "05_DECISIONES_PORTFOLIO", "09_SCOREBOARD_ALUMNO"],
+    mainSheet: "09_PRICING",
+    supportSheets: ["03_BASE_SKUS", "06_PORTFOLIO", "11_SCOREBOARD_ALUMNO"],
     output: "Estrategia de pricing, criterios, riesgos de elasticidad y workbook actualizado.",
     requiredState: "state_v1_portfolio",
     nextState: "state_v2_pricing"
