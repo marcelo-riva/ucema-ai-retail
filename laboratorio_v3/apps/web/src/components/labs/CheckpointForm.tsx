@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Save, Send } from "lucide-react";
 import { getLabRepository } from "../../lib/repositories/labRepository";
 import type { Session } from "../../lib/repositories/labRepository.types";
+import { WorkbookUpload, type WorkbookMetadata } from "./WorkbookUpload";
 
 export type CheckpointField = {
   id: string;
@@ -43,6 +44,8 @@ export function CheckpointForm({
   const [errors, setErrors] = useState<Set<string>>(new Set());
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(false);
+  const [workbookMetadata, setWorkbookMetadata] = useState<WorkbookMetadata | null>(null);
+  const [workbookError, setWorkbookError] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -67,6 +70,20 @@ export function CheckpointForm({
             initial[field.id] = typeof value === "string" ? value : "";
           });
           setValues(initial);
+        }
+
+        if (submission?.filesJson) {
+          const workbook = submission.filesJson.workbook;
+          if (
+            workbook &&
+            typeof workbook === "object" &&
+            "filename" in workbook &&
+            "size" in workbook &&
+            "type" in workbook &&
+            "selectedAt" in workbook
+          ) {
+            setWorkbookMetadata(workbook as WorkbookMetadata);
+          }
         }
       }
     }
@@ -104,6 +121,10 @@ export function CheckpointForm({
     return responsesJson;
   }
 
+  function buildFilesJson() {
+    return { workbook: workbookMetadata };
+  }
+
   async function handleSave() {
     if (!session?.groupId) {
       setMessages([{ type: "error", text: "No hay sesión de grupo activa. Volvé a iniciar sesión." }]);
@@ -120,6 +141,7 @@ export function CheckpointForm({
         exerciseId,
         exerciseVersion,
         responsesJson: buildPayload(),
+        filesJson: buildFilesJson(),
         status: "draft"
       });
       setMessages([{ type: "info", text: "Checkpoint guardado como borrador local." }]);
@@ -146,9 +168,9 @@ export function CheckpointForm({
       return;
     }
 
-    if (requiresWorkbookUpload) {
-      // TODO: validar metadata de upload cuando el upload real esté implementado.
-      setMessages([{ type: "error", text: "El upload de workbook todavía no está habilitado en este componente." }]);
+    if (requiresWorkbookUpload && !workbookMetadata) {
+      setWorkbookError(true);
+      setMessages([{ type: "error", text: "Tenés que seleccionar un workbook .xlsx antes de enviar el checkpoint." }]);
       return;
     }
 
@@ -161,7 +183,8 @@ export function CheckpointForm({
         groupId: session.groupId,
         exerciseId,
         exerciseVersion,
-        responsesJson: buildPayload()
+        responsesJson: buildPayload(),
+        filesJson: buildFilesJson()
       });
       setMessages([{ type: "success", text: "Checkpoint enviado correctamente." }]);
     } catch (error) {
@@ -200,6 +223,12 @@ export function CheckpointForm({
       <p className="muted">
         No copies toda la respuesta de la IA ni toda la tabla del Excel. Guardá la síntesis del resultado, la decisión estratégica y los riesgos que revisarías antes de ejecutar.
       </p>
+
+      {requiresWorkbookUpload ? (
+        <p className="muted" style={{ marginTop: 8, marginBottom: 16 }}>
+          El envío del checkpoint requiere seleccionar el workbook actualizado en formato .xlsx.
+        </p>
+      ) : null}
 
       {messages.length > 0 ? (
         <div className="messageList" style={{ marginBottom: 16 }}>
@@ -250,6 +279,17 @@ export function CheckpointForm({
             ) : null}
           </label>
         ))}
+      </div>
+
+      <div style={{ marginTop: 16 }}>
+        <WorkbookUpload
+          error={workbookError}
+          onChange={(metadata) => {
+            setWorkbookMetadata(metadata);
+            setWorkbookError(false);
+          }}
+          value={workbookMetadata}
+        />
       </div>
 
       <div className="buttonRow" style={{ marginTop: 16 }}>

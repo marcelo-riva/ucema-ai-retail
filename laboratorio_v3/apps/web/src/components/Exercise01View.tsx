@@ -725,14 +725,6 @@ export function Exercise01View({
         />
       </section>
 
-      <section className="card">
-        <div className="eyebrow">Subir workbook</div>
-        <h2>Subí el workbook actualizado</h2>
-        <p className="muted">
-          Cuando el equipo haya revisado la propuesta y completado el workbook, subí el archivo actualizado para registrar el checkpoint del Ejercicio 1.
-        </p>
-      </section>
-
       <CheckpointForm
         exerciseId="ex-01"
         exerciseVersion={1}
@@ -773,6 +765,7 @@ export function Exercise01View({
             required: true
           }
         ]}
+        requiresWorkbookUpload
         saveLabel="Guardar checkpoint"
         submitLabel="Subir checkpoint del workbook"
       />
