@@ -37,45 +37,37 @@ export function Exercise02InitialView({ group, stateVersion }: Exercise02Initial
 
       <section className="card" style={{ background: "rgba(15, 107, 93, 0.06)", borderColor: "var(--brand)" }}>
         <div className="eyebrow" style={{ color: "var(--brand-strong)" }}>Parte A</div>
-        <h2>Exploración inicial</h2>
+        <h2>Lectura por familias</h2>
         <p className="muted">
-          Antes de recomendar precios, entendé cómo se comportan las familias y SKUs en términos de precio, costo, volumen, margen y competitividad.
+          Antes de recomendar precios SKU por SKU, entendé cómo se comportan las familias y SKUs en términos de precio, costo, volumen, margen y competitividad.
         </p>
       </section>
 
       <PromptBlock
         eyebrow="Prompt 1"
-        title="Lectura inicial de pricing"
-        helperText="Usá este prompt para que tu IA personal explore la base de precios, costos, volúmenes y competencia antes de proponer ajustes."
-        prompt="[Placeholder] Analizá la hoja 03_BASE_SKUS y 09_PRICING para describir el comportamiento actual de precios, margen y volumen por familia. No recomiendes ajustes todavía."
+        title="Lectura por familias"
+        helperText="Usá este prompt para que tu IA personal explore la base de precios, costos, volúmenes y competencia por familia. No recomiendes ajustes todavía."
+        prompt="Analizá 03_BASE_SKUS, 06_PORTFOLIO y 09_PRICING para entender el problema por familias antes de recomendar precios SKU por SKU. No uses 07_FORECAST_90_DIAS."
       />
 
       <section className="card" style={{ background: "rgba(191, 111, 40, 0.06)", borderColor: "var(--accent)" }}>
         <div className="eyebrow" style={{ color: "var(--accent)" }}>Parte B</div>
-        <h2>Diagnóstico por familia</h2>
+        <h2>Definir estrategia de pricing</h2>
         <p className="muted">
-          Identificá dónde hay oportunidades de captura de margen, dónde conviene defender competitividad y dónde el precio puede usarse como herramienta táctica.
+          Compará los caminos de capturar margen, defender volumen/competitividad y liquidar/acelerar salida. Recomendá una estrategia principal o mixta por familia conectada con la clasificación de portfolio.
         </p>
       </section>
 
       <PromptBlock
         eyebrow="Prompt 2"
-        title="Diagnóstico de oportunidades"
+        title="Definir estrategia de pricing"
         helperText="Usá este prompt para que la IA compare familias y proponga una estrategia de pricing direccional antes de decidir SKU por SKU."
-        prompt="[Placeholder] Compará familias según margen, elasticidad proxy, índice de competitividad y rol de portfolio. Recomendá una estrategia direccional: capturar margen, defender volumen o liquidar/acelerar salida."
+        prompt="Compará los caminos de capturar margen, defender volumen/competitividad y liquidar/acelerar salida. Recomendá una estrategia principal o mixta por familia conectada con la clasificación de portfolio."
       />
 
       <section className="card" style={{ background: "rgba(15, 107, 93, 0.06)", borderColor: "var(--brand)" }}>
         <div className="eyebrow" style={{ color: "var(--brand-strong)" }}>Parte C</div>
-        <h2>Arquitectura de precios</h2>
-        <p className="muted">
-          Definí la lógica de precios que respete la relación entre productos, familias y posicionamiento competitivo. La arquitectura es el marco que después se aplica SKU por SKU.
-        </p>
-      </section>
-
-      <section className="card" style={{ background: "rgba(191, 111, 40, 0.06)", borderColor: "var(--accent)" }}>
-        <div className="eyebrow" style={{ color: "var(--accent)" }}>Parte D</div>
-        <h2>Decisión SKU por SKU</h2>
+        <h2>Completar decisiones de pricing</h2>
         <p className="muted">
           Aplicá la arquitectura de precios al nivel de SKU. La decisión debe ser concreta: subir precio, bajar precio, mantener precio, precio promocional o liquidación.
         </p>
@@ -83,9 +75,24 @@ export function Exercise02InitialView({ group, stateVersion }: Exercise02Initial
 
       <PromptBlock
         eyebrow="Prompt 3"
-        title="Decisión SKU por SKU"
+        title="Completar decisiones de pricing"
         helperText="Usá este prompt para que la IA complete la propuesta de pricing en la hoja 09_PRICING, respetando la estrategia elegida y la arquitectura de precios."
-        prompt="[Placeholder] Completá la hoja 09_PRICING con la decisión de pricing por SKU para los próximos meses, incluyendo precio recomendado, efecto esperado en volumen, rationale y riesgo."
+        prompt="Completá o proponé completar 09_PRICING con decisión, precios M13-M15, efecto esperado, rationale, riesgo y comentarios, respetando el rol de cada SKU y la arquitectura de precios."
+      />
+
+      <section className="card" style={{ background: "rgba(191, 111, 40, 0.06)", borderColor: "var(--accent)" }}>
+        <div className="eyebrow" style={{ color: "var(--accent)" }}>Parte D</div>
+        <h2>Reporte final</h2>
+        <p className="muted">
+          Resumí la recomendación de pricing, el impacto esperado y los riesgos comerciales usando 09_PRICING como fuente principal.
+        </p>
+      </section>
+
+      <PromptBlock
+        eyebrow="Prompt 4"
+        title="Reporte final"
+        helperText="Usá este prompt para que la IA genere el resumen ejecutivo del Ejercicio 2."
+        prompt="Resumí la recomendación de pricing, el impacto esperado y los riesgos comerciales usando 09_PRICING como fuente principal. No uses 07_FORECAST_90_DIAS."
       />
 
       <section className="card">
