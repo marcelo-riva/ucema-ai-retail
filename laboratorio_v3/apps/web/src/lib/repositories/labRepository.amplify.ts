@@ -368,7 +368,7 @@ export async function seedExerciseMeta(): Promise<void> {
       title: "Pricing Optimization",
       path: "/labs/lab-01/exercises/ex-02",
       order: 2,
-      status: "draft",
+      status: "active",
       version: 1
     },
     {
@@ -438,14 +438,27 @@ export async function seedExerciseMeta(): Promise<void> {
 
   for (const exercise of initialExercises) {
     const { data: existing } = await getClient().models.ExerciseMeta.get({ id: exercise.id });
-    if (existing) continue;
 
-    const { errors } = await getClient().models.ExerciseMeta.create({
-      ...exercise
-    });
-    if (errors) {
-      // eslint-disable-next-line no-console
-      console.warn(`Error seeding ${exercise.id}:`, errors);
+    if (!existing) {
+      const { errors } = await getClient().models.ExerciseMeta.create({
+        ...exercise
+      });
+      if (errors) {
+        // eslint-disable-next-line no-console
+        console.warn(`Error seeding ${exercise.id}:`, errors);
+      }
+      continue;
+    }
+
+    if (exercise.status === "active" && existing.status !== "active") {
+      const { errors } = await getClient().models.ExerciseMeta.update({
+        id: exercise.id,
+        status: "active"
+      });
+      if (errors) {
+        // eslint-disable-next-line no-console
+        console.warn(`Error activating ${exercise.id}:`, errors);
+      }
     }
   }
 }

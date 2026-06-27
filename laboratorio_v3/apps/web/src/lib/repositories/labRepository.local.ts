@@ -97,7 +97,7 @@ export const INITIAL_EXERCISES: ExerciseMeta[] = [
     title: "Ejercicio 2: Pricing Optimization",
     path: "/labs/lab-01/exercises/ex-02",
     order: 2,
-    status: "draft",
+    status: "active",
     version: 1,
     workbookBaseKey: "NEXUS_RETAIL_LAB01_EJ02_PRICING_WORKBOOK.xlsx"
   },
@@ -170,10 +170,19 @@ export const INITIAL_EXERCISES: ExerciseMeta[] = [
 
 function ensureExerciseMeta(): ExerciseMeta[] {
   const existing = readJson<ExerciseMeta[]>(EXERCISE_META_KEY, []);
-  const existingIds = new Set(existing.map((ex) => ex.id));
-  const missing = INITIAL_EXERCISES.filter((ex) => !existingIds.has(ex.id));
-  if (missing.length === 0) return existing;
-  const merged = [...existing, ...missing].sort((a, b) => {
+  const byId = new Map(existing.map((ex) => [ex.id, ex]));
+
+  for (const initial of INITIAL_EXERCISES) {
+    const current = byId.get(initial.id);
+    if (!current) {
+      byId.set(initial.id, initial);
+    } else if (initial.status === "active") {
+      // Activar ejercicios que deben estar activos por defecto.
+      byId.set(initial.id, { ...current, status: "active" });
+    }
+  }
+
+  const merged = Array.from(byId.values()).sort((a, b) => {
     if (a.labId !== b.labId) return a.labId.localeCompare(b.labId);
     return a.order - b.order;
   });
