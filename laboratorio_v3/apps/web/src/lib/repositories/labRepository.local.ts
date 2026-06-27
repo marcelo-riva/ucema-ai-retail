@@ -170,7 +170,15 @@ export const INITIAL_EXERCISES: ExerciseMeta[] = [
 
 function ensureExerciseMeta(): ExerciseMeta[] {
   const existing = readJson<ExerciseMeta[]>(EXERCISE_META_KEY, []);
+  const validIds = new Set(INITIAL_EXERCISES.map((ex) => ex.id));
   const byId = new Map(existing.map((ex) => [ex.id, ex]));
+
+  // Eliminar ejercicios obsoletos (ej. ex-02 reemplazado por ex02).
+  Array.from(byId.keys()).forEach((id) => {
+    if (!validIds.has(id)) {
+      byId.delete(id);
+    }
+  });
 
   for (const initial of INITIAL_EXERCISES) {
     const current = byId.get(initial.id);

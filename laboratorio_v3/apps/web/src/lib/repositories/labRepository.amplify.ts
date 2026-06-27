@@ -461,6 +461,23 @@ export async function seedExerciseMeta(): Promise<void> {
       }
     }
   }
+
+  // Limpiar ejercicios obsoletos (ej. ex-02 reemplazado por ex02).
+  const validIds = new Set(initialExercises.map((ex) => ex.id));
+  const { data: allMeta, errors: listErrors } = await getClient().models.ExerciseMeta.list();
+  if (listErrors) {
+    // eslint-disable-next-line no-console
+    console.warn("Error listando ejercicios para limpieza:", listErrors);
+  }
+  for (const meta of allMeta ?? []) {
+    if (!validIds.has(meta.id)) {
+      const { errors } = await getClient().models.ExerciseMeta.delete({ id: meta.id });
+      if (errors) {
+        // eslint-disable-next-line no-console
+        console.warn(`Error borrando ejercicio obsoleto ${meta.id}:`, errors);
+      }
+    }
+  }
 }
 
 /**

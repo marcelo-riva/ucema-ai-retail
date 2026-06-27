@@ -19,7 +19,7 @@ const DATA_MODE = process.env.NEXT_PUBLIC_DATA_MODE ?? "local";
 const exerciseLabels: Record<string, string> = {
   "ex-00": "Ejercicio 0",
   "ex-01": "Ejercicio 1",
-  "ex-02": "Ejercicio 2",
+  ex02: "Ejercicio 2",
   "ex-03": "Ejercicio 3",
   "ex-04": "Ejercicio 4",
   "lab02-ex01": "Ejercicio 1",
@@ -55,7 +55,7 @@ function buildBreadcrumbs(pathname: string) {
       { label: "Laboratorios", href: "/labs" },
       { label: "Laboratorio 1", href: "/labs/lab-01" }
     ];
-    const exerciseMatch = pathname.match(/\/exercises\/(ex-\d+)/);
+    const exerciseMatch = pathname.match(/\/exercises\/(ex-?\d+|lab\d+-ex\d+)/);
     if (exerciseMatch) {
       crumbs.push({ label: exerciseLabels[exerciseMatch[1]] ?? "Ejercicio", href: pathname });
     } else if (pathname.endsWith("/scoreboard")) {
@@ -70,7 +70,7 @@ function buildBreadcrumbs(pathname: string) {
       { label: "Laboratorios", href: "/labs" },
       { label: "Laboratorio 2", href: "/labs/lab-02" }
     ];
-    const exerciseMatch = pathname.match(/\/exercises\/(ex-\d+)/);
+    const exerciseMatch = pathname.match(/\/exercises\/(ex-?\d+|lab\d+-ex\d+)/);
     if (exerciseMatch) {
       crumbs.push({ label: exerciseLabels[exerciseMatch[1]] ?? "Ejercicio", href: pathname });
     }
