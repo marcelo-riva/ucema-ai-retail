@@ -39,6 +39,7 @@ export function AdminSubmissionTable({ submissions, onRefresh }: { submissions: 
         <table>
           <thead>
             <tr>
+              <th>Lab</th>
               <th>Grupo</th>
               <th>Ejercicio</th>
               <th>Versión</th>
@@ -53,6 +54,7 @@ export function AdminSubmissionTable({ submissions, onRefresh }: { submissions: 
               const id = `${submission.groupId}:${submission.exerciseId}:v${submission.exerciseVersion}`;
               return (
                 <tr key={id}>
+                  <td>{submission.exerciseId.startsWith("lab02-") ? "lab-02" : "lab-01"}</td>
                   <td>{submission.groupId}</td>
                   <td>{submission.exerciseId}</td>
                   <td>v{submission.exerciseVersion}</td>

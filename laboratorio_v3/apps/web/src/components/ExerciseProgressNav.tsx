@@ -9,10 +9,13 @@ type ExerciseProgressNavProps = {
 };
 
 export function ExerciseProgressNav({ items, role = "group" }: ExerciseProgressNavProps) {
+  const labId = items[0]?.labId ?? "lab-01";
+  const labTitle = labId === "lab-02" ? "Secuencia Laboratorio 2" : "Secuencia Laboratorio 1";
+
   if (items.length === 0) {
     return (
       <section className="card">
-        <div className="eyebrow">Secuencia Laboratorio 1</div>
+        <div className="eyebrow">{labTitle}</div>
         <h2>Ejercicios del laboratorio</h2>
         <p className="muted">No hay ejercicios habilitados para este rol.</p>
       </section>
@@ -21,7 +24,7 @@ export function ExerciseProgressNav({ items, role = "group" }: ExerciseProgressN
 
   return (
     <section className="card">
-      <div className="eyebrow">Secuencia Laboratorio 1</div>
+      <div className="eyebrow">{labTitle}</div>
       <h2>Ejercicios del laboratorio</h2>
       <div className="exerciseCardGrid">
         {items.map((item) => (

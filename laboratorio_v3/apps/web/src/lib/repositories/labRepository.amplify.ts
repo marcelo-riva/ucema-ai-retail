@@ -388,6 +388,51 @@ export async function seedExerciseMeta(): Promise<void> {
       order: 4,
       status: "draft",
       version: 1
+    },
+    {
+      id: "lab02-ex01",
+      labId: "lab-02",
+      title: "Ejercicio 1: Customer Segmentation",
+      path: "/labs/lab-02/exercises/ex-01",
+      order: 1,
+      status: "active",
+      version: 1
+    },
+    {
+      id: "lab02-ex02",
+      labId: "lab-02",
+      title: "Ejercicio 2: VIP Strategy Simulator",
+      path: "/labs/lab-02/exercises/ex-02",
+      order: 2,
+      status: "active",
+      version: 1
+    },
+    {
+      id: "lab02-ex03",
+      labId: "lab-02",
+      title: "Ejercicio 3: Churn Recovery Simulator",
+      path: "/labs/lab-02/exercises/ex-03",
+      order: 3,
+      status: "active",
+      version: 1
+    },
+    {
+      id: "lab02-ex04",
+      labId: "lab-02",
+      title: "Ejercicio 4: Opportunistic Customer Simulator",
+      path: "/labs/lab-02/exercises/ex-04",
+      order: 4,
+      status: "active",
+      version: 1
+    },
+    {
+      id: "lab02-ex05",
+      labId: "lab-02",
+      title: "Ejercicio 5: Marketing ROI Consolidator",
+      path: "/labs/lab-02/exercises/ex-05",
+      order: 5,
+      status: "active",
+      version: 1
     }
   ];
 
@@ -435,7 +480,7 @@ export async function verifyAmplifyRepository(): Promise<
 
   await run("listExercises admin", async () => {
     const exercises = await repo.listExercises({ role: "admin" });
-    if (exercises.length < 5) throw new Error("Faltan ejercicios");
+    if (exercises.length < 10) throw new Error("Faltan ejercicios");
   });
 
   await run("updateExerciseStatus", async () => {

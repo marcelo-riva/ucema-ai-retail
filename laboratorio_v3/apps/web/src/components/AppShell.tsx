@@ -21,7 +21,17 @@ const exerciseLabels: Record<string, string> = {
   "ex-01": "Ejercicio 1",
   "ex-02": "Ejercicio 2",
   "ex-03": "Ejercicio 3",
-  "ex-04": "Ejercicio 4"
+  "ex-04": "Ejercicio 4",
+  "lab02-ex01": "Ejercicio 1",
+  "lab02-ex02": "Ejercicio 2",
+  "lab02-ex03": "Ejercicio 3",
+  "lab02-ex04": "Ejercicio 4",
+  "lab02-ex05": "Ejercicio 5"
+};
+
+const labTitles: Record<string, string> = {
+  "lab-01": "Laboratorio 1",
+  "lab-02": "Laboratorio 2"
 };
 
 function getActiveHref(
@@ -56,10 +66,15 @@ function buildBreadcrumbs(pathname: string) {
     return crumbs;
   }
   if (pathname.startsWith("/labs/lab-02")) {
-    return [
+    const crumbs = [
       { label: "Laboratorios", href: "/labs" },
       { label: "Laboratorio 2", href: "/labs/lab-02" }
     ];
+    const exerciseMatch = pathname.match(/\/exercises\/(ex-\d+)/);
+    if (exerciseMatch) {
+      crumbs.push({ label: exerciseLabels[exerciseMatch[1]] ?? "Ejercicio", href: pathname });
+    }
+    return crumbs;
   }
   return [];
 }
@@ -69,6 +84,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const [session, setSession] = useState<Session | null>(null);
   const [lab01Links, setLab01Links] = useState<Array<{ href: string; label: string; status?: ExerciseStatus }>>([]);
+  const [lab02Links, setLab02Links] = useState<Array<{ href: string; label: string; status?: ExerciseStatus }>>([]);
   const [allLinks, setAllLinks] = useState<Array<{ href: string }>>([
     { href: "/" },
     { href: "/labs" },
@@ -87,23 +103,38 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             ? allExercises
             : allExercises.filter((exercise) => exercise.status === "active");
 
-        const links = [
+        const visibleLab01 = visible.filter((exercise) => exercise.labId === "lab-01");
+        const visibleLab02 = visible.filter((exercise) => exercise.labId === "lab-02");
+
+        const lab01Nav = [
           { href: "/labs/lab-01", label: "Overview" },
-          ...visible.map((exercise: ExerciseMeta) => ({
+          ...visibleLab01.map((exercise: ExerciseMeta) => ({
             href: exercise.path,
             label: exercise.title,
             status: exercise.status
           }))
         ];
-        setLab01Links(links);
+        const lab02Nav = [
+          { href: "/labs/lab-02", label: "Overview" },
+          ...visibleLab02.map((exercise: ExerciseMeta) => ({
+            href: exercise.path,
+            label: exercise.title,
+            status: exercise.status
+          }))
+        ];
+
+        setLab01Links(lab01Nav);
+        setLab02Links(lab02Nav);
+
         const baseLinks = [{ href: "/" }, { href: "/labs" }];
         if (role === "admin") {
           baseLinks.push({ href: "/admin" });
         }
-        setAllLinks([...baseLinks, ...links]);
+        setAllLinks([...baseLinks, ...lab01Nav, ...lab02Nav]);
       })
       .catch(() => {
         setLab01Links([]);
+        setLab02Links([]);
       });
   }, []);
 
@@ -162,10 +193,22 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           {inLab02 ? (
             <div className="navSection">
               <div className="navSectionTitle">Laboratorio 2</div>
-              <Link className={`navSubLink ${pathname === "/labs/lab-02" ? "active" : ""}`} href="/labs/lab-02" prefetch={false}>
-                <ClipboardList aria-hidden size={15} />
-                <span>Overview / Próximamente</span>
-              </Link>
+              {lab02Links.map((item) => (
+                <Link
+                  className={`navSubLink ${activeHref === item.href ? "active" : ""}`}
+                  href={item.href}
+                  key={item.href}
+                  prefetch={false}
+                >
+                  <ClipboardList aria-hidden size={15} />
+                  <span>{item.label}</span>
+                  {item.status && session?.role === "admin" ? (
+                    <span className={`statusPill ${item.status}`} style={{ marginLeft: "auto", fontSize: 10 }}>
+                      {item.status}
+                    </span>
+                  ) : null}
+                </Link>
+              ))}
             </div>
           ) : null}
 

@@ -83,11 +83,19 @@ export function AdminExerciseManager() {
     );
   }
 
+  const grouped = exercises.reduce<Record<string, ExerciseMeta[]>>((acc, exercise) => {
+    const key = exercise.labId ?? "sin-lab";
+    if (!acc[key]) acc[key] = [];
+    acc[key].push(exercise);
+    return acc;
+  }, {});
+
   return (
     <div className="tableWrap">
       <table>
         <thead>
           <tr>
+            <th>Lab</th>
             <th>ID</th>
             <th>Título</th>
             <th>Path</th>
@@ -97,44 +105,51 @@ export function AdminExerciseManager() {
           </tr>
         </thead>
         <tbody>
-          {exercises.map((exercise) => (
-            <tr key={exercise.id}>
-              <td>{exercise.id}</td>
-              <td>{exercise.title}</td>
-              <td>{exercise.path}</td>
-              <td>v{exercise.version}</td>
-              <td>
-                <span className={`statusPill ${exercise.status}`}>{exercise.status}</span>
-              </td>
-              <td>
-                <div className="buttonRow" style={{ margin: 0 }}>
-                  <button
-                    className={`button small ${exercise.status === "draft" ? "primary" : "secondary"}`}
-                    disabled={exercise.status === "draft"}
-                    onClick={() => changeStatus(exercise.id, "draft")}
-                    type="button"
-                  >
-                    Draft
-                  </button>
-                  <button
-                    className={`button small ${exercise.status === "active" ? "primary" : "secondary"}`}
-                    disabled={exercise.status === "active"}
-                    onClick={() => changeStatus(exercise.id, "active")}
-                    type="button"
-                  >
-                    Active
-                  </button>
-                  <button
-                    className={`button small ${exercise.status === "archived" ? "primary" : "secondary"}`}
-                    disabled={exercise.status === "archived"}
-                    onClick={() => changeStatus(exercise.id, "archived")}
-                    type="button"
-                  >
-                    Archived
-                  </button>
-                </div>
-              </td>
-            </tr>
+          {Object.entries(grouped).map(([labId, labExercises]) => (
+            labExercises.map((exercise, index) => (
+              <tr key={exercise.id}>
+                {index === 0 ? (
+                  <td rowSpan={labExercises.length} style={{ verticalAlign: "top", fontWeight: 600 }}>
+                    {labId}
+                  </td>
+                ) : null}
+                <td>{exercise.id}</td>
+                <td>{exercise.title}</td>
+                <td>{exercise.path}</td>
+                <td>v{exercise.version}</td>
+                <td>
+                  <span className={`statusPill ${exercise.status}`}>{exercise.status}</span>
+                </td>
+                <td>
+                  <div className="buttonRow" style={{ margin: 0 }}>
+                    <button
+                      className={`button small ${exercise.status === "draft" ? "primary" : "secondary"}`}
+                      disabled={exercise.status === "draft"}
+                      onClick={() => changeStatus(exercise.id, "draft")}
+                      type="button"
+                    >
+                      Draft
+                    </button>
+                    <button
+                      className={`button small ${exercise.status === "active" ? "primary" : "secondary"}`}
+                      disabled={exercise.status === "active"}
+                      onClick={() => changeStatus(exercise.id, "active")}
+                      type="button"
+                    >
+                      Active
+                    </button>
+                    <button
+                      className={`button small ${exercise.status === "archived" ? "primary" : "secondary"}`}
+                      disabled={exercise.status === "archived"}
+                      onClick={() => changeStatus(exercise.id, "archived")}
+                      type="button"
+                    >
+                      Archived
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))
           ))}
         </tbody>
       </table>

@@ -120,14 +120,65 @@ export const INITIAL_EXERCISES: ExerciseMeta[] = [
     status: "draft",
     version: 1,
     workbookBaseKey: "NEXUS_RETAIL_LAB01_WORKBOOK_COMPLETO.xlsx"
+  },
+  {
+    id: "lab02-ex01",
+    labId: "lab-02",
+    title: "Ejercicio 1: Customer Segmentation",
+    path: "/labs/lab-02/exercises/ex-01",
+    order: 1,
+    status: "active",
+    version: 1
+  },
+  {
+    id: "lab02-ex02",
+    labId: "lab-02",
+    title: "Ejercicio 2: VIP Strategy Simulator",
+    path: "/labs/lab-02/exercises/ex-02",
+    order: 2,
+    status: "active",
+    version: 1
+  },
+  {
+    id: "lab02-ex03",
+    labId: "lab-02",
+    title: "Ejercicio 3: Churn Recovery Simulator",
+    path: "/labs/lab-02/exercises/ex-03",
+    order: 3,
+    status: "active",
+    version: 1
+  },
+  {
+    id: "lab02-ex04",
+    labId: "lab-02",
+    title: "Ejercicio 4: Opportunistic Customer Simulator",
+    path: "/labs/lab-02/exercises/ex-04",
+    order: 4,
+    status: "active",
+    version: 1
+  },
+  {
+    id: "lab02-ex05",
+    labId: "lab-02",
+    title: "Ejercicio 5: Marketing ROI Consolidator",
+    path: "/labs/lab-02/exercises/ex-05",
+    order: 5,
+    status: "active",
+    version: 1
   }
 ];
 
 function ensureExerciseMeta(): ExerciseMeta[] {
   const existing = readJson<ExerciseMeta[]>(EXERCISE_META_KEY, []);
-  if (existing.length > 0) return existing;
-  writeJson(EXERCISE_META_KEY, INITIAL_EXERCISES);
-  return INITIAL_EXERCISES;
+  const existingIds = new Set(existing.map((ex) => ex.id));
+  const missing = INITIAL_EXERCISES.filter((ex) => !existingIds.has(ex.id));
+  if (missing.length === 0) return existing;
+  const merged = [...existing, ...missing].sort((a, b) => {
+    if (a.labId !== b.labId) return a.labId.localeCompare(b.labId);
+    return a.order - b.order;
+  });
+  writeJson(EXERCISE_META_KEY, merged);
+  return merged;
 }
 
 function getExerciseMetaStorage(): ExerciseMeta[] {
