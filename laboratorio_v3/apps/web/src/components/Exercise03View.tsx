@@ -149,7 +149,10 @@ Separá datos observados, cálculos y supuestos.`}
         eyebrow="Prompt 2"
         title="Construir escenarios Conservador, Base y Agresivo"
         helperText="Usá este prompt para que la IA proponga escenarios de mercado y sus supuestos antes de que el equipo elija uno."
-        prompt={`Usando el análisis por familias y las hojas 03_BASE_SKUS, 06_PORTFOLIO, 09_PRICING y 07_FORECAST_90_DIAS, construí tres escenarios de forecast para M13-M15:
+        prompt={`Usando el análisis por familias y las hojas 03_BASE_SKUS, 06_PORTFOLIO y 09_PRICING, construí tres escenarios de forecast para M13-M15:
+
+No uses 07_FORECAST_90_DIAS en esta etapa.
+La calibración numérica con baseline se hace en el Prompt 2B.
 
 1. Conservador
 2. Base
@@ -188,12 +191,177 @@ No presentes el forecast como certeza.
 Separá datos observados de supuestos.`}
       />
 
+      <section className="card" style={{ background: "rgba(191, 111, 40, 0.06)", borderColor: "var(--accent)" }}>
+        <div className="eyebrow" style={{ color: "var(--accent)" }}>Parte B.2</div>
+        <h2>Calibrar escenarios con números</h2>
+        <p className="muted">
+          Antes de elegir un escenario, el equipo necesita comparar el impacto económico de cada alternativa. Un escenario no es una etiqueta narrativa: es una hipótesis cuantificada sobre demanda, crecimiento, volumen, revenue y margen.
+        </p>
+        <p className="muted">
+          La decisión debe apoyarse en una comparación clara entre forecast baseline, escenario Conservador, escenario Base y escenario Agresivo. El objetivo es entender cuánto cambia el resultado proyectado, qué familias explican la diferencia y qué riesgos aparecen si el equipo se equivoca con el supuesto de demanda.
+        </p>
+      </section>
+
+      <section className="card">
+        <div className="factGrid">
+          <article className="factCard">
+            <h3>Revenue 90 días</h3>
+            <p>Venta proyectada total para M13, M14 y M15. Permite comparar el tamaño económico de cada escenario.</p>
+          </article>
+          <article className="factCard">
+            <h3>Margen 90 días</h3>
+            <p>Margen proyectado total para M13, M14 y M15. Permite evaluar si el escenario mejora rentabilidad o sólo empuja volumen.</p>
+          </article>
+          <article className="factCard">
+            <h3>Volumen 90 días</h3>
+            <p>Unidades proyectadas para M13, M14 y M15. Permite entender si el forecast depende de crecimiento real de demanda.</p>
+          </article>
+          <article className="factCard">
+            <h3>Sensibilidad vs baseline</h3>
+            <p>Diferencia porcentual contra el forecast base. Ayuda a detectar escenarios demasiado optimistas o demasiado conservadores.</p>
+          </article>
+        </div>
+      </section>
+
+      <PromptBlock
+        eyebrow="Prompt 2B"
+        title="Calibrar escenarios con cálculos comparativos"
+        helperText="Usá este prompt para que la IA calcule una comparación cuantitativa entre baseline, Conservador, Base y Agresivo antes de elegir el escenario final."
+        prompt={`Usando el workbook del Laboratorio 1, trabajá con estas hojas:
+
+* 03_BASE_SKUS: datos históricos de SKUs.
+* 06_PORTFOLIO: decisiones de portfolio ya completadas.
+* 09_PRICING: decisiones de pricing ya completadas.
+* 07_FORECAST_90_DIAS: hoja de trabajo del forecast.
+
+Objetivo:
+Antes de elegir el escenario final, quiero comparar cuantitativamente el forecast baseline contra tres escenarios posibles:
+
+1. Conservador
+2. Base
+3. Agresivo
+
+Primero calculá o estimá el forecast baseline para M13-M15 usando las columnas baseline de 07_FORECAST_90_DIAS:
+
+* baseline_units_m13
+* baseline_units_m14
+* baseline_units_m15
+* baseline_price_m13
+* baseline_price_m14
+* baseline_price_m15
+* baseline_cost_m13
+* baseline_cost_m14
+* baseline_cost_m15
+
+Calculá para baseline:
+
+1. Revenue baseline M13, M14 y M15.
+2. Revenue baseline total 90 días.
+3. Margen baseline M13, M14 y M15.
+4. Margen baseline total 90 días.
+5. Volumen baseline M13, M14 y M15.
+6. Volumen baseline total 90 días.
+
+Después construí tres escenarios comparativos:
+
+Escenario Conservador:
+
+* Demanda más débil.
+* Menor crecimiento de unidades.
+* Mayor impacto negativo si hubo subas de precio.
+* Salida más prudente de SKUs ELIMINAR.
+* Mayor riesgo de revenue en familias sensibles.
+
+Escenario Base:
+
+* Continuidad ajustada por portfolio y pricing.
+* Crecimiento moderado.
+* Efecto pricing razonable.
+* Salida ordenada de SKUs ELIMINAR.
+* Proyección defendible como caso central.
+
+Escenario Agresivo:
+
+* Demanda favorable.
+* Mayor captura de revenue y margen.
+* Menor impacto negativo de subas de precio.
+* Mejor desempeño de SKUs CORE.
+* Mayor riesgo de sobreestimación.
+
+Para cada escenario, devolveme una tabla comparativa con estas columnas:
+
+* escenario
+* supuesto de demanda
+* supuesto de crecimiento
+* volumen proyectado 90 días
+* revenue proyectado 90 días
+* margen proyectado 90 días
+* variación de volumen vs baseline
+* variación de revenue vs baseline
+* variación de margen vs baseline
+* familias que explican la diferencia
+* riesgo principal
+* nivel de confianza: Alto / Medio / Bajo
+
+También devolveme una segunda tabla por familia con:
+
+* family
+* revenue baseline 90 días
+* revenue conservador 90 días
+* revenue base 90 días
+* revenue agresivo 90 días
+* margen baseline 90 días
+* margen conservador 90 días
+* margen base 90 días
+* margen agresivo 90 días
+* principal driver del cambio
+* riesgo de sobreestimación
+* riesgo de subestimación
+
+Después respondé:
+
+1. Qué escenario parece más defendible con los datos disponibles.
+2. Qué escenario maximiza margen.
+3. Qué escenario minimiza riesgo.
+4. Qué escenario depende más de supuestos optimistas.
+5. Qué familias deberían revisar manualmente antes de elegir.
+6. Qué sensibilidad tiene el forecast frente a cambios de volumen.
+7. Qué sensibilidad tiene el forecast frente a cambios de precio.
+8. Qué escenario recomendarías como punto de partida y por qué.
+
+Importante:
+
+* No inventes datos.
+* Si faltan columnas o no podés calcular una métrica, aclaralo.
+* Separá cálculos de supuestos.
+* No completes todavía 07_FORECAST_90_DIAS SKU por SKU.
+* Esta etapa es sólo para elegir el escenario con mejor criterio.
+* No presentes el forecast como certeza.
+* Mostrá números en ARS y unidades cuando estén disponibles.
+* Redondeá los montos en MM si mejora la lectura ejecutiva.
+
+Cierre obligatorio:
+Terminá con una sección llamada “Recomendación para elegir escenario” con 5 bullets ejecutivos.`}
+      />
+
       <section className="card" style={{ background: "rgba(15, 107, 93, 0.06)", borderColor: "var(--brand)" }}>
         <div className="eyebrow" style={{ color: "var(--brand-strong)" }}>Parte C</div>
         <h2>Decisión de escenario y variables ajustables</h2>
         <p className="muted">
-          Ahora el equipo debe elegir el escenario de mercado que va a usar para completar el forecast. La IA puede recomendar, pero la decisión final es del equipo. El escenario elegido debe traducirse en supuestos concretos de demanda, crecimiento, efecto pricing y efecto portfolio.
+          El escenario elegido debe surgir de la comparación anterior. El equipo no debería elegir solamente por preferencia o apetito de riesgo, sino por la relación entre impacto económico, sensibilidad, confianza y riesgo de forecast.
         </p>
+      </section>
+
+      <section className="card">
+        <div className="eyebrow">Criterios para elegir escenario</div>
+        <ul className="simpleList">
+          <li>Si el objetivo es defender un número prudente ante dirección, usar Conservador o Base.</li>
+          <li>Si el objetivo es construir el caso más defendible, usar Base.</li>
+          <li>Si el objetivo es mostrar upside comercial, usar Agresivo, pero explicitando riesgos.</li>
+          <li>Si el margen mejora sólo por supuestos débiles de volumen, revisar antes de elegir.</li>
+          <li>Si pocas familias explican casi todo el upside, validar esas familias manualmente.</li>
+          <li>Si el escenario depende de subas de precio con elasticidad incierta, marcarlo como riesgo.</li>
+        </ul>
       </section>
 
       <section className="card">

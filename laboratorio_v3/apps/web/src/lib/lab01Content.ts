@@ -65,31 +65,33 @@ export const lab01ExerciseContent = {
   },
   ex02: {
     title: "Ejercicio 2: Pricing Optimization",
-    subtitle: "Definir una arquitectura de precios que capture margen sin destruir volumen ni competitividad.",
-    context: "Después de clasificar el portfolio en el Ejercicio 1, el equipo debe definir una arquitectura de precios para los próximos meses. El desafío es decidir dónde capturar margen, dónde defender competitividad, dónde proteger volumen y dónde usar precio como herramienta táctica para acelerar la salida de productos. El workbook del Ejercicio 2 contiene una resolución base del Ejercicio 1 para que todos los equipos partan de un punto común.",
+    subtitle: "Definir una arquitectura de precios que maximice margen manteniendo posicionamiento competitivo.",
+    context: "El equipo debe decidir una arquitectura de precios para los próximos meses. El desafío es equilibrar tres objetivos: capturar margen, defender volumen y mantener la posición competitiva, sin romper la lógica de precios dentro de cada familia. La decisión operativa por SKU queda en el workbook. La síntesis del impacto, los riesgos y la estrategia elegida quedan en la plataforma.",
     mainSheets: ["09_PRICING"],
     supportSheets: ["03_BASE_SKUS", "06_PORTFOLIO"],
     concepts: [
       { term: "Elasticidad por SKU", definition: "Señal de sensibilidad precio-volumen. Debe usarse como señal direccional, no como verdad estadística perfecta." },
       { term: "Elasticidad por categoría", definition: "Ayuda a entender qué familias son más sensibles a cambios de precio." },
       { term: "Índice de competitividad", definition: "Compara el precio propio contra el mercado. La decisión no debe ser automática." },
-      { term: "Pricing leakage", definition: "Margen potencial que se pierde por vender por debajo del precio que el producto podría sostener." },
-      { term: "Arquitectura de precios", definition: "Ordena la relación entre productos, familias, roles y posicionamiento competitivo." },
-      { term: "Precio como herramienta táctica", definition: "En SKUs candidatos a salida, el precio puede acelerar rotación y liberar capital." }
+      { term: "Pricing leakage", definition: "Valor económico potencialmente perdido por vender por debajo de una referencia defendible de mercado o margen." },
+      { term: "Potencial económico", definition: "Impacto estimado de corregir precios, considerando margen, volumen esperado y competitividad." },
+      { term: "Arquitectura de precios", definition: "Ordena la relación entre productos, familias, roles y posicionamiento competitivo: más barato, igual o premium." }
     ],
     questions: [],
     prompts: [
       { title: "Prompt 1 — Lectura por familias", body: "Analizá 03_BASE_SKUS, 06_PORTFOLIO y 09_PRICING para entender el problema por familias antes de recomendar precios SKU por SKU. No uses 07_FORECAST_90_DIAS." },
-      { title: "Prompt 2 — Definir estrategia de pricing", body: "Compará los caminos de capturar margen, defender volumen/competitividad y liquidar/acelerar salida. Recomendá una estrategia principal o mixta por familia conectada con la clasificación de portfolio." },
-      { title: "Prompt 3 — Completar decisiones de pricing", body: "Completá o proponé completar 09_PRICING con decisión, precios M13-M15, efecto esperado, rationale, riesgo y comentarios, respetando el rol de cada SKU y la arquitectura de precios." },
-      { title: "Prompt 4 — Reporte final", body: "Resumí la recomendación de pricing, el impacto esperado y los riesgos comerciales usando 09_PRICING como fuente principal. No uses 07_FORECAST_90_DIAS." }
+      { title: "Prompt 2 — Diagnóstico cuantitativo de pricing", body: "Calculá elasticidad proxy, índice de competitividad, SKUs subvaluados y sobrevaluados, pricing leakage y potencial económico antes de elegir la estrategia. No uses 07_FORECAST_90_DIAS." },
+      { title: "Prompt 3 — Definir posicionamiento y arquitectura de precios", body: "Elegí el posicionamiento competitivo (más barato, igual o premium), el margen objetivo y las categorías estratégicas. Proponé una arquitectura de precios por familia y tipo de SKU." },
+      { title: "Prompt 4 — Completar decisiones de pricing", body: "Completá o proponé completar 09_PRICING con decisión, precios recomendados, efecto esperado, rationale, riesgo y comentarios, respetando la arquitectura de precios." },
+      { title: "Prompt 5 — Reporte final", body: "Resumí la recomendación de pricing, el impacto esperado (revenue, margen, índice de competitividad) y los riesgos comerciales usando 09_PRICING como fuente principal. No uses 07_FORECAST_90_DIAS." }
     ],
-    required: ["09_PRICING completa o propuesta", "Síntesis de estrategia, impacto y riesgos guardada en plataforma."],
+    required: ["09_PRICING completa o propuesta", "Síntesis de diagnóstico, posicionamiento, impacto y riesgos guardada en plataforma."],
     fields: [
-      { key: "estrategia", label: "1. Estrategia de pricing elegida", placeholder: "Ejemplo: capturar margen, defender volumen, liquidar o estrategia mixta por familia; explicar por qué." },
-      { key: "impacto", label: "2. Impacto esperado en el negocio", placeholder: "Ejemplo: impacto esperado en revenue, margen, volumen, competitividad y pricing leakage capturado." },
-      { key: "decisionesRevisar", label: "3. Decisiones a revisar antes de ejecutar", placeholder: "Ejemplo: SKUs con subas agresivas, familias sensibles, productos Core con riesgo de volumen, SKUs Eliminar con liquidación dudosa o inconsistencias de arquitectura." },
-      { key: "datosValidar", label: "4. Datos o supuestos a validar", placeholder: "Ejemplo: elasticidad proxy, precios de competidores, costos unitarios, vigencia de promociones, disponibilidad de stock, sustitutos y supuestos de reacción del mercado." }
+      { key: "pricing_diagnosis", label: "1. Diagnóstico de pricing", placeholder: "Ejemplo: SKUs subvaluados y sobrevaluados, elasticidad por familia, leakage estimado y potencial económico." },
+      { key: "pricing_strategy", label: "2. Posicionamiento y arquitectura de precios elegida", placeholder: "Ejemplo: más barato, igual o premium por familia; margen objetivo; categorías estratégicas; reglas para CORE, REVIEW y ELIMINAR." },
+      { key: "business_impact", label: "3. Impacto esperado en margen, revenue y competitividad", placeholder: "Ejemplo: revenue proyectado, margen proyectado, índice de competitividad, volumen esperado y familias con mayor impacto." },
+      { key: "risks_to_review", label: "4. Riesgos y decisiones a revisar", placeholder: "Ejemplo: SKUs con subas agresivas, familias sensibles, productos Core con riesgo de volumen, SKUs Eliminar con liquidación dudosa o inconsistencias de arquitectura." },
+      { key: "assumptions_to_validate", label: "5. Datos o supuestos a validar", placeholder: "Ejemplo: elasticidad proxy, precios de competidores, costos unitarios, vigencia de promociones, disponibilidad de stock, sustitutos y supuestos de reacción del mercado." }
     ],
     confirmations: []
   },
@@ -119,7 +121,7 @@ export const lab01ExerciseContent = {
       },
       {
         title: "Prompt 2 — Construir escenarios Conservador, Base y Agresivo",
-        body: "Usando el análisis por familias y las hojas 03_BASE_SKUS, 06_PORTFOLIO, 09_PRICING y 07_FORECAST_90_DIAS, construí tres escenarios de forecast para M13-M15:\n\n1. Conservador\n2. Base\n3. Agresivo\n\nDefiniciones:\n\nEscenario Conservador:\nAsume demanda más débil, respuesta más lenta a las decisiones comerciales, mayor riesgo competitivo o mayor sensibilidad negativa a cambios de precio. Debe evitar sobreestimar unidades, revenue y margen.\n\nEscenario Base:\nAsume continuidad razonable ajustada por las decisiones de portfolio y pricing. Es el escenario de referencia para defender ante dirección.\n\nEscenario Agresivo:\nAsume demanda favorable, buena captura de margen, menor elasticidad negativa y mayor capacidad de sostener volumen aun con decisiones de pricing.\n\nPara cada escenario, devolveme:\n\n1. Supuesto general de demanda.\n2. Supuesto de crecimiento.\n3. Cómo debería impactar en unidades M13-M15.\n4. Cómo debería impactar en revenue M13-M15.\n5. Cómo debería impactar en margen M13-M15.\n6. Qué familias serían más beneficiadas.\n7. Qué familias tendrían mayor riesgo.\n8. Cómo debería tratar SKUs CORE.\n9. Cómo debería tratar SKUs REVIEW.\n10. Cómo debería tratar SKUs ELIMINAR.\n11. Cómo debería incorporar decisiones de pricing.\n12. Qué riesgos debería monitorear el equipo.\n\nDespués recomendá cuál escenario usar como base de trabajo y por qué.\n\nNo completes todavía todos los SKUs.\nNo presentes el forecast como certeza.\nSepará datos observados de supuestos."
+        body: "Usando el análisis por familias y las hojas 03_BASE_SKUS, 06_PORTFOLIO y 09_PRICING, construí tres escenarios de forecast para M13-M15. No uses 07_FORECAST_90_DIAS en esta etapa; la calibración numérica con baseline se hace en el Prompt 2B.\n\n1. Conservador\n2. Base\n3. Agresivo\n\nDefiniciones:\n\nEscenario Conservador:\nAsume demanda más débil, respuesta más lenta a las decisiones comerciales, mayor riesgo competitivo o mayor sensibilidad negativa a cambios de precio. Debe evitar sobreestimar unidades, revenue y margen.\n\nEscenario Base:\nAsume continuidad razonable ajustada por las decisiones de portfolio y pricing. Es el escenario de referencia para defender ante dirección.\n\nEscenario Agresivo:\nAsume demanda favorable, buena captura de margen, menor elasticidad negativa y mayor capacidad de sostener volumen aun con decisiones de pricing.\n\nPara cada escenario, devolveme:\n\n1. Supuesto general de demanda.\n2. Supuesto de crecimiento.\n3. Cómo debería impactar en unidades M13-M15.\n4. Cómo debería impactar en revenue M13-M15.\n5. Cómo debería impactar en margen M13-M15.\n6. Qué familias serían más beneficiadas.\n7. Qué familias tendrían mayor riesgo.\n8. Cómo debería tratar SKUs CORE.\n9. Cómo debería tratar SKUs REVIEW.\n10. Cómo debería tratar SKUs ELIMINAR.\n11. Cómo debería incorporar decisiones de pricing.\n12. Qué riesgos debería monitorear el equipo.\n\nDespués recomendá cuál escenario usar como base de trabajo y por qué.\n\nNo completes todavía todos los SKUs.\nNo presentes el forecast como certeza.\nSepará datos observados de supuestos."
       },
       {
         title: "Prompt 3 — Completar 07_FORECAST_90_DIAS SKU por SKU",
