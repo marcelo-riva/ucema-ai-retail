@@ -144,33 +144,39 @@ export const lab01ExerciseContent = {
   },
   "ex-04": {
     title: "Ejercicio 4: Inventory & Working Capital Optimization",
-    subtitle: "Definir inventario objetivo y liberar capital minimizando riesgo de quiebre.",
-    context: "Con el forecast definido, ahora el equipo debe decidir cuánto stock necesita y cuánto capital puede liberar sin poner en riesgo la operación.",
-    mainSheets: ["08_INVENTORY_DECISIONS"],
-    supportSheets: ["01_BASE_SKUS", "05_DECISIONES_PORTFOLIO", "07_FORECAST_90_DIAS", "09_SCOREBOARD_ALUMNO", "10_PLAN_90_DIAS"],
+    subtitle: "Optimizar capital de trabajo minimizando riesgo de quiebres.",
+    context: "Hasta ahora el equipo definió portfolio, pricing y forecast. Ahora el desafío es traducir esa proyección en decisiones de inventario y capital de trabajo. Un inventario más bajo libera capital, pero puede aumentar el riesgo de quiebre. Un inventario más alto protege ventas, pero inmoviliza caja. El objetivo es construir una política de cobertura que respete el rol de cada SKU, el forecast de demanda y la presión sobre capital de trabajo.",
+    mainSheets: ["08_INVENTARIO"],
+    supportSheets: ["03_BASE_SKUS", "06_PORTFOLIO", "09_PRICING", "07_FORECAST_90_DIAS"],
     concepts: [
-      { term: "DDI objetivo", definition: "Días de inventario deseados." },
-      { term: "Capital liberado", definition: "Reducción de stock valorizado." },
-      { term: "Riesgo de quiebre", definition: "Posibilidad de quedarse sin stock." },
-      { term: "Stock objetivo", definition: "Inventario necesario para sostener el forecast." }
+      { term: "DDI actual", definition: "Días de inventario actual. Indica cuántos días de demanda cubre el stock disponible." },
+      { term: "DDI objetivo", definition: "Cobertura deseada. Es la cobertura que el equipo decide alcanzar según demanda, criticidad, portfolio y riesgo de servicio." },
+      { term: "Stock de seguridad", definition: "Inventario adicional para absorber variaciones de demanda, lead time o ejecución comercial." },
+      { term: "Capital liberado", definition: "Valor económico que se podría liberar al reducir exceso de inventario sin comprometer ventas críticas." },
+      { term: "Riesgo de quiebre", definition: "Probabilidad o severidad esperada de quedarse sin stock frente al forecast de demanda." }
     ],
-    questions: ["¿Qué stock necesita el forecast?", "¿Dónde hay excedente?", "¿Qué SKUs tienen riesgo de quiebre?", "¿Qué capital puede liberarse?"],
+    questions: [
+      "¿Qué stock necesita el forecast?",
+      "¿Dónde hay excedente de inventario?",
+      "¿Qué SKUs tienen riesgo de quiebre?",
+      "¿Qué capital puede liberarse sin destruir servicio?"
+    ],
     prompts: [
-      { title: "Definir DDI objetivo", body: "Usá forecast, stock actual y rol de portfolio para proponer DDI objetivo por grupo de SKUs." },
-      { title: "Detectar capital liberable", body: "Identificá dónde reducir compra, liquidar excedente o bloquear reposición sin romper la operación." },
-      { title: "Preparar inventario", body: "Ayudame a completar conceptualmente 08_INVENTORY_DECISIONS con acción, capital liberado, riesgo y rationale." }
+      { title: "Prompt 1 — Lectura inicial por familias", body: "Analizá 03_BASE_SKUS, 06_PORTFOLIO, 07_FORECAST_90_DIAS y 08_INVENTARIO para entender la situación de inventario, DDI y capital de trabajo por familias antes de definir DDI objetivo. No completes todavía 08_INVENTARIO SKU por SKU." },
+      { title: "Prompt 2 — Diagnóstico cuantitativo de DDI, capital y riesgo", body: "Calculá DDI actual, capital de trabajo, stock gap, exceso, déficit y riesgo de quiebre por SKU y familia. No completes todavía 08_INVENTARIO SKU por SKU. Separá datos calculados de supuestos." },
+      { title: "Prompt 3 — Definir DDI objetivo y política de cobertura", body: "Elegí una política prudente, balanceada o agresiva. Definí DDI objetivo general y por tipo de SKU (CORE, REVIEW, ELIMINAR). Compará capital liberado y riesgo de quiebre bajo cada alternativa." },
+      { title: "Prompt 4 — Completar 08_INVENTARIO SKU por SKU", body: "Completá ddi_target, target_stock, stock_gap, inventory_action, capital_released, stockout_risk, rationale y ai_comment para cada SKU respetando portfolio_decision y forecast." },
+      { title: "Prompt 5 — Reporte final de inventario y capital de trabajo", body: "Resumí DDI objetivo, capital liberado, stock de seguridad, riesgo de quiebre y decisiones a revisar. Incluí variables para Executive Scoreboard: Capital trabajo, DDI, EBITDA." }
     ],
-    required: ["08_INVENTORY_DECISIONS completa", "09_SCOREBOARD_ALUMNO sección inventario actualizada"],
+    required: ["08_INVENTARIO completa", "Síntesis de DDI objetivo, política, capital liberado y riesgos guardada en plataforma."],
     fields: [
-      { key: "inventoryPolicy", label: "Política de inventario", placeholder: "Cómo van a decidir stock objetivo." },
-      { key: "ddiTarget", label: "DDI objetivo", placeholder: "Qué DDI objetivo proponen y por qué." },
-      { key: "stockoutRisks", label: "Riesgos de quiebre", placeholder: "Dónde podría faltar stock y cómo controlarlo." }
+      { key: "ddi_target_decision", label: "1. DDI objetivo elegido", placeholder: "Indicá el DDI objetivo elegido y explicá por qué tiene sentido para el negocio." },
+      { key: "coverage_policy", label: "2. Política de cobertura", placeholder: "Describí si eligieron una política prudente, balanceada, agresiva o mixta por familia/SKU." },
+      { key: "capital_released_summary", label: "3. Capital liberado estimado", placeholder: "Resumí cuánto capital de trabajo se libera, en qué familias se concentra y qué supuestos sostienen el cálculo." },
+      { key: "stockout_risk_summary", label: "4. Riesgo de quiebre", placeholder: "Explicá qué familias o SKUs quedan con mayor riesgo de quiebre y cómo deberían monitorearse." },
+      { key: "decisions_to_review", label: "5. Decisiones a revisar antes de ejecutar", placeholder: "Identificá SKUs críticos, familias sensibles, supuestos de demanda, restricciones operativas o decisiones que requieren validación comercial/logística." }
     ],
-    confirmations: [
-      { key: "completedInventory", label: "Completé 08_INVENTORY_DECISIONS." },
-      { key: "updatedScoreboardInventory", label: "Actualicé 09_SCOREBOARD_ALUMNO sección inventario." },
-      { key: "reviewedStockoutRisk", label: "Revisé riesgo de quiebre." }
-    ]
+    confirmations: []
   }
 } as const;
 

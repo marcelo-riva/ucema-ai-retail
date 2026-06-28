@@ -8,6 +8,7 @@ import { Exercise00View } from "./Exercise00View";
 import { Exercise01View } from "./Exercise01View";
 import { Exercise02InitialView } from "./Exercise02InitialView";
 import { Exercise03View } from "./Exercise03View";
+import { Exercise04View } from "./Exercise04View";
 import { ExerciseCheckpointForm } from "./ExerciseCheckpointForm";
 import { ExerciseStepLayout } from "./ExerciseStepLayout";
 import { RequiredOutputsCard } from "./RequiredOutputsCard";
@@ -32,7 +33,8 @@ const customViews: Partial<Record<Lab01ExerciseId, React.ComponentType<any>>> = 
   "ex-00": Exercise00View,
   "ex-01": Exercise01View,
   ex02: Exercise02InitialView,
-  "ex-03": Exercise03View
+  "ex-03": Exercise03View,
+  "ex-04": Exercise04View
 };
 
 export function Lab01ExerciseClient({ exerciseId }: { exerciseId: Lab01ExerciseId }) {
