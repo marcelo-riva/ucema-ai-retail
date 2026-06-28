@@ -98,7 +98,7 @@ export const lab01ExerciseContent = {
     subtitle: "Proyectar resultados a 90 días a partir de las decisiones de portfolio y pricing.",
     context: "Hasta ahora el equipo definió qué productos sostener, revisar o eliminar y qué estrategia de precios aplicar. Ahora el desafío es proyectar qué pasa con revenue, volumen y margen en los próximos 90 días. Un forecast comercial no es una predicción exacta: es una forma disciplinada de traducir decisiones en impacto esperado.",
     mainSheets: ["07_FORECAST_90_DIAS"],
-    supportSheets: ["03_BASE_SKUS", "06_PORTFOLIO", "09_PRICING", "11_SCOREBOARD_ALUMNO"],
+    supportSheets: ["03_BASE_SKUS", "06_PORTFOLIO", "09_PRICING"],
     concepts: [
       { term: "Baseline", definition: "Forecast base de continuidad antes de aplicar una lectura de escenario. Sirve como punto de comparación." },
       { term: "Projected", definition: "Escenario proyectado después de incorporar decisiones de portfolio, pricing y supuestos de demanda." },

@@ -48,7 +48,7 @@ export function Exercise03View({ group, stateVersion }: Exercise03ViewProps) {
           </div>
           <div className="panel">
             <h3>Hojas de apoyo</h3>
-            <p className="muted">03_BASE_SKUS, 06_PORTFOLIO, 09_PRICING, 11_SCOREBOARD_ALUMNO</p>
+            <p className="muted">03_BASE_SKUS, 06_PORTFOLIO, 09_PRICING</p>
           </div>
         </div>
       </section>
