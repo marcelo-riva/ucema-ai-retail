@@ -6,6 +6,7 @@ import { CriteriaGrid } from "./labs/CriteriaGrid";
 import { MetricList } from "./labs/MetricList";
 import { ScenarioGrid } from "./labs/ScenarioGrid";
 import { WorkbookStatusCard } from "./WorkbookStatusCard";
+import { ExerciseWorkbookDownloadCard } from "./ExerciseWorkbookDownloadCard";
 import { CheckpointForm } from "./labs/CheckpointForm";
 import type { Group, SystemScoreboard } from "../types/lab";
 
@@ -455,6 +456,8 @@ export function Exercise01View({
       workbookLabel="único"
       checkpointStatus="borrador"
     >
+      <ExerciseWorkbookDownloadCard exerciseId="ex-01" />
+
       <WorkbookStatusCard stateVersion={stateVersion} lastWorkbookName={scoreboard.lastWorkbookName} />
 
       <section className="card">

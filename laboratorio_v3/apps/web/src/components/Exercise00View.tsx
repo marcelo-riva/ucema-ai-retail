@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { ExerciseCheckpointForm } from "./ExerciseCheckpointForm";
 import { ExerciseStepLayout } from "./ExerciseStepLayout";
+import { ExerciseWorkbookDownloadCard } from "./ExerciseWorkbookDownloadCard";
 import type { Group, LabCheckpoint } from "../types/lab";
 
 const recommendedPrompt = `Subí el workbook y analizá principalmente la hoja de SKUs.
@@ -79,6 +80,8 @@ export function Exercise00View({
         { label: "Grupo", value: group.name }
       ]}
     >
+      <ExerciseWorkbookDownloadCard exerciseId="ex-00" />
+
       <section className="card">
         <div className="eyebrow">Objetivo</div>
         <h2>Qué estás resolviendo</h2>

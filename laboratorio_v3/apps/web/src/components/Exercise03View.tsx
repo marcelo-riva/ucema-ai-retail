@@ -3,6 +3,7 @@
 import { ExerciseHeader } from "./labs/ExerciseHeader";
 import { PromptBlock } from "./labs/PromptBlock";
 import { CheckpointForm } from "./labs/CheckpointForm";
+import { ExerciseWorkbookDownloadCard } from "./ExerciseWorkbookDownloadCard";
 import type { Group } from "../types/lab";
 
 type Exercise03ViewProps = {
@@ -21,6 +22,8 @@ export function Exercise03View({ group, stateVersion }: Exercise03ViewProps) {
       workbookLabel="Laboratorio 1 — Forecast"
       checkpointStatus="borrador"
     >
+      <ExerciseWorkbookDownloadCard exerciseId="ex-03" />
+
       <section className="card" style={{ background: "rgba(15, 107, 93, 0.06)", borderColor: "var(--brand)" }}>
         <div className="eyebrow" style={{ color: "var(--brand-strong)" }}>Memoria del laboratorio</div>
         <h2>El workbook sostiene el recorrido</h2>

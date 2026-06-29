@@ -3,6 +3,7 @@
 import { ExerciseHeader } from "./labs/ExerciseHeader";
 import { PromptBlock } from "./labs/PromptBlock";
 import { CheckpointForm } from "./labs/CheckpointForm";
+import { ExerciseWorkbookDownloadCard } from "./ExerciseWorkbookDownloadCard";
 import type { Group } from "../types/lab";
 
 type Exercise02InitialViewProps = {
@@ -21,6 +22,8 @@ export function Exercise02InitialView({ group, stateVersion }: Exercise02Initial
       workbookLabel="Pricing Optimization"
       checkpointStatus="borrador"
     >
+      <ExerciseWorkbookDownloadCard exerciseId="ex02" />
+
       <section className="card">
         <div className="eyebrow">Objetivo</div>
         <h2>Qué estás resolviendo</h2>

@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AppShell } from "../../../components/AppShell";
 import { ExerciseProgressNav } from "../../../components/ExerciseProgressNav";
-import { WorkbookDownloadCard } from "../../../components/WorkbookDownloadCard";
 import { WorkbookStatusCard } from "../../../components/WorkbookStatusCard";
 import type { Group, SystemScoreboard } from "../../../types/lab";
 import type { ExerciseMeta, Session } from "../../../lib/repositories/labRepository.types";
@@ -86,7 +85,6 @@ export default function Lab01Page() {
       </header>
 
       <div className="grid" style={{ gap: 22 }}>
-        <WorkbookDownloadCard compact />
         <WorkbookStatusCard stateVersion={stateVersion} lastWorkbookName={scoreboard?.lastWorkbookName} />
         <ExerciseProgressNav items={exercises} role={session?.role ?? "group"} />
       </div>
