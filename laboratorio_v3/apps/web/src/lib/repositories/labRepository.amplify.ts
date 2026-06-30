@@ -450,14 +450,27 @@ export async function seedExerciseMeta(): Promise<void> {
       continue;
     }
 
-    if (exercise.status === "active" && existing.status !== "active") {
+    const needsUpdate =
+      existing.labId !== exercise.labId ||
+      existing.title !== exercise.title ||
+      existing.path !== exercise.path ||
+      existing.order !== exercise.order ||
+      existing.status !== exercise.status ||
+      existing.version !== exercise.version;
+
+    if (needsUpdate) {
       const { errors } = await getClient().models.ExerciseMeta.update({
         id: exercise.id,
-        status: "active"
+        labId: exercise.labId,
+        title: exercise.title,
+        path: exercise.path,
+        order: exercise.order,
+        status: exercise.status,
+        version: exercise.version
       });
       if (errors) {
         // eslint-disable-next-line no-console
-        console.warn(`Error activating ${exercise.id}:`, errors);
+        console.warn(`Error actualizando ${exercise.id}:`, errors);
       }
     }
   }

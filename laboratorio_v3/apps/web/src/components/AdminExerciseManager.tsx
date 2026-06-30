@@ -91,19 +91,38 @@ export function AdminExerciseManager() {
   }, {});
 
   return (
-    <div className="tableWrap">
-      <table>
-        <thead>
-          <tr>
-            <th>Lab</th>
-            <th>ID</th>
-            <th>Título</th>
-            <th>Path</th>
-            <th>Versión</th>
-            <th>Status</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
+    <div>
+      {isAmplify ? (
+        <div className="card" style={{ marginBottom: 22 }}>
+          <div className="eyebrow">Sincronización con backend</div>
+          <h2>Regenerar ejercicios</h2>
+          <p className="muted">
+            Si agregaste o modificaste ejercicios en el código, hacé clic para sincronizar los metadatos en Amplify Data con la definición local. Esto crea los que faltan, actualiza los existentes y elimina los obsoletos.
+          </p>
+          <button
+            className="button primary"
+            disabled={seeding}
+            onClick={seedExercises}
+            type="button"
+          >
+            {seeding ? "Sincronizando..." : "Regenerar ejercicios desde código"}
+          </button>
+        </div>
+      ) : null}
+
+      <div className="tableWrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Lab</th>
+              <th>ID</th>
+              <th>Título</th>
+              <th>Path</th>
+              <th>Versión</th>
+              <th>Status</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
         <tbody>
           {Object.entries(grouped).map(([labId, labExercises]) => (
             labExercises.map((exercise, index) => (
@@ -154,5 +173,6 @@ export function AdminExerciseManager() {
         </tbody>
       </table>
     </div>
+  </div>
   );
 }
