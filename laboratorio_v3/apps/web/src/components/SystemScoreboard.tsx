@@ -9,9 +9,10 @@ export function SystemScoreboard({ scoreboard }: { scoreboard: SystemScoreboardT
           <div className="eyebrow">Scoreboard del sistema</div>
           <h2>Impacto estimado de Portfolio</h2>
           <p className="muted" style={{ marginBottom: 0 }}>
-            Este scoreboard es una estimación oficial de la plataforma a partir de la
-            entrega del equipo. Antes de enviar, se muestra en modo mock. Revenue en
-            riesgo son ventas que podrían perderse si se retiran productos.
+            Este scoreboard es una estimación de la plataforma a partir de la
+            entrega del equipo. Se muestra como borrador hasta que el equipo envíe el
+            checkpoint. Revenue en riesgo son ventas que podrían perderse si se
+            retiran productos.
           </p>
         </div>
         <div className="statusPill success">Base actual: state_{scoreboard.stateVersion}</div>

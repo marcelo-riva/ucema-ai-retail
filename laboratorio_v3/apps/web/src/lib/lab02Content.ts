@@ -38,7 +38,7 @@ export const lab02ExerciseContent = {
   "lab02-ex02": {
     title: "Ejercicio 2: VIP Strategy Simulator",
     subtitle: "Incrementar CLV del segmento VIP.",
-    context: "En este ejercicio vas a diseñar una estrategia para el segmento VIP. El objetivo es incrementar ticket, frecuencia y CLV sin sobre-incentivar clientes que ya comprarían sin promoción.",
+    context: "En este ejercicio vas a diseñar una estrategia para el segmento VIP. Tu objetivo es incrementar ticket, frecuencia y CLV sin sobre-incentivar clientes que ya comprarían sin promoción.",
     mainSheets: ["SEGMENTACION_RFM", "ESTRATEGIA_VIP"],
     supportSheets: ["BASE_CLIENTES", "CALCULADORA_VIP"],
     concepts: [
@@ -71,7 +71,7 @@ export const lab02ExerciseContent = {
   "lab02-ex03": {
     title: "Ejercicio 3: Churn Recovery Simulator",
     subtitle: "Recuperar clientes en riesgo.",
-    context: "En este ejercicio vas a diseñar una estrategia para recuperar clientes en riesgo de fuga. El objetivo es recuperar revenue comprometido sin canibalizar el resto de la base ni atraer solo oportunistas.",
+    context: "En este ejercicio vas a diseñar una estrategia para recuperar clientes en riesgo de fuga. Tu objetivo es recuperar revenue comprometido sin canibalizar el resto de la base ni atraer solo oportunistas.",
     mainSheets: ["SEGMENTACION_RFM", "CHURN_RECOVERY"],
     supportSheets: ["BASE_CLIENTES", "CALCULADORA_CHURN"],
     concepts: [
@@ -104,7 +104,7 @@ export const lab02ExerciseContent = {
   "lab02-ex04": {
     title: "Ejercicio 4: Opportunistic Customer Simulator",
     subtitle: "Incrementar ticket promedio.",
-    context: "En este ejercicio vas a diseñar una estrategia para incrementar el ticket promedio de clientes oportunistas. El objetivo es aumentar el valor de la compra sin destruir margen ni generar descuentos innecesarios.",
+    context: "En este ejercicio vas a diseñar una estrategia para incrementar el ticket promedio de clientes oportunistas. Tu objetivo es aumentar el valor de la compra sin destruir margen ni generar descuentos innecesarios.",
     mainSheets: ["SEGMENTACION_RFM", "TICKET_BUILDER"],
     supportSheets: ["BASE_CLIENTES", "CALCULADORA_TICKET"],
     concepts: [
@@ -137,7 +137,7 @@ export const lab02ExerciseContent = {
   "lab02-ex05": {
     title: "Ejercicio 5: Marketing ROI Consolidator",
     subtitle: "Consolidar todas las inversiones promocionales.",
-    context: "En este ejercicio vas a consolidar el impacto económico de las estrategias diseñadas para VIP, churn y oportunistas. El objetivo es tener una visión integral de inversión, revenue incremental, margen y ROI promocional.",
+    context: "En este ejercicio vas a consolidar el impacto económico de las estrategias diseñadas para VIP, churn y oportunistas. Tu objetivo es tener una visión integral de inversión, revenue incremental, margen y ROI promocional.",
     mainSheets: ["CONSOLIDADOR_ROI", "MARKETING_DASHBOARD"],
     supportSheets: ["ESTRATEGIA_VIP", "CHURN_RECOVERY", "TICKET_BUILDER"],
     concepts: [

@@ -75,7 +75,7 @@ export default function Lab01Page() {
         <div className="panel">
           <div className="muted">Grupo activo</div>
           <h3>{group?.name ?? session?.username ?? "Cargando..."}</h3>
-          {session?.role !== "admin" ? (
+          {session?.role === "admin" ? (
             <label className="checkItem" style={{ marginTop: 12 }}>
               <input checked={demoMode} onChange={(event) => toggleDemoMode(event.target.checked)} type="checkbox" />
               <span>Modo demo: abrir todos los ejercicios</span>

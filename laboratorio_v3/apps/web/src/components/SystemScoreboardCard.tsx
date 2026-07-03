@@ -5,7 +5,7 @@ export function SystemScoreboardCard({ scoreboard }: { scoreboard: SystemScorebo
   return (
     <section className="card">
       <div className="eyebrow">Scoreboard consolidado</div>
-      <h2>Dashboard mock del Lab 1</h2>
+      <h2>Dashboard del Lab 1</h2>
       <div className="metricGrid">
         <div className="metric"><div className="metricLabel">Estado</div><div className="metricValue metricText">{scoreboard.stateVersion}</div></div>
         <div className="metric"><div className="metricLabel">Checkpoints</div><div className="metricValue">{scoreboard.checkpointCount ?? 0}</div></div>

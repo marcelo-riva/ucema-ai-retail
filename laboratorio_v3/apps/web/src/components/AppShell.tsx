@@ -14,8 +14,6 @@ import {
 import { getLabRepository } from "../lib/repositories/labRepository";
 import type { ExerciseMeta, ExerciseStatus, Session } from "../lib/repositories/labRepository.types";
 
-const DATA_MODE = process.env.NEXT_PUBLIC_DATA_MODE ?? "local";
-
 const exerciseLabels: Record<string, string> = {
   "ex-00": "Ejercicio 0",
   "ex-01": "Ejercicio 1",
@@ -222,13 +220,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
         <p className="sideNote">La plataforma guía. Tu AI analiza. Tu equipo decide.</p>
 
-        <div className="panel" style={{ marginTop: "auto", background: "rgba(255,255,255,0.08)", borderColor: "rgba(255,255,255,0.12)", padding: 10 }}>
-          <div className="eyebrow" style={{ color: "#8fc6b9" }}>Data mode</div>
-          <span className={`statusPill ${DATA_MODE === "local" ? "active" : "draft"}`} style={{ marginTop: 6 }}>
-            {DATA_MODE === "local" ? "local (default)" : DATA_MODE}
-          </span>
-        </div>
-
         {session ? (
           <div className="panel" style={{ marginTop: "auto", background: "rgba(255,255,255,0.08)", borderColor: "rgba(255,255,255,0.12)" }}>
             <div className="eyebrow" style={{ color: "#8fc6b9" }}>Sesión</div>
@@ -238,8 +229,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             </div>
             <p className="muted" style={{ color: "rgba(246,250,246,0.64)", fontSize: 12, margin: "6px 0 12px" }}>
               {session.role === "admin" ? "Administrador" : `Grupo: ${session.groupId ?? "-"}`}
-              {" · "}
-              Data mode: {DATA_MODE}
             </p>
             <button
               className="button secondary"

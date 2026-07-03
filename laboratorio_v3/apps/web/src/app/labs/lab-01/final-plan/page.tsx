@@ -83,7 +83,7 @@ export default function FinalPlanPage() {
       <FinalPlanEditor fields={planFields} onChange={setPlanFields} />
       <section className="panel">
         <button className="button secondary" type="button">
-          <Download size={17} /> Descargar plan final mock
+          <Download size={17} /> Descargar plan final
         </button>
       </section>
       <ExerciseCheckpointForm

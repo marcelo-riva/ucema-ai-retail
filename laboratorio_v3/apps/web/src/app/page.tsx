@@ -9,7 +9,7 @@ export default function HomePage() {
           <div className="eyebrow">NEXUS Retail Labs</div>
           <h1>AI Revenue & Inventory Copilot</h1>
           <p className="lead">
-            Experiencia mock para revisar laboratorios, ejercicios y workbook de trabajo.
+            Experiencia de laboratorios para practicar decisiones de negocio con IA personal.
           </p>
         </div>
       </header>
@@ -17,8 +17,8 @@ export default function HomePage() {
       <section className="card">
         <h2>Empezar revisión</h2>
         <p className="muted">
-          Ingresá con un grupo de prueba para recorrer el laboratorio. La plataforma usa
-          datos mock y guarda el avance localmente en este navegador.
+          Ingresá con un grupo de prueba para recorrer el laboratorio. La plataforma guía
+          el análisis, registra la síntesis del equipo y mantiene el workbook como fuente de verdad.
         </p>
         <div className="buttonRow">
           <Link className="button primary" href="/login" prefetch={false}>

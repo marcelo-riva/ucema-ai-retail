@@ -40,7 +40,7 @@ export default function ScoreboardPage() {
           <h1>Scoreboard consolidado</h1>
           <p className="lead">
             Histórico M01-M12, proyección M13-M15, checkpoints subidos y último workbook
-            registrado. Todo en modo mock/localStorage.
+            registrado.
           </p>
         </div>
       </header>

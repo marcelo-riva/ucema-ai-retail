@@ -30,7 +30,7 @@ export const lab01ExerciseContent = {
   "ex-01": {
     title: "Ejercicio 1: Definir decisiones de portfolio",
     subtitle: "Clasificar SKUs como Core, Review o Eliminar y justificar la decisión con datos.",
-    context: "En este ejercicio vas a definir una primera estrategia de portfolio. Antes de clasificar productos SKU por SKU, necesitás entender cómo se comporta el negocio por familias o categorías. Después vas a usar tu AI personal para aplicar criterios de portfolio y completar una propuesta por producto en el workbook. La decisión operativa por producto queda en el Excel. La síntesis del criterio queda en la plataforma.",
+    context: "En este ejercicio vas a definir una primera estrategia de portfolio. Antes de clasificar productos SKU por SKU, necesitás entender cómo se comporta el negocio por familias o categorías. Después vas a usar tu AI personal para aplicar criterios de portfolio y completar una propuesta por producto en el workbook. La decisión operativa por producto queda en el Excel. La síntesis del criterio la guardás acá.",
     mainSheets: ["06_PORTFOLIO"],
     supportSheets: ["03_BASE_SKUS", "04_EXPLORACION", "05_DIAGNOSTICO_INICIAL", "11_SCOREBOARD_ALUMNO"],
     concepts: [
@@ -66,7 +66,7 @@ export const lab01ExerciseContent = {
   ex02: {
     title: "Ejercicio 2: Pricing Optimization",
     subtitle: "Definir una arquitectura de precios que maximice margen manteniendo posicionamiento competitivo.",
-    context: "El equipo debe decidir una arquitectura de precios para los próximos meses. El desafío es equilibrar tres objetivos: capturar margen, defender volumen y mantener la posición competitiva, sin romper la lógica de precios dentro de cada familia. La decisión operativa por SKU queda en el workbook. La síntesis del impacto, los riesgos y la estrategia elegida quedan en la plataforma.",
+    context: "Tu equipo debe decidir una arquitectura de precios para los próximos meses. El desafío es equilibrar tres objetivos: capturar margen, defender volumen y mantener la posición competitiva, sin romper la lógica de precios dentro de cada familia. La decisión operativa por SKU queda en el workbook. La síntesis del impacto, los riesgos y la estrategia elegida la guardás acá.",
     mainSheets: ["09_PRICING"],
     supportSheets: ["03_BASE_SKUS", "06_PORTFOLIO"],
     concepts: [
@@ -98,7 +98,7 @@ export const lab01ExerciseContent = {
   "ex-03": {
     title: "Ejercicio 3: Forecast Engine",
     subtitle: "Proyectar resultados a 90 días a partir de las decisiones de portfolio y pricing.",
-    context: "Hasta ahora el equipo definió qué productos sostener, revisar o eliminar y qué estrategia de precios aplicar. Ahora el desafío es proyectar qué pasa con revenue, volumen y margen en los próximos 90 días. Un forecast comercial no es una predicción exacta: es una forma disciplinada de traducir decisiones en impacto esperado.",
+    context: "Hasta ahora tu equipo definió qué productos sostener, revisar o eliminar y qué estrategia de precios aplicar. Ahora el desafío es proyectar qué pasa con revenue, volumen y margen en los próximos 90 días. Un forecast comercial no es una predicción exacta: es una forma disciplinada de traducir decisiones en impacto esperado.",
     mainSheets: ["07_FORECAST_90_DIAS"],
     supportSheets: ["03_BASE_SKUS", "06_PORTFOLIO", "09_PRICING"],
     concepts: [
@@ -145,7 +145,7 @@ export const lab01ExerciseContent = {
   "ex-04": {
     title: "Ejercicio 4: Inventory & Working Capital Optimization",
     subtitle: "Optimizar capital de trabajo minimizando riesgo de quiebres.",
-    context: "Hasta ahora el equipo definió portfolio, pricing y forecast. Ahora el desafío es traducir esa proyección en decisiones de inventario y capital de trabajo. Un inventario más bajo libera capital, pero puede aumentar el riesgo de quiebre. Un inventario más alto protege ventas, pero inmoviliza caja. El objetivo es construir una política de cobertura que respete el rol de cada SKU, el forecast de demanda y la presión sobre capital de trabajo.",
+    context: "Hasta ahora tu equipo definió portfolio, pricing y forecast. Ahora el desafío es traducir esa proyección en decisiones de inventario y capital de trabajo. Un inventario más bajo libera capital, pero puede aumentar el riesgo de quiebre. Un inventario más alto protege ventas, pero inmoviliza caja. El objetivo es construir una política de cobertura que respete el rol de cada SKU, el forecast de demanda y la presión sobre capital de trabajo.",
     mainSheets: ["08_INVENTARIO"],
     supportSheets: ["03_BASE_SKUS", "06_PORTFOLIO", "09_PRICING", "07_FORECAST_90_DIAS"],
     concepts: [

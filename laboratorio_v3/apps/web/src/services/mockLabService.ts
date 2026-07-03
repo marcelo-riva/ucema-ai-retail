@@ -348,7 +348,7 @@ export async function submitLabCheckpoint(payload: Partial<LabCheckpoint> & { re
   checkpoint.status = "submitted";
   checkpoint.validationMessages = [
     ...(!checkpoint.reportName ? [{ type: "warning" as const, message: "Checkpoint enviado sin reporte AI opcional." }] : []),
-    { type: "success", message: "Checkpoint registrado. Dashboard mock actualizado." }
+    { type: "success", message: "Checkpoint registrado." }
   ];
   checkpoint.updatedAt = new Date().toISOString();
   saveStoredCheckpoint(checkpoint);
@@ -514,7 +514,7 @@ export async function submitExercise(payload: Partial<Submission>): Promise<Subm
         ...validationMessages,
         {
           type: "success",
-          message: "Entrega enviada. Estado oficial actualizado a state_v1 mock."
+          message: "Entrega enviada. Estado actualizado."
         }
       ]
     },
@@ -529,7 +529,7 @@ export async function submitExercise(payload: Partial<Submission>): Promise<Subm
 export async function getSystemScoreboard(groupId: string, labId: string): Promise<SystemScoreboard> {
   const currentState = getStateFromCheckpoints(groupId);
   const stored = getStoredScoreboards()[`${groupId}:${labId}`];
-  // Usar el scoreboard almacenado solo si corresponde al estado actual y a la versión actual del mock.
+  // Usar el scoreboard almacenado solo si corresponde al estado actual y a la versión actual.
   // Si el estado o la versión cambiaron, se recalcula para reflejar correcciones de datos.
   if (stored && stored.stateVersion === currentState && (stored as any).__version === SCOREBOARD_VERSION) {
     return stored;

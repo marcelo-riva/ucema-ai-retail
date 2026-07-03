@@ -5,8 +5,7 @@ import { useRouter } from "next/navigation";
 import { LogIn } from "lucide-react";
 import { getLabRepository } from "../../lib/repositories/labRepository";
 
-// TODO: migrar a backend real / Amplify Auth en producción.
-// Este login es localStorage-only para el entorno mock de desarrollo.
+// Login del curso. La sesión se mantiene en el navegador para el grupo activo.
 
 export default function LoginPage() {
   const router = useRouter();
@@ -47,8 +46,7 @@ export default function LoginPage() {
         <div className="eyebrow">NEXUS Retail Labs</div>
         <h1>Laboratorio ejecutivo de decisiones con AI personal</h1>
         <p className="lead">
-          Ingresá con tu usuario de grupo o admin. En este entorno mock la
-          autenticación es local; en producción debe reemplazarse por backend/Auth.
+          Ingresá con tu usuario de grupo o admin para continuar el laboratorio.
         </p>
 
         <form className="card" onSubmit={handleSubmit} style={{ marginTop: 28 }}>
