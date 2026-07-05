@@ -111,15 +111,19 @@ function mapSubmission(item: Schema["Submission"]["type"]): Submission {
 }
 
 function buildUsers() {
-  const groups = Array.from({ length: 20 }, (_, index) => {
-    const num = String(index + 1).padStart(2, "0");
-    return {
-      id: `grupo${num}`,
-      username: `Grupo ${num}`,
-      password: `laboratorio#grupo${num}`,
-      role: "group" as const
-    };
-  });
+  const prefixes = ["iaec", "ero"];
+  const groups = prefixes.flatMap((prefix) =>
+    Array.from({ length: 20 }, (_, index) => {
+      const num = String(index + 1).padStart(2, "0");
+      const id = `${prefix}-grupo${num}`;
+      return {
+        id,
+        username: `${prefix.toUpperCase()} Grupo ${num}`,
+        password: `laboratorio#${id}`,
+        role: "group" as const
+      };
+    })
+  );
   return [
     ...groups,
     { id: "admin", username: "Admin", password: "admin#admin#messi", role: "admin" as const }
@@ -534,7 +538,7 @@ export async function verifyAmplifyRepository(): Promise<
 
   await run("saveSubmission", async () => {
     await repo.saveSubmission({
-      groupId: "grupo01",
+      groupId: "iaec-grupo01",
       exerciseId: "ex-01",
       exerciseVersion: 1,
       responsesJson: { test: "value" }
@@ -542,7 +546,7 @@ export async function verifyAmplifyRepository(): Promise<
   });
 
   await run("getSubmission", async () => {
-    const submission = await repo.getSubmission({ groupId: "grupo01", exerciseId: "ex-01", exerciseVersion: 1 });
+    const submission = await repo.getSubmission({ groupId: "iaec-grupo01", exerciseId: "ex-01", exerciseVersion: 1 });
     if (!submission) throw new Error("No se encontró");
     if (submission.responsesJson.test !== "value") throw new Error("responsesJson no coincide");
   });
@@ -553,8 +557,8 @@ export async function verifyAmplifyRepository(): Promise<
   });
 
   await run("resetSubmission", async () => {
-    await repo.resetSubmission({ groupId: "grupo01", exerciseId: "ex-01", exerciseVersion: 1 });
-    const submission = await repo.getSubmission({ groupId: "grupo01", exerciseId: "ex-01", exerciseVersion: 1 });
+    await repo.resetSubmission({ groupId: "iaec-grupo01", exerciseId: "ex-01", exerciseVersion: 1 });
+    const submission = await repo.getSubmission({ groupId: "iaec-grupo01", exerciseId: "ex-01", exerciseVersion: 1 });
     if (submission?.status !== "reset") throw new Error("No se reseteó");
   });
 

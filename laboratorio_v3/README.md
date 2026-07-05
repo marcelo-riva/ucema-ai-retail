@@ -159,7 +159,8 @@ En modo Amplify, la primera vez que se abre `/admin` la tabla de ejercicios esta
 
 El login sigue siendo un mecanismo simple basado en `localStorage`:
 
-- Grupos: `grupo01`..`grupo20` con password `laboratorio#grupoXX`.
+- Grupos IAEC: `iaec-grupo01`..`iaec-grupo20` con password `laboratorio#iaec-grupoXX`.
+- Grupos ERO: `ero-grupo01`..`ero-grupo20` con password `laboratorio#ero-grupoXX`.
 - Admin: `admin` con password `admin#admin#messi`.
 
 Este es un placeholder adecuado para un curso cerrado. Antes de abrir la app a más usuarios se debe reemplazar por **Amplify Auth (Cognito)** o un endpoint server-side que devuelva rol y sesión.

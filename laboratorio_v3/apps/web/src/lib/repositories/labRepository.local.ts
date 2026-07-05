@@ -52,15 +52,19 @@ function nowIso(): string {
 }
 
 function buildUsers(): Array<{ id: string; username: string; password: string; role: Role }> {
-  const groups = Array.from({ length: 20 }, (_, index) => {
-    const num = String(index + 1).padStart(2, "0");
-    return {
-      id: `grupo${num}`,
-      username: `Grupo ${num}`,
-      password: `laboratorio#grupo${num}`,
-      role: "group" as Role
-    };
-  });
+  const prefixes = ["iaec", "ero"];
+  const groups = prefixes.flatMap((prefix) =>
+    Array.from({ length: 20 }, (_, index) => {
+      const num = String(index + 1).padStart(2, "0");
+      const id = `${prefix}-grupo${num}`;
+      return {
+        id,
+        username: `${prefix.toUpperCase()} Grupo ${num}`,
+        password: `laboratorio#${id}`,
+        role: "group" as Role
+      };
+    })
+  );
 
   return [
     ...groups,
@@ -382,7 +386,7 @@ export async function verifyLocalRepository(): Promise<VerificationResult[]> {
 
   try {
     await repo.logout();
-    const badLogin = await repo.login({ username: "grupo01", password: "wrong" });
+    const badLogin = await repo.login({ username: "iaec-grupo01", password: "wrong" });
     results.push({
       name: "login rechaza contraseña incorrecta",
       ok: !badLogin.ok && Boolean(badLogin.error)
@@ -392,13 +396,13 @@ export async function verifyLocalRepository(): Promise<VerificationResult[]> {
   }
 
   try {
-    const groupLogin = await repo.login({ username: "grupo01", password: "laboratorio#grupo01" });
+    const groupLogin = await repo.login({ username: "iaec-grupo01", password: "laboratorio#iaec-grupo01" });
     results.push({
-      name: "login acepta grupo01",
-      ok: groupLogin.ok && groupLogin.session?.role === "group" && groupLogin.session?.groupId === "grupo01"
+      name: "login acepta iaec-grupo01",
+      ok: groupLogin.ok && groupLogin.session?.role === "group" && groupLogin.session?.groupId === "iaec-grupo01"
     });
   } catch (error) {
-    results.push({ name: "login acepta grupo01", ok: false, error: String(error) });
+    results.push({ name: "login acepta iaec-grupo01", ok: false, error: String(error) });
   }
 
   try {
@@ -449,7 +453,7 @@ export async function verifyLocalRepository(): Promise<VerificationResult[]> {
 
   try {
     const saved = await repo.saveSubmission({
-      groupId: "grupo01",
+      groupId: "iaec-grupo01",
       exerciseId: "ex-01",
       exerciseVersion: 1,
       responsesJson: { respuesta: "test" },
@@ -465,7 +469,7 @@ export async function verifyLocalRepository(): Promise<VerificationResult[]> {
 
   try {
     const submitted = await repo.submitSubmission({
-      groupId: "grupo01",
+      groupId: "iaec-grupo01",
       exerciseId: "ex-01",
       exerciseVersion: 1,
       responsesJson: { respuesta: "enviada" }
@@ -479,7 +483,7 @@ export async function verifyLocalRepository(): Promise<VerificationResult[]> {
   }
 
   try {
-    const found = await repo.getSubmission({ groupId: "grupo01", exerciseId: "ex-01", exerciseVersion: 1 });
+    const found = await repo.getSubmission({ groupId: "iaec-grupo01", exerciseId: "ex-01", exerciseVersion: 1 });
     results.push({
       name: "getSubmission recupera el envío",
       ok: found?.status === "submitted" && found.responsesJson.respuesta === "enviada"
@@ -489,15 +493,15 @@ export async function verifyLocalRepository(): Promise<VerificationResult[]> {
   }
 
   try {
-    const list = await repo.listSubmissions({ groupId: "grupo01" });
-    results.push({ name: "listSubmissions filtra por grupo", ok: list.length >= 1 && list.every((s) => s.groupId === "grupo01") });
+    const list = await repo.listSubmissions({ groupId: "iaec-grupo01" });
+    results.push({ name: "listSubmissions filtra por grupo", ok: list.length >= 1 && list.every((s) => s.groupId === "iaec-grupo01") });
   } catch (error) {
     results.push({ name: "listSubmissions filtra por grupo", ok: false, error: String(error) });
   }
 
   try {
-    await repo.resetSubmission({ groupId: "grupo01", exerciseId: "ex-01", exerciseVersion: 1 });
-    const reset = await repo.getSubmission({ groupId: "grupo01", exerciseId: "ex-01", exerciseVersion: 1 });
+    await repo.resetSubmission({ groupId: "iaec-grupo01", exerciseId: "ex-01", exerciseVersion: 1 });
+    const reset = await repo.getSubmission({ groupId: "iaec-grupo01", exerciseId: "ex-01", exerciseVersion: 1 });
     results.push({ name: "resetSubmission cambia status a reset", ok: reset?.status === "reset" });
   } catch (error) {
     results.push({ name: "resetSubmission cambia status a reset", ok: false, error: String(error) });
@@ -505,7 +509,7 @@ export async function verifyLocalRepository(): Promise<VerificationResult[]> {
 
   try {
     await repo.submitSubmission({
-      groupId: "grupo02",
+      groupId: "ero-grupo01",
       exerciseId: "ex-01",
       exerciseVersion: 1,
       responsesJson: {}

@@ -26,10 +26,10 @@ async function main() {
   const results: { name: string; ok: boolean }[] = [];
 
   // EX02 starts as draft and group cannot see it
-  await localLabRepository.login({ username: "grupo01", password: "laboratorio#grupo01" });
+  await localLabRepository.login({ username: "iaec-grupo01", password: "laboratorio#iaec-grupo01" });
   const draftExercises = await localLabRepository.listExercises({ role: "group" });
   const visibleForGroup = draftExercises.filter((ex) => ex.status === "active");
-  results.push({ name: "ex02 hidden for grupo01 when draft", ok: !visibleForGroup.some((ex) => ex.id === "ex02") });
+  results.push({ name: "ex02 hidden for iaec-grupo01 when draft", ok: !visibleForGroup.some((ex) => ex.id === "ex02") });
   await localLabRepository.logout();
 
   // Admin login and activates EX02
@@ -45,16 +45,16 @@ async function main() {
   await localLabRepository.logout();
 
   // Group login and sees EX02
-  const groupLogin = await localLabRepository.login({ username: "grupo01", password: "laboratorio#grupo01" });
-  results.push({ name: "grupo01 login", ok: groupLogin.ok });
+  const groupLogin = await localLabRepository.login({ username: "iaec-grupo01", password: "laboratorio#iaec-grupo01" });
+  results.push({ name: "iaec-grupo01 login", ok: groupLogin.ok });
 
   const exercises = await localLabRepository.listExercises({ role: "group" });
   const ex02Visible = exercises.find((ex) => ex.id === "ex02");
-  results.push({ name: "grupo01 sees ex02 active", ok: ex02Visible?.status === "active" });
+  results.push({ name: "iaec-grupo01 sees ex02 active", ok: ex02Visible?.status === "active" });
 
   // Group saves EX02 checkpoint
   const saved = await localLabRepository.saveSubmission({
-    groupId: "grupo01",
+    groupId: "iaec-grupo01",
     exerciseId: "ex02",
     exerciseVersion: 1,
     responsesJson: {
@@ -66,15 +66,15 @@ async function main() {
     },
     filesJson: {}
   });
-  results.push({ name: "grupo01 saves ex02 checkpoint", ok: saved.exerciseId === "ex02" && saved.status === "draft" });
+  results.push({ name: "iaec-grupo01 saves ex02 checkpoint", ok: saved.exerciseId === "ex02" && saved.status === "draft" });
 
   // Verify distinct key
-  const expectedKey = "nexus:submission:grupo01:ex02:v1";
+  const expectedKey = "nexus:submission:iaec-grupo01:ex02:v1";
   const keyExists = Object.keys(storage).includes(expectedKey);
   results.push({ name: "ex02 distinct key exists", ok: keyExists });
 
   // Verify EX01 untouched
-  const ex01Key = "nexus:submission:grupo01:ex-01:v1";
+  const ex01Key = "nexus:submission:iaec-grupo01:ex-01:v1";
   const ex01Touched = Object.keys(storage).includes(ex01Key);
   results.push({ name: "ex01 submission untouched", ok: !ex01Touched });
 
@@ -82,13 +82,13 @@ async function main() {
   await localLabRepository.logout();
   await localLabRepository.login({ username: "admin", password: "admin#admin#messi" });
   const allSubmissions = await localLabRepository.listSubmissions();
-  const ex02Submission = allSubmissions.find((s) => s.exerciseId === "ex02" && s.groupId === "grupo01");
+  const ex02Submission = allSubmissions.find((s) => s.exerciseId === "ex02" && s.groupId === "iaec-grupo01");
   results.push({ name: "admin lists ex02 submission", ok: Boolean(ex02Submission) });
 
   // Admin can reset submission
   if (ex02Submission) {
-    await localLabRepository.resetSubmission({ groupId: "grupo01", exerciseId: "ex02", exerciseVersion: 1 });
-    const reset = await localLabRepository.getSubmission({ groupId: "grupo01", exerciseId: "ex02", exerciseVersion: 1 });
+    await localLabRepository.resetSubmission({ groupId: "iaec-grupo01", exerciseId: "ex02", exerciseVersion: 1 });
+    const reset = await localLabRepository.getSubmission({ groupId: "iaec-grupo01", exerciseId: "ex02", exerciseVersion: 1 });
     results.push({ name: "admin resets ex02 submission", ok: reset?.status === "reset" });
   } else {
     results.push({ name: "admin resets ex02 submission", ok: false });

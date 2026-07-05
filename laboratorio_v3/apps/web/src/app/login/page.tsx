@@ -55,7 +55,7 @@ export default function LoginPage() {
             <input
               autoComplete="username"
               onChange={(event) => setUsername(event.target.value)}
-              placeholder="grupo01 o admin"
+              placeholder="iaec-grupo01, ero-grupo01 o admin"
               required
               type="text"
               value={username}

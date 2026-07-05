@@ -1,107 +1,207 @@
 [
   {
-    "id": "grupo01",
-    "name": "Grupo 01",
+    "id": "iaec-grupo01",
+    "name": "IAEC Grupo 01",
     "role": "student"
   },
   {
-    "id": "grupo02",
-    "name": "Grupo 02",
+    "id": "iaec-grupo02",
+    "name": "IAEC Grupo 02",
     "role": "student"
   },
   {
-    "id": "grupo03",
-    "name": "Grupo 03",
+    "id": "iaec-grupo03",
+    "name": "IAEC Grupo 03",
     "role": "student"
   },
   {
-    "id": "grupo04",
-    "name": "Grupo 04",
+    "id": "iaec-grupo04",
+    "name": "IAEC Grupo 04",
     "role": "student"
   },
   {
-    "id": "grupo05",
-    "name": "Grupo 05",
+    "id": "iaec-grupo05",
+    "name": "IAEC Grupo 05",
     "role": "student"
   },
   {
-    "id": "grupo06",
-    "name": "Grupo 06",
+    "id": "iaec-grupo06",
+    "name": "IAEC Grupo 06",
     "role": "student"
   },
   {
-    "id": "grupo07",
-    "name": "Grupo 07",
+    "id": "iaec-grupo07",
+    "name": "IAEC Grupo 07",
     "role": "student"
   },
   {
-    "id": "grupo08",
-    "name": "Grupo 08",
+    "id": "iaec-grupo08",
+    "name": "IAEC Grupo 08",
     "role": "student"
   },
   {
-    "id": "grupo09",
-    "name": "Grupo 09",
+    "id": "iaec-grupo09",
+    "name": "IAEC Grupo 09",
     "role": "student"
   },
   {
-    "id": "grupo10",
-    "name": "Grupo 10",
+    "id": "iaec-grupo10",
+    "name": "IAEC Grupo 10",
     "role": "student"
   },
   {
-    "id": "grupo11",
-    "name": "Grupo 11",
+    "id": "iaec-grupo11",
+    "name": "IAEC Grupo 11",
     "role": "student"
   },
   {
-    "id": "grupo12",
-    "name": "Grupo 12",
+    "id": "iaec-grupo12",
+    "name": "IAEC Grupo 12",
     "role": "student"
   },
   {
-    "id": "grupo13",
-    "name": "Grupo 13",
+    "id": "iaec-grupo13",
+    "name": "IAEC Grupo 13",
     "role": "student"
   },
   {
-    "id": "grupo14",
-    "name": "Grupo 14",
+    "id": "iaec-grupo14",
+    "name": "IAEC Grupo 14",
     "role": "student"
   },
   {
-    "id": "grupo15",
-    "name": "Grupo 15",
+    "id": "iaec-grupo15",
+    "name": "IAEC Grupo 15",
     "role": "student"
   },
   {
-    "id": "grupo16",
-    "name": "Grupo 16",
+    "id": "iaec-grupo16",
+    "name": "IAEC Grupo 16",
     "role": "student"
   },
   {
-    "id": "grupo17",
-    "name": "Grupo 17",
+    "id": "iaec-grupo17",
+    "name": "IAEC Grupo 17",
     "role": "student"
   },
   {
-    "id": "grupo18",
-    "name": "Grupo 18",
+    "id": "iaec-grupo18",
+    "name": "IAEC Grupo 18",
     "role": "student"
   },
   {
-    "id": "grupo19",
-    "name": "Grupo 19",
+    "id": "iaec-grupo19",
+    "name": "IAEC Grupo 19",
     "role": "student"
   },
   {
-    "id": "grupo20",
-    "name": "Grupo 20",
+    "id": "iaec-grupo20",
+    "name": "IAEC Grupo 20",
+    "role": "student"
+  },
+  {
+    "id": "ero-grupo01",
+    "name": "ERO Grupo 01",
+    "role": "student"
+  },
+  {
+    "id": "ero-grupo02",
+    "name": "ERO Grupo 02",
+    "role": "student"
+  },
+  {
+    "id": "ero-grupo03",
+    "name": "ERO Grupo 03",
+    "role": "student"
+  },
+  {
+    "id": "ero-grupo04",
+    "name": "ERO Grupo 04",
+    "role": "student"
+  },
+  {
+    "id": "ero-grupo05",
+    "name": "ERO Grupo 05",
+    "role": "student"
+  },
+  {
+    "id": "ero-grupo06",
+    "name": "ERO Grupo 06",
+    "role": "student"
+  },
+  {
+    "id": "ero-grupo07",
+    "name": "ERO Grupo 07",
+    "role": "student"
+  },
+  {
+    "id": "ero-grupo08",
+    "name": "ERO Grupo 08",
+    "role": "student"
+  },
+  {
+    "id": "ero-grupo09",
+    "name": "ERO Grupo 09",
+    "role": "student"
+  },
+  {
+    "id": "ero-grupo10",
+    "name": "ERO Grupo 10",
+    "role": "student"
+  },
+  {
+    "id": "ero-grupo11",
+    "name": "ERO Grupo 11",
+    "role": "student"
+  },
+  {
+    "id": "ero-grupo12",
+    "name": "ERO Grupo 12",
+    "role": "student"
+  },
+  {
+    "id": "ero-grupo13",
+    "name": "ERO Grupo 13",
+    "role": "student"
+  },
+  {
+    "id": "ero-grupo14",
+    "name": "ERO Grupo 14",
+    "role": "student"
+  },
+  {
+    "id": "ero-grupo15",
+    "name": "ERO Grupo 15",
+    "role": "student"
+  },
+  {
+    "id": "ero-grupo16",
+    "name": "ERO Grupo 16",
+    "role": "student"
+  },
+  {
+    "id": "ero-grupo17",
+    "name": "ERO Grupo 17",
+    "role": "student"
+  },
+  {
+    "id": "ero-grupo18",
+    "name": "ERO Grupo 18",
+    "role": "student"
+  },
+  {
+    "id": "ero-grupo19",
+    "name": "ERO Grupo 19",
+    "role": "student"
+  },
+  {
+    "id": "ero-grupo20",
+    "name": "ERO Grupo 20",
     "role": "student"
   },
   {
     "id": "admin",
-    "name": "Admin Demo",
+    "name": "Admin",
     "role": "admin"
   }
 ]
