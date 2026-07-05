@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { LogIn } from "lucide-react";
+import { Eye, EyeOff, LogIn } from "lucide-react";
 import { getLabRepository } from "../../lib/repositories/labRepository";
 
 // Login del curso. La sesión se mantiene en el navegador para el grupo activo.
@@ -12,6 +12,7 @@ export default function LoginPage() {
   const repo = getLabRepository();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -64,14 +65,26 @@ export default function LoginPage() {
 
           <label className="formField" style={{ marginTop: 14 }}>
             <span className="formLabel">Contraseña</span>
-            <input
-              autoComplete="current-password"
-              onChange={(event) => setPassword(event.target.value)}
-              placeholder="••••••••"
-              required
-              type="password"
-              value={password}
-            />
+            <div style={{ display: "flex", gap: 8 }}>
+              <input
+                autoComplete="current-password"
+                onChange={(event) => setPassword(event.target.value)}
+                placeholder="••••••••"
+                required
+                style={{ flex: 1 }}
+                type={showPassword ? "text" : "password"}
+                value={password}
+              />
+              <button
+                aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                className="iconButton"
+                onClick={() => setShowPassword((current) => !current)}
+                title={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                type="button"
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
           </label>
 
           {error ? (
