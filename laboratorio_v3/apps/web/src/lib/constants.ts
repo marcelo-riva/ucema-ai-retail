@@ -1,8 +1,8 @@
 import type { Lab01ExerciseId } from "./lab01Content";
 
 export const LAB01_EXERCISE_WORKBOOKS: Record<Lab01ExerciseId, string> = {
-  "ex-00": "NEXUS_RETAIL_LAB01_EJ00_EXPLORACION.xlsx",
-  "ex-01": "NEXUS_RETAIL_LAB01_EJ01_PORTFOLIO.xlsx",
+  "ex-00": "NEXUS_RETAIL_LAB01_EJ00_01.xlsx",
+  "ex-01": "NEXUS_RETAIL_LAB01_EJ00_01.xlsx",
   ex02: "NEXUS_RETAIL_LAB01_EJ02_PRICING.xlsx",
   "ex-03": "NEXUS_RETAIL_LAB01_EJ03_FORECAST.xlsx",
   "ex-04": "NEXUS_RETAIL_LAB01_EJ04_INVENTARIO.xlsx"
