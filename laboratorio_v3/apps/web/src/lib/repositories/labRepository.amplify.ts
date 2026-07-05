@@ -111,7 +111,7 @@ function mapSubmission(item: Schema["Submission"]["type"]): Submission {
 }
 
 function buildUsers() {
-  const prefixes = ["iaec", "ero"];
+  const prefixes = ["iaec", "ero", "test"];
   const groups = prefixes.flatMap((prefix) =>
     Array.from({ length: 20 }, (_, index) => {
       const num = String(index + 1).padStart(2, "0");

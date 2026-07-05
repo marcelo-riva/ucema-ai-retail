@@ -200,6 +200,106 @@
     "role": "student"
   },
   {
+    "id": "test-grupo01",
+    "name": "TEST Grupo 01",
+    "role": "student"
+  },
+  {
+    "id": "test-grupo02",
+    "name": "TEST Grupo 02",
+    "role": "student"
+  },
+  {
+    "id": "test-grupo03",
+    "name": "TEST Grupo 03",
+    "role": "student"
+  },
+  {
+    "id": "test-grupo04",
+    "name": "TEST Grupo 04",
+    "role": "student"
+  },
+  {
+    "id": "test-grupo05",
+    "name": "TEST Grupo 05",
+    "role": "student"
+  },
+  {
+    "id": "test-grupo06",
+    "name": "TEST Grupo 06",
+    "role": "student"
+  },
+  {
+    "id": "test-grupo07",
+    "name": "TEST Grupo 07",
+    "role": "student"
+  },
+  {
+    "id": "test-grupo08",
+    "name": "TEST Grupo 08",
+    "role": "student"
+  },
+  {
+    "id": "test-grupo09",
+    "name": "TEST Grupo 09",
+    "role": "student"
+  },
+  {
+    "id": "test-grupo10",
+    "name": "TEST Grupo 10",
+    "role": "student"
+  },
+  {
+    "id": "test-grupo11",
+    "name": "TEST Grupo 11",
+    "role": "student"
+  },
+  {
+    "id": "test-grupo12",
+    "name": "TEST Grupo 12",
+    "role": "student"
+  },
+  {
+    "id": "test-grupo13",
+    "name": "TEST Grupo 13",
+    "role": "student"
+  },
+  {
+    "id": "test-grupo14",
+    "name": "TEST Grupo 14",
+    "role": "student"
+  },
+  {
+    "id": "test-grupo15",
+    "name": "TEST Grupo 15",
+    "role": "student"
+  },
+  {
+    "id": "test-grupo16",
+    "name": "TEST Grupo 16",
+    "role": "student"
+  },
+  {
+    "id": "test-grupo17",
+    "name": "TEST Grupo 17",
+    "role": "student"
+  },
+  {
+    "id": "test-grupo18",
+    "name": "TEST Grupo 18",
+    "role": "student"
+  },
+  {
+    "id": "test-grupo19",
+    "name": "TEST Grupo 19",
+    "role": "student"
+  },
+  {
+    "id": "test-grupo20",
+    "name": "TEST Grupo 20",
+    "role": "student"
+  },
+  {
     "id": "admin",
     "name": "Admin",
     "role": "admin"

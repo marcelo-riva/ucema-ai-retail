@@ -161,6 +161,7 @@ El login sigue siendo un mecanismo simple basado en `localStorage`:
 
 - Grupos IAEC: `iaec-grupo01`..`iaec-grupo20` con password `laboratorio#iaec-grupoXX`.
 - Grupos ERO: `ero-grupo01`..`ero-grupo20` con password `laboratorio#ero-grupoXX`.
+- Grupos TEST: `test-grupo01`..`test-grupo20` con password `laboratorio#test-grupoXX`.
 - Admin: `admin` con password `admin#admin#messi`.
 
 Este es un placeholder adecuado para un curso cerrado. Antes de abrir la app a más usuarios se debe reemplazar por **Amplify Auth (Cognito)** o un endpoint server-side que devuelva rol y sesión.

@@ -52,7 +52,7 @@ function nowIso(): string {
 }
 
 function buildUsers(): Array<{ id: string; username: string; password: string; role: Role }> {
-  const prefixes = ["iaec", "ero"];
+  const prefixes = ["iaec", "ero", "test"];
   const groups = prefixes.flatMap((prefix) =>
     Array.from({ length: 20 }, (_, index) => {
       const num = String(index + 1).padStart(2, "0");
