@@ -432,8 +432,6 @@ export function Exercise02View({
       title="Ejercicio 2: Pricing Optimization"
       subtitle="Definir una arquitectura de precios que capture margen sin destruir volumen ni competitividad."
       groupName={group.name}
-      stateVersion={stateVersion}
-      workbookLabel="Ejercicio 2"
       checkpointStatus={checkpointStatus}
     >
       <section className="panel">

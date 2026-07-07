@@ -18,8 +18,6 @@ export function Exercise04View({ group, stateVersion }: Exercise04ViewProps) {
       title="Ejercicio 4: Inventory & Working Capital Optimization"
       subtitle="Optimizar capital de trabajo minimizando riesgo de quiebres."
       groupName={group.name}
-      stateVersion={stateVersion}
-      workbookLabel="Laboratorio 1 — Inventario"
       checkpointStatus="borrador"
     >
       <ExerciseWorkbookDownloadCard exerciseId="ex-04" />

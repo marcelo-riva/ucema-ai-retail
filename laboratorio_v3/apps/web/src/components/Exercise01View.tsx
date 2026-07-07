@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Save, Send } from "lucide-react";
 import { ExerciseHeader } from "./labs/ExerciseHeader";
 import { PromptBlock } from "./labs/PromptBlock";
@@ -247,6 +247,9 @@ export function Exercise01View({
   const [loading, setLoading] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [errors, setErrors] = useState<Set<string>>(new Set());
+  const [checkpointStatus, setCheckpointStatus] = useState<string>("borrador");
+  const [submittedAt, setSubmittedAt] = useState<string | undefined>();
+  const successRef = useRef<HTMLDivElement | null>(null);
 
   // Intermediate fields persisted as draft.
   const [ownPrompt, setOwnPrompt] = useState("");
@@ -296,18 +299,23 @@ export function Exercise01View({
         });
         if (cancelled) return;
 
-        if (submission?.responsesJson) {
-          const r = submission.responsesJson as Record<string, string>;
-          setOwnPrompt(r.ownPrompt ?? "");
-          setScenarioGuess(r.scenarioGuess ?? "");
-          setScenarioSelection(r.scenarioSelection ?? "");
-          setPrioritySelection(r.prioritySelection ?? "");
-          setValidatedSku(r.validatedSku ?? "");
-          setClassificationSummary(r.classification_summary ?? "");
-          setSelectedScenario(r.selected_scenario ?? "");
-          setBusinessImpact(r.business_impact ?? "");
-          setDecisionsToReview(r.decisions_to_review ?? "");
-          setAssumptionsToValidate(r.assumptions_to_validate ?? "");
+        if (submission) {
+          setCheckpointStatus(submission.status);
+          setSubmittedAt(submission.submittedAt ?? undefined);
+
+          if (submission.responsesJson) {
+            const r = submission.responsesJson as Record<string, string>;
+            setOwnPrompt(r.ownPrompt ?? "");
+            setScenarioGuess(r.scenarioGuess ?? "");
+            setScenarioSelection(r.scenarioSelection ?? "");
+            setPrioritySelection(r.prioritySelection ?? "");
+            setValidatedSku(r.validatedSku ?? "");
+            setClassificationSummary(r.classification_summary ?? "");
+            setSelectedScenario(r.selected_scenario ?? "");
+            setBusinessImpact(r.business_impact ?? "");
+            setDecisionsToReview(r.decisions_to_review ?? "");
+            setAssumptionsToValidate(r.assumptions_to_validate ?? "");
+          }
         }
       }
     }
@@ -317,6 +325,13 @@ export function Exercise01View({
       cancelled = true;
     };
   }, [repo]);
+
+  useEffect(() => {
+    const hasSuccess = messages.some((m) => m.type === "success");
+    if (hasSuccess && successRef.current) {
+      successRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }, [messages]);
 
   function validateFinal(): string[] {
     const missing: string[] = [];
@@ -345,6 +360,8 @@ export function Exercise01View({
         responsesJson: allFieldValues,
         status: "draft"
       });
+      setCheckpointStatus("draft");
+      setSubmittedAt(undefined);
       setMessages([{ type: "success", text: "Borrador guardado." }]);
     } catch (error) {
       setMessages([{ type: "error", text: `No se pudo guardar: ${String(error)}` }]);
@@ -371,12 +388,15 @@ export function Exercise01View({
     setMessages([]);
 
     try {
+      const now = new Date().toISOString();
       await repo.submitSubmission({
         groupId: session.groupId,
         exerciseId: "ex-01",
         exerciseVersion: 1,
         responsesJson: allFieldValues
       });
+      setCheckpointStatus("submitted");
+      setSubmittedAt(now);
       setMessages([{ type: "success", text: "Checkpoint enviado correctamente." }]);
     } catch (error) {
       setMessages([{ type: "error", text: `No se pudo enviar: ${String(error)}` }]);
@@ -392,9 +412,6 @@ export function Exercise01View({
         title="Ejercicio 1: Del negocio al SKU"
         subtitle="Cargando sesión..."
         groupName={group.name}
-        stateVersion={stateVersion}
-        workbookLabel="único"
-        checkpointStatus="borrador"
       >
         <section className="card">
           <p className="muted">Cargando ejercicio...</p>
@@ -409,9 +426,8 @@ export function Exercise01View({
       title="Ejercicio 1: Del negocio al SKU"
       subtitle="Una estrategia de portfolio no se define de forma intuitiva, producto por producto. Se construye descendiendo desde el negocio hasta el SKU, sin saltear pasos."
       groupName={group.name}
-      stateVersion={stateVersion}
-      workbookLabel="único"
-      checkpointStatus="borrador"
+      checkpointStatus={checkpointStatus}
+      submittedAt={submittedAt}
     >
       <ExerciseWorkbookDownloadCard exerciseId="ex-01" />
 
@@ -1234,10 +1250,17 @@ export function Exercise01View({
           </p>
 
           {messages.length > 0 ? (
-            <div className="messageList" style={{ marginBottom: 16, marginTop: 12 }}>
+            <div ref={successRef} className="messageList" style={{ marginBottom: 16, marginTop: 12 }}>
               {messages.map((message, index) => (
-                <div className={`message ${message.type}`} key={`${message.type}-${index}`}>
-                  {message.text}
+                <div className={`message ${message.type}`} key={`${message.type}-${index}`} style={{ padding: 12 }}>
+                  {message.type === "success" && checkpointStatus === "submitted" ? (
+                    <div>
+                      <strong style={{ display: "block", marginBottom: 4 }}>Checkpoint enviado</strong>
+                      <span>{message.text} Podés continuar con el siguiente ejercicio o volver a editar este envío.</span>
+                    </div>
+                  ) : (
+                    message.text
+                  )}
                 </div>
               ))}
             </div>

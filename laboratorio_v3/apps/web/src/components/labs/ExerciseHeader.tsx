@@ -5,22 +5,38 @@ type ExerciseHeaderProps = {
   title: string;
   subtitle: string;
   groupName: string;
-  stateVersion: string;
-  workbookLabel: string;
-  checkpointStatus: string;
+  checkpointStatus?: string;
+  submittedAt?: string;
   children: React.ReactNode;
 };
+
+function formatSubmittedAt(value?: string): string | null {
+  if (!value) return null;
+  try {
+    return new Date(value).toLocaleString("es-AR", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit"
+    });
+  } catch {
+    return value;
+  }
+}
 
 export function ExerciseHeader({
   eyebrow,
   title,
   subtitle,
   groupName,
-  stateVersion,
-  workbookLabel,
-  checkpointStatus,
+  checkpointStatus = "borrador",
+  submittedAt,
   children
 }: ExerciseHeaderProps) {
+  const submittedAtFormatted = formatSubmittedAt(submittedAt);
+  const isSubmitted = checkpointStatus === "submitted";
+
   return (
     <ExerciseStepLayout
       eyebrow={eyebrow}
@@ -28,9 +44,16 @@ export function ExerciseHeader({
       subtitle={subtitle}
       meta={[
         { label: "Grupo", value: groupName },
-        { label: "Estado", value: stateVersion },
-        { label: "Workbook", value: workbookLabel },
-        { label: "Checkpoint", value: checkpointStatus }
+        {
+          label: "Checkpoint",
+          value: isSubmitted && submittedAtFormatted
+            ? `Enviado el ${submittedAtFormatted}`
+            : checkpointStatus === "submitted"
+              ? "Enviado"
+              : checkpointStatus === "reset"
+                ? "Reseteado"
+                : "Borrador"
+        }
       ]}
     >
       {children}

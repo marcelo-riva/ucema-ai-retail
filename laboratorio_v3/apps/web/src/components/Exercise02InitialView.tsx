@@ -18,8 +18,6 @@ export function Exercise02InitialView({ group, stateVersion }: Exercise02Initial
       title="Ejercicio 2: Pricing Optimization"
       subtitle="Definir una arquitectura de precios que maximice margen manteniendo posicionamiento competitivo."
       groupName={group.name}
-      stateVersion={stateVersion}
-      workbookLabel="Pricing Optimization"
       checkpointStatus="borrador"
     >
       <ExerciseWorkbookDownloadCard exerciseId="ex02" />

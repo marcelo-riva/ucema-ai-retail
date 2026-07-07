@@ -18,8 +18,6 @@ export function Exercise03View({ group, stateVersion }: Exercise03ViewProps) {
       title="Ejercicio 3: Forecast Engine"
       subtitle="Proyectar resultados a 90 días a partir de las decisiones de portfolio y pricing."
       groupName={group.name}
-      stateVersion={stateVersion}
-      workbookLabel="Laboratorio 1 — Forecast"
       checkpointStatus="borrador"
     >
       <ExerciseWorkbookDownloadCard exerciseId="ex-03" />
