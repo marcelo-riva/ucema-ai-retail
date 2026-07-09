@@ -103,7 +103,7 @@ export const INITIAL_EXERCISES: ExerciseMeta[] = [
     order: 2,
     status: "active",
     version: 1,
-    workbookBaseKey: "NEXUS_RETAIL_LAB01_EJ02_PRICING_WORKBOOK.xlsx"
+    workbookBaseKey: "NEXUS_RETAIL_LAB01_EJ02_v2.xlsx"
   },
   {
     id: "ex-03",
