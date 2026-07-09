@@ -10,6 +10,37 @@ import type { Group, LabCheckpoint, SystemScoreboard } from "../types/lab";
 import type { Session } from "../lib/repositories/labRepository.types";
 import styles from "./Exercise02InitialView.module.css";
 
+const metaPrompt1 = `Quiero que escribas un prompt para un análisis de pricing.
+No hagas el análisis: devolveme solo el prompt, listo para usar.
+
+Objetivo del análisis:
+Entender un portfolio de retail por familias antes de recomendar
+precios — dónde está el margen, qué tan competitivos son los precios
+y qué tan sensible es la demanda de cada familia.
+
+Datos disponibles:
+Un workbook con tres hojas:
+- 03_BASE_SKUS: precios mensuales (pvp_m01..pvp_m12), volúmenes
+  mensuales, márgenes, price_index_vs_market (precio propio vs mercado)
+  y elasticity_proxy (sensibilidad al precio: 0.2 / 0.4 / 0.8 / 2.0).
+- 06_PORTFOLIO: clasificación Core / Review / Eliminar ya decidida.
+  No debe modificarse.
+- 07_PRICING: hoja de trabajo del ejercicio. Todavía no se completa.
+
+Contexto:
+Mercado argentino. Antes de interpretar cualquier tendencia de precios
+o volúmenes, el análisis debe validar si los datos muestran señal
+inflacionaria (tendencia nominal de precios en los 12 meses).
+
+El prompt que generes debe:
+1. Asignar un rol de analista senior de pricing.
+2. Pedir primero el chequeo de señal inflacionaria.
+3. Producir después la lectura por familia: revenue, margen,
+   competitividad, sensibilidad, distribución Core/Review/Eliminar,
+   SKUs con margen negativo y tensiones principales.
+4. Prohibir recomendar precios en esta etapa.
+5. Cerrar con una síntesis ejecutiva de 5 bullets.`;
+
 const prompt1 = `Sos un analista senior de pricing. Tenés acceso a las hojas
 03_BASE_SKUS, 06_PORTFOLIO y 07_PRICING del workbook.
 
@@ -621,13 +652,16 @@ export function Exercise02InitialView({
 
         <section className="card">
           <div className="eyebrow">El rol de la IA en este ejercicio</div>
-          <h3>Tres roles, en orden</h3>
+          <h3>Cuatro roles, en orden</h3>
           <p className="muted">
             La IA no define la estrategia. A lo largo del ejercicio va cambiando de rol:
           </p>
           <ul className="simpleList">
             <li>
-              <strong>Data Analyst (Partes A–B):</strong> interpreta las variables calculadas, detecta SKUs subvaluados o sobrevaluados, cuantifica el leakage y el potencial económico. Transforma datos en diagnóstico.
+              <strong>Generadora de instrumentos (Parte B, meta-prompting):</strong> la IA no solo analiza — también redacta el prompt con el que se le va a pedir el análisis. El equipo especifica el objetivo y revisa el resultado con criterio.
+            </li>
+            <li>
+              <strong>Data Analyst (Parte B):</strong> interpreta las variables calculadas, detecta SKUs subvaluados o sobrevaluados, cuantifica el leakage y el potencial económico. Transforma datos en diagnóstico.
             </li>
             <li>
               <strong>Simulador de escenarios (Parte C):</strong> a partir del posicionamiento que elige el equipo, proyecta el impacto en margen, volumen y competitividad. Responde &quot;si elegís esto, el impacto estimado es el siguiente&quot;.
@@ -650,24 +684,74 @@ export function Exercise02InitialView({
             <span className={styles.partTag}>Parte B</span>
             <h2 style={{ marginTop: 8 }}>Lectura por familias y diagnóstico cuantitativo</h2>
             <div className={styles.sectionTime}>
-              <span className={styles.timeChip}>⏱ ~14 min</span>
+              <span className={styles.timeChip}>⏱ ~16 min</span>
             </div>
           </div>
         </div>
 
         <section className="card">
-          <div className="eyebrow">Prompt 1 · Lectura por familias</div>
-          <h3>Entender el contexto antes de diagnosticar</h3>
+          <div className="eyebrow">Nuevo escalón · Meta-prompting</div>
+          <h3>Esta vez no te damos el prompt: te damos la especificación</h3>
           <p className="muted">
-            El análisis arranca por familias. Pero antes de interpretar márgenes y precios, la IA tiene que declarar si detecta señal inflacionaria en los datos — en Argentina es un supuesto que siempre conviene validar explícitamente antes de leer cualquier tendencia de precios o volúmenes.
+            En el Ejercicio 0 ejecutaste un prompt provisto. En el Ejercicio 1 construiste uno propio a partir del resultado esperado. Este ejercicio sube un escalón: <strong>especificar y delegar</strong>. Cuando el análisis es complejo, escribir el prompt a mano deja de ser eficiente — es más rápido darle a la IA el objetivo, los datos disponibles y las restricciones, y pedirle que redacte el prompt. Eso se llama <strong>meta-prompting</strong>, y es cómo se trabaja con IA en análisis profesionales.
+          </p>
+          <div className={styles.whyBox} style={{ marginTop: 12 }}>
+            <h3>La escalera del laboratorio</h3>
+            <p>
+              <strong>Ejecutar</strong> (Ej0) → <strong>Construir</strong> (Ej1) → <strong>Especificar</strong> (Ej2). Cada ejercicio sube un nivel de madurez en el trabajo con IA. La especificación es el nivel donde vas a operar en tu trabajo real: nadie redacta a mano un prompt de diagnóstico de 40 líneas — se lo especifica y después se revisa con criterio.
+            </p>
+          </div>
+        </section>
+
+        <section className="card">
+          <div className="eyebrow">Paso 1 · Generá el prompt de lectura por familias</div>
+          <h3>El meta-prompt</h3>
+          <p className="muted">
+            Corré este meta-prompt en tu IA personal. La salida no es el análisis: es <strong>el prompt</strong> que después vas a usar para el análisis. La estructura del meta-prompt (objetivo, datos disponibles, contexto, requisitos) es una plantilla reutilizable para cualquier análisis en tu trabajo.
           </p>
           <div className="promptSingle">
             <div className="promptSingleHeader">
-              <span className="statusPill info">Prompt provisto</span>
-              <CopyButton text={prompt1} />
+              <span className="statusPill info">Meta-prompt provisto</span>
+              <CopyButton text={metaPrompt1} />
             </div>
-            <pre>{prompt1}</pre>
+            <pre>{metaPrompt1}</pre>
           </div>
+        </section>
+
+        <section className="card">
+          <div className="eyebrow">Paso 2 · Revisá el prompt generado antes de correrlo</div>
+          <h3>El criterio lo ponés vos</h3>
+          <p className="muted">
+            La IA te devolvió un prompt. Antes de ejecutarlo, revisalo con la anatomía que aprendiste en el Ejercicio 1 — rol, contexto, tarea, restricciones. Este checklist es el control de calidad:
+          </p>
+          <ul className="simpleList">
+            <li>¿Asigna un <strong>rol</strong> claro (analista senior de pricing)?</li>
+            <li>¿Nombra las <strong>hojas reales</strong> del workbook (03_BASE_SKUS, 06_PORTFOLIO, 07_PRICING)?</li>
+            <li>¿Pide el <strong>chequeo inflacionario primero</strong>, antes de la lectura?</li>
+            <li>¿<strong>Prohíbe</strong> recomendar precios y modificar 06_PORTFOLIO?</li>
+            <li>¿Define el <strong>formato de salida</strong> (lectura por familia + 5 bullets)?</li>
+          </ul>
+          <p className="muted" style={{ marginTop: 12 }}>
+            Si le falta algo, agregáselo a mano antes de correrlo — ese ajuste también es parte del trabajo. Cuando esté completo, ejecutalo en tu IA personal y seguí con la lectura del resultado.
+          </p>
+
+          <details className="promptReveal" style={{ marginTop: 14 }}>
+            <summary>
+              <span>Prompt de referencia · Lectura por familias</span>
+              <span className="muted" style={{ fontWeight: 700, fontSize: 13 }}>
+                Si el generado salió flojo o vas corto de tiempo ▾
+              </span>
+            </summary>
+            <div>
+              <div className="promptSingleHeader" style={{ padding: "12px 16px" }}>
+                <span className="statusPill warning">Red de seguridad</span>
+                <CopyButton text={prompt1} />
+              </div>
+              <pre style={{ background: "#14211b", color: "#eff8f1", fontFamily: "SFMono-Regular, Consolas, monospace", fontSize: 13, lineHeight: 1.55, margin: 0, overflowX: "auto", padding: 16, whiteSpace: "pre-wrap" }}>
+                {prompt1}
+              </pre>
+            </div>
+          </details>
         </section>
 
         <section className="card">
