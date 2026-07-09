@@ -10,198 +10,193 @@ import type { Group, LabCheckpoint, SystemScoreboard } from "../types/lab";
 import type { Session } from "../lib/repositories/labRepository.types";
 import styles from "./Exercise02InitialView.module.css";
 
-const prompt1 = `Analizá las hojas 03_BASE_SKUS, 06_PORTFOLIO y 07_PRICING del workbook.
+const prompt1 = `Sos un analista senior de pricing. Tenés acceso a las hojas
+03_BASE_SKUS, 06_PORTFOLIO y 07_PRICING del workbook.
 
-Quiero que actúes como analista senior de pricing.
-Antes de recomendar precios, ayudame a entender el portfolio por familias.
+PASO 1 — Contexto inflacionario
+Antes de analizar precios o márgenes, examiná la tendencia de pvp_m01
+a pvp_m12 en 03_BASE_SKUS a nivel portfolio y por familia.
+Respondé: ¿se detecta una tendencia nominal de precios que sugiera
+inflación en el período? Estimá la variación promedio mensual.
+Esto define si los datos deben interpretarse en términos nominales
+o si hay que tener precaución al leer tendencias de volumen y precio juntas.
 
-No uses 07_FORECAST_90_DIAS.
-No modifiques ni reinterpretes las decisiones de portfolio en 06_PORTFOLIO.
-No recomiendes precios todavía.
-
-Devolveme por familia:
-1. Revenue actual y participación en el total.
-2. Margen bruto actual y margen porcentual promedio.
+PASO 2 — Lectura por familia
+Con ese contexto, analizá el portfolio por familia. Devolveme:
+1. Revenue y participación en el total.
+2. Margen bruto y margen porcentual promedio.
 3. Índice de competitividad promedio (price_index_vs_market).
-4. Elasticidad proxy promedio y distribución (alta/media/baja).
+4. Distribución de elasticity_proxy por nivel (0.2 / 0.4 / 0.8 / 2.0).
 5. Cantidad de SKUs Core, Review y Eliminar.
-6. SKUs con margen negativo — cuántos y qué peso tienen en la familia.
+6. SKUs con margen negativo — cantidad y peso en la familia.
 7. Principales tensiones entre margen, volumen y competitividad.
-8. Señales que deberían influir en la estrategia de pricing.
 
-Separá hallazgos basados en datos de hipótesis o supuestos.
-Si una métrica no puede calcularse, aclaralo.
-Cerrá con 5 bullets: las señales más importantes para decidir pricing.`;
+No modifiques 06_PORTFOLIO. No recomiendes precios todavía.
+Separá hechos de interpretaciones.
+Cerrá con 5 bullets: señales clave para decidir la estrategia de pricing.`;
 
-const prompt2 = `Usando 03_BASE_SKUS, 06_PORTFOLIO y 07_PRICING del workbook.
-No uses 07_FORECAST_90_DIAS. No inventes nombres de hojas.
-No cambies las decisiones de portfolio en 06_PORTFOLIO.
+const prompt2 = `Sos un analista senior de pricing. Usá 03_BASE_SKUS, 06_PORTFOLIO
+y 07_PRICING. No modifiques 06_PORTFOLIO ni completes 07_PRICING todavía.
 
-Quiero que actúes como analista senior de pricing.
-Objetivo: construir un diagnóstico cuantitativo antes de definir la estrategia.
+Usá las variables ya calculadas en 03_BASE_SKUS:
+- elasticity_proxy: sensibilidad al precio (0.2=muy baja, 0.4=baja,
+  0.8=media, 2.0=alta). Clasificá como baja (≤0.5), media (0.5–1),
+  alta (>1).
+- price_index_vs_market: ratio precio propio / precio mercado.
+  Subvaluado <0.95 | Alineado 0.95–1.05 | Sobrevaluado >1.05.
 
-Las variables elasticity_proxy y price_index_vs_market ya están calculadas
-en 03_BASE_SKUS. Usá esos valores directamente — no los recalcules.
+Construí el diagnóstico cuantitativo de pricing:
 
-Clasificá sensibilidad como:
-- Baja: elasticity_proxy ≤ 0.5
-- Media: 0.5 < elasticity_proxy ≤ 1.0
-- Alta: elasticity_proxy > 1.0
+1. Tabla por familia (una fila por familia):
+   | family | revenue | margen% | price_index_prom | elasticity_prom |
+   | SKUs_subvaluados | SKUs_sobrevaluados | pricing_leakage_est |
+   | potencial_económico | riesgo_volumen | recomendación_preliminar |
 
-Clasificá competitividad como:
-- Subvaluado: price_index_vs_market < 0.95
-- Alineado: 0.95 ≤ price_index_vs_market ≤ 1.05
-- Sobrevaluado: price_index_vs_market > 1.05
+2. Top SKUs críticos (los más relevantes por impacto económico):
+   | sku_id | sku_name | family | portfolio_decision | avg_price_12m |
+   | market_price_avg | price_index | gross_margin_pct | elasticity_proxy |
+   | diagnóstico | recomendación |
 
-Pricing leakage: valor potencialmente no capturado por vender por debajo
-del mercado en SKUs con elasticidad baja o media y margen mejorable.
-
-Potencial económico: estimación del impacto de corregir precios,
-considerando elasticidad, índice competitivo y margen actual.
-
-Devolveme:
-1. Tabla ejecutiva por familia:
-   family | revenue | margen | índice competitividad promedio |
-   elasticidad promedio | SKUs subvaluados | SKUs sobrevaluados |
-   pricing leakage estimado | potencial económico | riesgo de volumen |
-   recomendación preliminar
-
-2. Tabla de SKUs críticos (los más relevantes para la decisión):
-   sku_id | sku_name | family | portfolio_decision | precio actual |
-   precio mercado | price_index | gross_margin_pct | elasticity_proxy |
-   diagnóstico | oportunidad o riesgo | recomendación preliminar
-
-3. Síntesis cuantitativa:
-   - Total SKUs subvaluados y sobrevaluados.
+3. Síntesis:
+   - Total subvaluados y sobrevaluados.
    - Potencial económico total estimado.
-   - Familias con mayor oportunidad de capturar margen.
-   - Familias con mayor riesgo competitivo.
-   - Familias que podrían sostener posicionamiento premium.
-   - Supuestos que el equipo debería validar.
+   - Familia con mayor oportunidad y familia con mayor riesgo.
+   - Supuestos que el equipo debería validar con datos actualizados.
 
-No completes todavía 07_PRICING.
-Separá datos calculados de supuestos.
-Cerrá con una sección "Lectura para decidir posicionamiento" con 5 bullets.`;
+Definiciones:
+Pricing leakage = revenue * (1 - price_index) para SKUs subvaluados
+con elasticity_proxy ≤ 0.8. Es estimación, no certeza.
+Potencial económico = proyección de mejora de margen si se corrige el gap
+competitivo, ponderado por elasticidad.
 
-const prompt3 = `Usando el diagnóstico cuantitativo de pricing ya construido y el workbook
-(03_BASE_SKUS, 06_PORTFOLIO, 07_PRICING). No uses 07_FORECAST_90_DIAS.
+Separá hechos calculados de estimaciones. Marcá con ⚠ lo que depende
+de supuestos sobre sensibilidad al precio.
+Cerrá con "Para decidir posicionamiento" — 5 bullets ejecutivos.`;
 
-El equipo eligió el siguiente posicionamiento:
+const prompt3 = `Sos un consultor de pricing. Usá el diagnóstico ya construido y las hojas
+03_BASE_SKUS, 06_PORTFOLIO y 07_PRICING. No completes 07_PRICING todavía.
+
+El equipo eligió:
 - ÉTICOS: [Más barato / Igual mercado / Premium / Mixto]
 - MASIVOS: [Más barato / Igual mercado / Premium / Mixto]
 - SELECTIVOS: [Más barato / Igual mercado / Premium / Mixto]
-- Margen objetivo mínimo: [X%]
 
-Actuá como consultor de pricing. Devolveme:
-1. Qué posicionamiento recomendarías por familia y por qué.
-2. Dónde el posicionamiento elegido coincide o diverge de tu recomendación.
-3. Trade-offs del posicionamiento elegido (margen vs volumen vs competitividad).
-4. Cómo debería trasladarse el posicionamiento a SKUs Core, Review y Eliminar.
-5. Arquitectura de precios propuesta:
-   - Regla por familia (posicionamiento y rango de price_index objetivo).
-   - Regla para SKUs Core: proteger precio o capturar margen.
-   - Regla para SKUs Review: revisión de competitividad o ajuste de margen.
-   - Regla para SKUs Eliminar: precio de salida, liquidación o no reposición.
-   - Regla de margen mínimo.
-   - Riesgos a monitorear.
-6. Impacto estimado del posicionamiento elegido sobre:
-   - Revenue proyectado (dirección y magnitud estimada).
-   - Margen proyectado.
-   - Índice de competitividad final.
+Referencia de margen del portfolio: Core ~43%, Review ~30%.
+El portfolio heredado fue clasificado con prioridad Generación de caja.
+
+Devolveme:
+1. Dónde el posicionamiento elegido coincide con tu recomendación
+   y dónde diverge, con justificación basada en el diagnóstico.
+2. Trade-offs del posicionamiento elegido: margen capturado,
+   riesgo de volumen, posición competitiva final estimada.
+3. Arquitectura de precios propuesta — reglas por tipo de SKU:
+   - Core subvaluado (price_index < 0.95): acción recomendada.
+   - Core alineado: acción recomendada.
+   - Core con margen negativo: acción recomendada.
+   - Review: criterio de decisión.
+   - Eliminar: precio de salida.
+4. Impacto estimado del posicionamiento elegido:
+   - Dirección de revenue M13–M15 vs baseline.
+   - Margen proyectado por familia.
    - Familias con mayor riesgo de pérdida de volumen.
+5. Casos a revisar manualmente antes de ejecutar.
 
-No completes todavía 07_PRICING SKU por SKU.
-Primero quiero validar la arquitectura y el criterio de decisión.`;
+Separá recomendaciones basadas en datos de las que dependen
+de supuestos de sensibilidad. Marcá con ⚠ las que requieren
+validación adicional.`;
 
-const prompt4 = `Usando el workbook (03_BASE_SKUS, 06_PORTFOLIO, 07_PRICING).
-No uses 07_FORECAST_90_DIAS. No modifiques 06_PORTFOLIO.
+const prompt4 = `Sos un analista senior de pricing. Usá 03_BASE_SKUS, 06_PORTFOLIO
+y 07_PRICING. No modifiques 06_PORTFOLIO.
 
-Posicionamiento y arquitectura elegidos:
+Posicionamiento elegido:
 - ÉTICOS: [posicionamiento]
 - MASIVOS: [posicionamiento]
 - SELECTIVOS: [posicionamiento]
-- Margen objetivo mínimo: [X%]
 
-Actuá como analista senior de pricing.
-Completá o proponé completar 07_PRICING con una recomendación por SKU.
-
-Para cada SKU, completá:
+Completá 07_PRICING con una decisión por SKU. Para cada uno:
 - pricing_decision: Mantener precio / Subir precio / Bajar precio /
   Precio promocional / Liquidación / Revisar competitividad
-- price_m13, price_m14, price_m15: precio recomendado para los 3 meses.
-- rationale: razón principal de la decisión.
-- risk: principal riesgo comercial de la decisión.
-- ai_comment: comentario breve sobre la lógica de la recomendación.
+- price_m13, price_m14, price_m15: precio recomendado.
+- rationale: razón principal en una línea.
+- risk: principal riesgo de la decisión.
+- ai_comment: lógica de la recomendación en una línea.
 
-Reglas de aplicación:
-1. SKUs Core con elasticidad baja y price_index < 0.95: candidatos a
-   "Subir precio" hasta alinearse al mercado manteniendo el margen objetivo.
-2. SKUs Core con margen negativo: "Revisar competitividad" — no subir sin
-   antes entender la estructura de costos.
-3. SKUs Review: analizar caso por caso; priorizar competitividad sobre captura.
-4. SKUs Eliminar: "Liquidación" o "Precio promocional" para acelerar salida.
-5. No recomendar subas agresivas en SKUs con elasticidad alta sin advertir riesgo.
-6. No recomendar precio premium si el SKU está sobrevaluado y perdiendo volumen.
-7. Mantener coherencia de precios dentro de cada familia (no invertir jerarquías).
-8. Respetar el posicionamiento elegido por familia.
+Aplicá estas reglas:
+- Core + price_index < 0.95 + elasticity ≤ 0.8 → Subir precio
+  hasta alinear con mercado manteniendo margen de referencia (~43%).
+- Core + margen negativo → Revisar competitividad.
+- Core + elasticity 2.0 → Mantener o Revisar competitividad;
+  no subir sin evidencia adicional de sensibilidad real.
+- Review → Revisar competitividad como primera opción.
+- Eliminar → Liquidación.
+- No subir precio en SKUs sobrevaluados (price_index > 1.05).
+- Mantener coherencia de precios dentro de cada familia.
 
-Si no podés editar el archivo, devolvé una tabla lista para copiar en 07_PRICING
-respetando sku_id y las columnas solicitadas.
-Separá datos observados de supuestos.
-Avisá si una recomendación asume datos no disponibles en el workbook.`;
+Si no podés editar el archivo, devolvé una tabla lista para copiar
+en 07_PRICING respetando sku_id y las columnas indicadas.
+Marcá con ⚠ decisiones que dependen de supuestos no verificables
+con los datos disponibles.`;
 
-const prompt5short = `Usando 03_BASE_SKUS, 06_PORTFOLIO y 07_PRICING ya completada.
-No uses 07_FORECAST_90_DIAS.
+const prompt5short = `Sos un analista senior de pricing. Usá 03_BASE_SKUS, 06_PORTFOLIO
+y 07_PRICING ya completada.
 
-Posicionamiento elegido:
+Posicionamiento aplicado:
 - ÉTICOS: [...] · MASIVOS: [...] · SELECTIVOS: [...]
-- Margen objetivo: [...]
 
-Devolveme una síntesis ejecutiva en el mismo orden que el checkpoint:
-1. Distribución de decisiones: cuántos SKUs por decisión de pricing
-   (Mantener / Subir / Bajar / Promocional / Liquidación / Revisar)
-   y en qué familias se concentra cada una.
-2. Posicionamiento y arquitectura: el criterio elegido, por qué tiene sentido
-   para este portfolio y qué trade-offs asume.
-3. Impacto estimado en el negocio:
-   - Revenue proyectado M13-M15 (vs baseline sin cambios).
-   - Margen proyectado M13-M15.
-   - Índice de competitividad final estimado.
-   - Pricing leakage capturado.
-   - Riesgo de volumen: familias o SKUs con mayor exposición.
-4. Decisiones a revisar antes de ejecutar: SKUs críticos, casos dudosos,
-   familias sensibles, SKUs con margen negativo aún sin resolver.
-5. Supuestos a validar: elasticidad proxy, precios de competencia,
-    estructura de costos, vigencia de referencias de mercado.
+Generá la síntesis ejecutiva en este orden exacto (es lo que se carga
+en la plataforma):
 
-No presentes el impacto como resultado garantizado: es proyección
-basada en supuestos. Separá datos observados de estimaciones.
+1. Distribución de decisiones: cantidad de SKUs por cada
+   pricing_decision y en qué familias se concentra cada una.
+
+2. Posicionamiento y arquitectura: criterio aplicado por familia,
+   reglas para Core/Review/Eliminar y por qué tiene sentido
+   para este portfolio con prioridad Generación de caja.
+
+3. Impacto estimado:
+   - Revenue proyectado M13–M15 vs baseline (usá expected_volume_effect_pct).
+   - Margen proyectado M13–M15 por familia.
+   - Pricing leakage capturado (estimado).
+   - Familias o SKUs con mayor riesgo de pérdida de volumen.
+
+4. Decisiones a revisar antes de ejecutar: SKUs con margen negativo
+   sin resolver, casos con elasticidad alta donde la suba es cuestionable,
+   familias con posicionamiento mixto que requieren validación.
+
+5. Supuestos a validar: vigencia de precios de competencia en el
+   workbook, interpretación de elasticity_proxy en contexto inflacionario,
+   supuesto de efecto en volumen (−5%/+5%/+10%/+20%) como regla fija.
+
+Presentá el impacto como proyección estimada, no como resultado garantizado.
 No inventes datos.`;
 
-const prompt5full = `Usando 03_BASE_SKUS, 06_PORTFOLIO y 07_PRICING como fuente principal.
-No uses 07_FORECAST_90_DIAS.
+const prompt5full = `Sos un analista senior de pricing. Usá 03_BASE_SKUS, 06_PORTFOLIO
+y 07_PRICING ya completada.
 
-Posicionamiento elegido: [...]
+Posicionamiento aplicado: [...]
 
-Devolveme:
-1. Cantidad de SKUs por cada pricing_decision.
-2. Revenue proyectado M13-M15 por familia.
-3. Margen proyectado M13-M15 por familia.
-4. Margen porcentual proyectado vs margen histórico.
-5. Índice de competitividad promedio ponderado final por familia.
-6. Pricing leakage total capturado (estimado).
+Devolveme el reporte completo:
+1. SKUs por cada pricing_decision.
+2. Revenue proyectado M13–M15 por familia (aplicá expected_volume_effect_pct).
+3. Margen proyectado M13–M15 por familia.
+4. Margen% proyectado vs margen% histórico por familia.
+5. Pricing leakage total capturado (estimado).
+6. Índice de competitividad final por familia.
 7. Familias con mayor captura de margen.
-8. Familias con mayor riesgo de volumen.
-9. SKUs Core con margen negativo aún sin resolver — qué acción requieren.
-10. SKUs críticos para revisión manual antes de ejecutar.
-11. Impacto en scoreboard: revenue proyectado, margen proyectado,
-    índice de competitividad.
-12. Riesgos comerciales principales.
-13. Supuestos que deben validarse antes de ejecutar.
+8. Familias con mayor riesgo de pérdida de volumen.
+9. SKUs Core con margen negativo aún sin resolver.
+10. SKUs críticos para revisión manual.
+11. Riesgos comerciales principales de la estrategia elegida.
+12. Supuestos a validar:
+    - Vigencia de precios de competencia.
+    - Elasticity_proxy en contexto inflacionario: señal, no certeza.
+    - Regla de efecto en volumen (−5%/+5%/+10%/+20%): supuesto fijo;
+      el impacto real varía por SKU y contexto de mercado.
+    - SKUs con margen negativo: ¿problema de precio o de estructura
+      de costos? No asumir que subir precio lo resuelve.
 
-Compará: portfolio antes (pricing actual) vs después (nueva arquitectura).
-No presentes como resultado garantizado; hablá de proyección estimada.
-Separá datos de supuestos. No ocultes riesgos de la estrategia elegida.
+Compará before vs after (precios actuales vs nueva arquitectura).
+Presentá como proyección, no como resultado garantizado.
 
 Cerrá con "Respuesta para plataforma" en 5 bloques:
 1) Distribución de decisiones
@@ -215,14 +210,6 @@ const positioningOptions = [
   "Igual mercado",
   "Premium",
   "Mixto (definido por tipo de SKU)"
-];
-
-const marginOptions = [
-  "15%",
-  "20%",
-  "25%",
-  "30%",
-  "Definido por familia"
 ];
 
 type Exercise02InitialViewProps = {
@@ -305,7 +292,6 @@ export function Exercise02InitialView({
   const [posEticos, setPosEticos] = useState("");
   const [posMasivos, setPosMasivos] = useState("");
   const [posSelectivos, setPosSelectivos] = useState("");
-  const [marginObj, setMarginObj] = useState("");
 
   // Final checkpoint fields.
   const [decisionDistribution, setDecisionDistribution] = useState("");
@@ -319,8 +305,7 @@ export function Exercise02InitialView({
     hypo2,
     posEticos,
     posMasivos,
-    posSelectivos,
-    marginObj
+    posSelectivos
   };
 
   const finalFields = {
@@ -360,7 +345,6 @@ export function Exercise02InitialView({
             setPosEticos(r.posEticos ?? "");
             setPosMasivos(r.posMasivos ?? "");
             setPosSelectivos(r.posSelectivos ?? "");
-            setMarginObj(r.marginObj ?? "");
             setDecisionDistribution(r.decision_distribution ?? "");
             setPositioningArchitecture(r.positioning_architecture ?? "");
             setBusinessImpact(r.business_impact ?? "");
@@ -488,6 +472,13 @@ export function Exercise02InitialView({
       checkpointStatus={checkpointStatus}
       submittedAt={submittedAt}
     >
+      <div className="caseMeta">
+        <div><span>Grupo</span><strong>{group.name}</strong></div>
+        <div><span>Estado</span><strong>{checkpointStatus === "submitted" ? "Enviado" : "Borrador"}</strong></div>
+        <div><span>Workbook</span><strong>NEXUS_RETAIL_LAB01_EJ02_v2</strong></div>
+        <div><span>Tiempo estimado</span><strong>~50 min</strong></div>
+      </div>
+
       <ExerciseWorkbookDownloadCard exerciseId="ex02" />
 
       <WorkbookStatusCard stateVersion={stateVersion} lastWorkbookName={scoreboard.lastWorkbookName} />
@@ -589,7 +580,7 @@ export function Exercise02InitialView({
               <div className={styles.tag}>elasticity_proxy</div>
               <h3>Elasticidad proxy</h3>
               <p>
-                Aproximación de la sensibilidad del volumen ante cambios de precio, calculada a partir del histórico. No es una elasticidad econométrica exacta. Se interpreta como <em>baja</em> (≤0.5), <em>media</em> (0.5–1.0) o <em>alta</em> (&gt;1.0). En este portfolio: 61% baja, 33% media, 6% alta.
+                Nivel de sensibilidad al precio asignado por categoría, con cuatro valores posibles: <strong>0.2</strong> (muy baja), <strong>0.4</strong> (baja), <strong>0.8</strong> (media) y <strong>2.0</strong> (alta). Usala siempre en combinación con el índice de competitividad y el margen — nunca como única variable para decidir una suba. En el trabajo real con datos propios, esta variable requeriría deflactar precios por inflación antes de calcularla; ese ajuste metodológico es parte de lo que harías en tu empresa. En este portfolio: 61% baja, 33% media, 6% alta.
               </p>
             </div>
             <div className={styles.defCard}>
@@ -665,47 +656,10 @@ export function Exercise02InitialView({
         </div>
 
         <section className="card">
-          <div className="eyebrow">Antes del diagnóstico</div>
-          <h3>Ahora sí podés anticipar</h3>
-          <p className="muted">
-            En el Ejercicio 0 no podías anticipar nada porque era el primer contacto con el negocio. Ahora conocés las familias, el portfolio y las tensiones. Antes de correr el diagnóstico cuantitativo, registrá la hipótesis del equipo:
-          </p>
-          <div className={styles.formRow4} style={{ marginTop: 6 }}>
-            <div className="formField">
-              <label className="formLabel" htmlFor="hypo1">
-                ¿Qué familia intuís que tiene mayor oportunidad de subir precio?
-              </label>
-              <textarea
-                id="hypo1"
-                className={styles.miniTextarea}
-                placeholder="Familia ___ porque ___. Señal principal: ___."
-                value={hypo1}
-                onChange={(e) => setHypo1(e.target.value)}
-              />
-            </div>
-            <div className="formField">
-              <label className="formLabel" htmlFor="hypo2">
-                ¿Qué familia creés que no toleraría una suba sin perder volumen?
-              </label>
-              <textarea
-                id="hypo2"
-                className={styles.miniTextarea}
-                placeholder="Familia ___ porque ___. Señal principal: ___."
-                value={hypo2}
-                onChange={(e) => setHypo2(e.target.value)}
-              />
-            </div>
-          </div>
-          <p className="muted" style={{ marginTop: 12, marginBottom: 0 }}>
-            Después de correr los prompts, van a poder contrastar estas hipótesis contra el diagnóstico cuantitativo. Ese contraste es el aprendizaje: los datos pueden confirmar o contradecir la intuición del equipo.
-          </p>
-        </section>
-
-        <section className="card">
           <div className="eyebrow">Prompt 1 · Lectura por familias</div>
-          <h3>Entender el portfolio de pricing antes de diagnosticar</h3>
+          <h3>Entender el contexto antes de diagnosticar</h3>
           <p className="muted">
-            Igual que en el Ejercicio 1, el análisis comienza por familias. Antes de ir SKU por SKU, se necesita el contexto de cada familia: dónde está el margen, qué tan competitivos son los precios, qué tan sensibles son los clientes. Las hojas de referencia son <strong>03_BASE_SKUS</strong>, <strong>06_PORTFOLIO</strong> y <strong>07_PRICING</strong>.
+            El análisis arranca por familias. Pero antes de interpretar márgenes y precios, la IA tiene que declarar si detecta señal inflacionaria en los datos — en Argentina es un supuesto que siempre conviene validar explícitamente antes de leer cualquier tendencia de precios o volúmenes.
           </p>
           <div className="promptSingle">
             <div className="promptSingleHeader">
@@ -717,20 +671,53 @@ export function Exercise02InitialView({
         </section>
 
         <section className="card">
-          <div className="eyebrow">Prompt 2 · Diagnóstico cuantitativo</div>
-          <h3>Cuantificar el problema antes de elegir estrategia</h3>
+          <div className="eyebrow">Después del Prompt 1</div>
+          <h3>Con los datos leídos, formá una hipótesis</h3>
           <p className="muted">
-            Con la lectura por familias como contexto, ahora se construye el diagnóstico cuantitativo. El objetivo es tener evidencia — no intuición — para responder: ¿dónde hay oportunidad de capturar margen?, ¿dónde hay riesgo de perder volumen?, ¿cuánto vale económicamente corregir los precios?
+            Ahora que el equipo tiene la lectura por familias, puede formarse una primera intuición antes de ir al diagnóstico cuantitativo. Registrala acá — después del Prompt 2 van a poder contrastarla con la evidencia.
+          </p>
+          <div className={styles.formRow4} style={{ marginTop: 6 }}>
+            <div className="formField">
+              <label className="formLabel" htmlFor="hypo1">
+                ¿Qué familia tiene mayor oportunidad de capturar margen con un ajuste de precio?
+              </label>
+              <textarea
+                id="hypo1"
+                className={styles.miniTextarea}
+                placeholder="Familia ___ porque el diagnóstico muestra ___ (señal: price_index / margen / elasticidad)."
+                value={hypo1}
+                onChange={(e) => setHypo1(e.target.value)}
+              />
+            </div>
+            <div className="formField">
+              <label className="formLabel" htmlFor="hypo2">
+                ¿Qué familia sería más riesgosa de tocar?
+              </label>
+              <textarea
+                id="hypo2"
+                className={styles.miniTextarea}
+                placeholder="Familia ___ porque ___ (señal: elasticidad alta / sobrevaluada / márgenes ajustados)."
+                value={hypo2}
+                onChange={(e) => setHypo2(e.target.value)}
+              />
+            </div>
+          </div>
+        </section>
+
+        <section className="card">
+          <div className="eyebrow">Prompt 2 · Diagnóstico cuantitativo</div>
+          <h3>Construir la evidencia para elegir estrategia</h3>
+          <p className="muted">
+            Con la lectura por familias como base, ahora se cuantifica el problema. El objetivo es tener números concretos para decidir: dónde hay margen para capturar, dónde hay riesgo de perder volumen, cuánto vale económicamente mover precios.
           </p>
 
           <div className={styles.targetBox} style={{ marginTop: 6 }}>
-            <h3>Resultado esperado de este diagnóstico</h3>
+            <h3>Resultado esperado</h3>
             <ul className="simpleList">
-              <li>Tabla por familia: elasticidad, competitividad, SKUs sub/sobrevaluados, leakage y potencial.</li>
-              <li>Tabla de SKUs críticos con diagnóstico individual (subvaluado / alineado / sobrevaluado).</li>
-              <li>Cuantificación del potencial económico total de corrección de precios.</li>
-              <li>Identificación de familias con mayor oportunidad y mayor riesgo.</li>
-              <li>Lectura para decidir posicionamiento en 5 bullets.</li>
+              <li>Tabla resumen por familia con posición competitiva, sensibilidad y potencial.</li>
+              <li>Lista de SKUs críticos con diagnóstico individual.</li>
+              <li>Cuantificación del potencial económico total.</li>
+              <li>5 bullets ejecutivos para decidir posicionamiento.</li>
             </ul>
           </div>
 
@@ -743,9 +730,9 @@ export function Exercise02InitialView({
           </div>
 
           <div className="tipBox" style={{ marginTop: 16 }}>
-            <h3>Contrastar con la hipótesis</h3>
+            <h3>Contrastá con tu hipótesis</h3>
             <p className="muted" style={{ margin: 0 }}>
-              Cuando tengás el diagnóstico, volvé a las hipótesis que escribiste antes. ¿La IA confirmó o contradijo la intuición del equipo sobre qué familia tiene más oportunidad? ¿Dónde el dato sorprendió? Ese contraste es el insight real de la etapa.
+              ¿El diagnóstico confirma o contradice lo que el equipo anotó después del Prompt 1? Ese contraste — intuición vs evidencia — es el insight real de esta etapa.
             </p>
           </div>
         </section>
@@ -822,6 +809,9 @@ export function Exercise02InitialView({
         <section className="card">
           <div className="eyebrow">Decisión del equipo</div>
           <h3>Elegí un posicionamiento por familia</h3>
+          <p className="muted">
+            El posicionamiento puede ser distinto por familia. Si elegís &quot;Mixto&quot;, el Prompt 3 le pedirá a la IA que defina el criterio por tipo de SKU dentro de esa familia.
+          </p>
           <div className={styles.formRow4} style={{ marginTop: 6 }}>
             <div className="formField">
               <label className="formLabel" htmlFor="posEticos">
@@ -874,31 +864,21 @@ export function Exercise02InitialView({
                 ))}
               </select>
             </div>
-            <div className="formField">
-              <label className="formLabel" htmlFor="marginObj">
-                Margen objetivo mínimo
-              </label>
-              <select
-                id="marginObj"
-                value={marginObj}
-                onChange={(e) => setMarginObj(e.target.value)}
-              >
-                <option value="">Seleccionar…</option>
-                {marginOptions.map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
-            </div>
+          </div>
+
+          <div className={styles.whyBox} style={{ marginTop: 16 }}>
+            <h3>Referencia de margen del portfolio</h3>
+            <p>
+              El margen promedio de los SKUs <strong>Core</strong> en este portfolio es <strong>~43%</strong>. El de <strong>Review</strong> es ~30%. Estos valores son la referencia para calibrar si una decisión de pricing mejora, mantiene o resigna margen respecto de la base actual. No hace falta definir un margen objetivo como número: la IA lo usa como contexto cuando lo incluís en el Prompt 3.
+            </p>
           </div>
         </section>
 
         <section className="card">
           <div className="eyebrow">Prompt 3 · Arquitectura de precios</div>
-          <h3>La IA simula el impacto de tu posicionamiento</h3>
+          <h3>La IA simula el impacto y propone las reglas</h3>
           <p className="muted">
-            Con el posicionamiento elegido, la IA construye la arquitectura de precios: las reglas que van a guiar las decisiones SKU por SKU. Antes de bajar al nivel de SKU, el equipo valida que la arquitectura tenga sentido.
+            Con el posicionamiento elegido, la IA construye la arquitectura: las reglas que van a guiar la decisión SKU por SKU. Antes de bajar a ese nivel, el equipo valida que el criterio tenga sentido.
           </p>
           <div className="promptSingle">
             <div className="promptSingleHeader">
@@ -1080,7 +1060,7 @@ export function Exercise02InitialView({
                 1. Distribución de decisiones de pricing <span style={{ color: "var(--danger)" }}>*</span>
               </label>
               <textarea
-                className={`${styles.miniTextarea}`}
+                className={styles.miniTextarea}
                 placeholder="Cuántos SKUs por decisión (Mantener / Subir / Bajar / Promocional / Liquidación / Revisar) y en qué familias se concentra cada una."
                 value={decisionDistribution}
                 onChange={(e) => {
