@@ -115,26 +115,36 @@ El equipo eligió:
 Referencia de margen del portfolio: Core ~43%, Review ~30%.
 El portfolio heredado fue clasificado con prioridad Generación de caja.
 
+Regla de traducción del posicionamiento:
+- Target de price_index_vs_market: Más barato que mercado = 0.95 ·
+  Igual mercado = 1.00 · Premium = 1.05.
+- price_move_pct = movimiento necesario para llevar cada SKU al target de su
+  familia, con tope de ±10%. Si el gap supera el tope, el SKU queda como caso
+  a revisar.
+- Excepciones que pisan la regla: margen negativo → Revisar competitividad ·
+  Eliminar → Liquidación · elasticity_proxy 2.0 → no subir precio.
+- Si el posicionamiento de una familia es Mixto, definí el target por tipo de
+  SKU dentro de esa familia y justificalo.
+
 Devolveme:
-1. Dónde el posicionamiento elegido coincide con tu recomendación
-   y dónde diverge, con justificación basada en el diagnóstico.
-2. Trade-offs del posicionamiento elegido: margen capturado,
-   riesgo de volumen, posición competitiva final estimada.
-3. Arquitectura de precios propuesta — reglas por tipo de SKU:
-   - Core subvaluado (price_index < 0.95): acción recomendada.
-   - Core alineado: acción recomendada.
-   - Core con margen negativo: acción recomendada.
-   - Review: criterio de decisión.
-   - Eliminar: precio de salida.
+1. Dónde el posicionamiento elegido coincide con tu recomendación y dónde
+   diverge, con justificación basada en el diagnóstico.
+2. Trade-offs del posicionamiento elegido: margen capturado, riesgo de volumen
+   (usá elasticity_proxy), posición competitiva final estimada.
+3. Arquitectura aplicada — validá la regla contra el diagnóstico:
+   - ¿En qué familias el target elegido es alcanzable dentro del tope de ±10%?
+   - ¿Cuántos SKUs quedan fuera del tope y qué peso económico tienen?
+   - ¿Dónde concentran más revenue las excepciones (margen negativo,
+     elasticidad alta)?
 4. Impacto estimado del posicionamiento elegido:
-   - Dirección de revenue M13–M15 vs baseline.
+   - Dirección de revenue M13–M15 vs baseline
+     (efecto volumen = −elasticity_proxy × price_move_pct).
    - Margen proyectado por familia.
    - Familias con mayor riesgo de pérdida de volumen.
 5. Casos a revisar manualmente antes de ejecutar.
 
-Separá recomendaciones basadas en datos de las que dependen
-de supuestos de sensibilidad. Marcá con ⚠ las que requieren
-validación adicional.`;
+Separá recomendaciones basadas en datos de las que dependen de supuestos de
+sensibilidad. Marcá con ⚠ las que requieren validación adicional.`;
 
 const prompt4 = `Sos un analista senior de pricing. Usá 03_BASE_SKUS, 06_PORTFOLIO
 y 07_PRICING. No modifiques 06_PORTFOLIO.
@@ -145,90 +155,99 @@ Posicionamiento elegido:
 - SELECTIVOS: [posicionamiento]
 
 Completá 07_PRICING con una decisión por SKU. Para cada uno:
-- pricing_decision: Mantener precio / Subir precio / Bajar precio /
-  Precio promocional / Liquidación / Revisar competitividad
-- price_m13, price_m14, price_m15: precio recomendado.
+- pricing_decision: Aplicar regla / Mantener precio / Revisar competitividad /
+  Liquidación.
+- price_move_pct: % de movimiento de precio (0% si se mantiene).
+- price_m13, price_m14, price_m15: current_price_m12 × (1 + price_move_pct),
+  igual en los tres meses.
+- expected_volume_effect_pct: −elasticity_proxy × price_move_pct.
 - rationale: razón principal en una línea.
 - risk: principal riesgo de la decisión.
 - ai_comment: lógica de la recomendación en una línea.
 
-Aplicá estas reglas:
-- Core + price_index < 0.95 + elasticity ≤ 0.8 → Subir precio
-  hasta alinear con mercado manteniendo margen de referencia (~43%).
-- Core + margen negativo → Revisar competitividad.
-- Core + elasticity 2.0 → Mantener o Revisar competitividad;
-  no subir sin evidencia adicional de sensibilidad real.
-- Review → Revisar competitividad como primera opción.
-- Eliminar → Liquidación.
-- No subir precio en SKUs sobrevaluados (price_index > 1.05).
+Aplicá la regla de traducción:
+- Target de price_index_vs_market por familia según posicionamiento:
+  Más barato que mercado = 0.95 · Igual mercado = 1.00 · Premium = 1.05.
+- price_move_pct = lo necesario para llegar al target, con tope de ±10%.
+  Si el gap supera el tope, aplicá el máximo y marcá el SKU con ⚠ como caso
+  a revisar.
+- Excepciones (pisan la regla):
+  - Margen negativo → Revisar competitividad, price_move_pct = 0%.
+  - Eliminar → Liquidación, price_move_pct = −20%.
+  - elasticity_proxy 2.0 → no subir precio; Mantener precio o Revisar
+    competitividad.
 - Mantener coherencia de precios dentro de cada familia.
 
-Si no podés editar el archivo, devolvé una tabla lista para copiar
-en 07_PRICING respetando sku_id y las columnas indicadas.
-Marcá con ⚠ decisiones que dependen de supuestos no verificables
-con los datos disponibles.`;
+Antes de recomendar una suba, mirá el efecto en volumen — una suba que captura
+8% de precio pero pierde 16% de volumen probablemente destruye revenue.
+Mostrá el cálculo de price_move_pct y expected_volume_effect_pct, no solo el
+resultado.
 
-const prompt5short = `Sos un analista senior de pricing. Usá 03_BASE_SKUS, 06_PORTFOLIO
-y 07_PRICING ya completada.
+Si no podés editar el archivo, devolvé una tabla lista para copiar en
+07_PRICING respetando sku_id y las columnas indicadas.
+Marcá con ⚠ decisiones que dependen de supuestos no verificables con los datos
+disponibles.`;
+
+const prompt5short = `Sos un analista senior de pricing.
+Usá 03_BASE_SKUS, 06_PORTFOLIO y 07_PRICING ya completada.
 
 Posicionamiento aplicado:
 - ÉTICOS: [...] · MASIVOS: [...] · SELECTIVOS: [...]
 
-Generá la síntesis ejecutiva en este orden exacto (es lo que se carga
-en la plataforma):
-
-1. Distribución de decisiones: cantidad de SKUs por cada
-   pricing_decision y en qué familias se concentra cada una.
-
-2. Posicionamiento y arquitectura: criterio aplicado por familia,
-   reglas para Core/Review/Eliminar y por qué tiene sentido
-   para este portfolio con prioridad Generación de caja.
-
+Generá la síntesis ejecutiva en este orden exacto (es lo que se carga en la
+plataforma):
+1. Distribución de decisiones: cantidad de SKUs por cada pricing_decision y
+   en qué familias se concentra cada una.
+2. Posicionamiento y arquitectura: target de price_index aplicado por familia,
+   reglas para Core/Review/Eliminar y por qué tiene sentido para este
+   portfolio con prioridad Generación de caja.
 3. Impacto estimado:
-   - Revenue proyectado M13–M15 vs baseline (usá expected_volume_effect_pct).
+   - Revenue proyectado M13–M15 vs baseline (usá expected_volume_effect_pct,
+     calculado como −elasticity_proxy × price_move_pct).
    - Margen proyectado M13–M15 por familia.
    - Pricing leakage capturado (estimado).
    - Familias o SKUs con mayor riesgo de pérdida de volumen.
-
-4. Decisiones a revisar antes de ejecutar: SKUs con margen negativo
-   sin resolver, casos con elasticidad alta donde la suba es cuestionable,
-   familias con posicionamiento mixto que requieren validación.
-
-5. Supuestos a validar: vigencia de precios de competencia en el
-   workbook, interpretación de elasticity_proxy en contexto inflacionario,
-   supuesto de efecto en volumen (−5%/+5%/+10%/+20%) como regla fija.
+4. Decisiones a revisar antes de ejecutar: SKUs con margen negativo sin
+   resolver, SKUs que no llegan al target dentro del tope de ±10%, casos con
+   elasticidad alta donde la suba es cuestionable, familias con posicionamiento
+   mixto que requieren validación.
+5. Supuestos a validar: vigencia de precios de competencia en el workbook,
+   interpretación de elasticity_proxy en contexto inflacionario, aproximación
+   lineal del efecto en volumen (−elasticidad × Δprecio), válida para
+   movimientos moderados pero no para cambios grandes de precio.
 
 Presentá el impacto como proyección estimada, no como resultado garantizado.
 No inventes datos.`;
 
-const prompt5full = `Sos un analista senior de pricing. Usá 03_BASE_SKUS, 06_PORTFOLIO
-y 07_PRICING ya completada.
-
+const prompt5full = `Sos un analista senior de pricing.
+Usá 03_BASE_SKUS, 06_PORTFOLIO y 07_PRICING ya completada.
 Posicionamiento aplicado: [...]
 
 Devolveme el reporte completo:
 1. SKUs por cada pricing_decision.
-2. Revenue proyectado M13–M15 por familia (aplicá expected_volume_effect_pct).
+2. Revenue proyectado M13–M15 por familia (aplicá expected_volume_effect_pct,
+   calculado como −elasticity_proxy × price_move_pct).
 3. Margen proyectado M13–M15 por familia.
 4. Margen% proyectado vs margen% histórico por familia.
 5. Pricing leakage total capturado (estimado).
-6. Índice de competitividad final por familia.
+6. Índice de competitividad final por familia (precio nuevo / market_price_avg)
+   vs target del posicionamiento.
 7. Familias con mayor captura de margen.
 8. Familias con mayor riesgo de pérdida de volumen.
 9. SKUs Core con margen negativo aún sin resolver.
-10. SKUs críticos para revisión manual.
+10. SKUs que no llegaron al target dentro del tope de ±10%.
 11. Riesgos comerciales principales de la estrategia elegida.
 12. Supuestos a validar:
     - Vigencia de precios de competencia.
     - Elasticity_proxy en contexto inflacionario: señal, no certeza.
-    - Regla de efecto en volumen (−5%/+5%/+10%/+20%): supuesto fijo;
-      el impacto real varía por SKU y contexto de mercado.
-    - SKUs con margen negativo: ¿problema de precio o de estructura
-      de costos? No asumir que subir precio lo resuelve.
+    - Aproximación lineal del efecto en volumen (−elasticidad × Δprecio):
+      razonable para movimientos moderados; el impacto real varía por SKU y
+      contexto de mercado.
+    - SKUs con margen negativo: ¿problema de precio o de estructura de costos?
+      No asumir que subir precio lo resuelve.
 
 Compará before vs after (precios actuales vs nueva arquitectura).
 Presentá como proyección, no como resultado garantizado.
-
 Cerrá con "Respuesta para plataforma" en 5 bloques:
 1) Distribución de decisiones
 2) Posicionamiento y arquitectura
@@ -506,7 +525,7 @@ export function Exercise02InitialView({
       <div className="caseMeta">
         <div><span>Grupo</span><strong>{group.name}</strong></div>
         <div><span>Estado</span><strong>{checkpointStatus === "submitted" ? "Enviado" : "Borrador"}</strong></div>
-        <div><span>Workbook</span><strong>NEXUS_RETAIL_LAB01_EJ02_v2</strong></div>
+        <div><span>Workbook</span><strong>NEXUS_RETAIL_LAB01_EJ02_v3</strong></div>
         <div><span>Tiempo estimado</span><strong>~50 min</strong></div>
       </div>
 
@@ -640,7 +659,7 @@ export function Exercise02InitialView({
               <div className={styles.tag}>expected_volume_effect_pct</div>
               <h3>Efecto de volumen esperado</h3>
               <p>
-                Regla de negocio incluida en el workbook que estima el impacto en volumen según la decisión de pricing: Subir precio −5%, Bajar precio +5%, Precio promocional +10%, Liquidación +20%, Mantener y Revisar competitividad 0%. Es un supuesto razonable de partida — la IA podría estimarlo con más precisión si se lo pedís.
+                Estimación del impacto en volumen derivada de la elasticidad: −elasticity_proxy × price_move_pct. Si un SKU tiene elasticidad 0.4 y subís el precio 5%, el volumen esperado cae 2%. Si la elasticidad es 2.0, cae 10%. Es una aproximación lineal razonable para movimientos moderados de precio — la IA podría refinarla si se lo pedís, pero para comparar impactos entre SKUs de forma consistente alcanza. En este ejercicio esta columna la completa la IA, no una fórmula: parte del trabajo es verificar que el cálculo sea correcto.
               </p>
             </div>
           </div>
@@ -956,6 +975,27 @@ export function Exercise02InitialView({
               El margen promedio de los SKUs <strong>Core</strong> en este portfolio es <strong>~43%</strong>. El de <strong>Review</strong> es ~30%. Estos valores son la referencia para calibrar si una decisión de pricing mejora, mantiene o resigna margen respecto de la base actual. No hace falta definir un margen objetivo como número: la IA lo usa como contexto cuando lo incluís en el Prompt 3.
             </p>
           </div>
+
+          <div className={styles.whyBox} style={{ marginTop: 16 }}>
+            <h3>La regla de traducción · Del posicionamiento al precio</h3>
+            <p>
+              Elegir un posicionamiento no alcanza: hace falta una regla explícita que lo traduzca a precios. En este ejercicio la regla tiene tres líneas:
+            </p>
+            <ul className="simpleList">
+              <li>
+                Cada posicionamiento define un <strong>target de índice de competitividad</strong>: Más barato que mercado = 0.95 · Igual mercado = 1.00 · Premium = 1.05. Si elegiste Mixto, el target se define por tipo de SKU dentro de la familia.
+              </li>
+              <li>
+                Cada SKU se mueve lo necesario para llegar al target de su familia, con un <strong>tope de ±10%</strong> de movimiento. Nadie pega saltos de 20% de una — si un SKU necesita más que el tope para llegar al target, queda marcado como caso a revisar.
+              </li>
+              <li>
+                Las <strong>excepciones pisan la regla</strong>: margen negativo → Revisar competitividad · Eliminar → Liquidación · elasticidad 2.0 → no subir precio sin evidencia adicional.
+              </li>
+            </ul>
+            <p style={{ marginBottom: 0 }}>
+              Esta es la arquitectura de precios: tres líneas que un gerente comercial entiende en 30 segundos. La decisión del equipo es el posicionamiento; la regla ejecuta.
+            </p>
+          </div>
         </section>
 
         <section className="card">
@@ -989,55 +1029,10 @@ export function Exercise02InitialView({
 
         <section className="card">
           <div className="eyebrow">Regla de negocio del workbook</div>
-          <h3>El efecto de volumen ya tiene una regla incorporada</h3>
+          <h3>El efecto en volumen sale de la elasticidad</h3>
           <p className="muted">
-            La hoja <strong>07_PRICING</strong> incluye una fórmula para <code>expected_volume_effect_pct</code> que aplica automáticamente según la decisión elegida. Es un supuesto de partida razonable — la IA podría estimarlo con más precisión por SKU si se lo pedís, pero para esta etapa la regla sirve para comparar impactos entre SKUs de forma consistente.
+            En 07_PRICING, <code>expected_volume_effect_pct</code> se calcula como −elasticity_proxy × price_move_pct. Un mismo movimiento de precio impacta distinto según la sensibilidad del SKU: subir 5% un producto con elasticidad 0.2 casi no mueve el volumen (−1%); el mismo 5% en uno con elasticidad 2.0 cuesta −10% de volumen. Por eso la elasticidad no es solo una variable de diagnóstico — es la que define cuánto te cuesta cada punto de margen que capturás. En esta versión del workbook la columna no tiene fórmula: la completa la IA y el equipo la audita.
           </p>
-
-          <div className={styles.ruleBox}>
-            <h3>Reglas de efecto en volumen según pricing_decision</h3>
-            <table className={styles.ruleTable}>
-              <thead>
-                <tr>
-                  <th>Decisión</th>
-                  <th>Efecto volumen esperado</th>
-                  <th>Lógica</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>Mantener precio</td>
-                  <td>0%</td>
-                  <td>Sin cambio de demanda esperado.</td>
-                </tr>
-                <tr>
-                  <td>Subir precio</td>
-                  <td>−5%</td>
-                  <td>Suba moderada con caída de volumen.</td>
-                </tr>
-                <tr>
-                  <td>Bajar precio</td>
-                  <td>+5%</td>
-                  <td>Baja atrae volumen incremental.</td>
-                </tr>
-                <tr>
-                  <td>Precio promocional</td>
-                  <td>+10%</td>
-                  <td>Promoción genera demanda adicional.</td>
-                </tr>
-                <tr>
-                  <td>Liquidación</td>
-                  <td>+20%</td>
-                  <td>Precio agresivo acelera salida de stock.</td>
-                </tr>
-                <tr>
-                  <td>Revisar competitividad</td>
-                  <td>0%</td>
-                  <td>Pendiente de análisis; sin cambio por defecto.</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
         </section>
 
         <section className="card">
@@ -1057,7 +1052,7 @@ export function Exercise02InitialView({
           <div className="tipBox" style={{ marginTop: 16 }}>
             <h3>Validá una recomendación</h3>
             <p className="muted" style={{ margin: 0 }}>
-              Antes de cerrar esta parte, elegí un SKU que la IA recomendó &quot;Subir precio&quot; y verificá en 03_BASE_SKUS que el <code>elasticity_proxy</code> y el <code>price_index_vs_market</code> respaldan esa recomendación. Si los datos no coinciden con lo que dice la IA, marcalo en la columna <code>risk</code>.
+              Antes de cerrar esta parte, elegí un SKU con suba de precio recomendada y hacé la cuenta a mano: price_move_pct × (−elasticity_proxy) = efecto en volumen. Verificá que el margen adicional capturado compense el volumen perdido, y que el precio resultante no supere el target de la familia. Si no cierra, marcalo en la columna <code>risk</code>.
             </p>
           </div>
         </section>
@@ -1145,7 +1140,7 @@ export function Exercise02InitialView({
               </label>
               <textarea
                 className={styles.miniTextarea}
-                placeholder="Cuántos SKUs por decisión (Mantener / Subir / Bajar / Promocional / Liquidación / Revisar) y en qué familias se concentra cada una."
+                placeholder="Cuántos SKUs por decisión (Aplicar regla / Mantener precio / Revisar competitividad / Liquidación) y en qué familias se concentra cada una."
                 value={decisionDistribution}
                 onChange={(e) => {
                   setDecisionDistribution(e.target.value);
