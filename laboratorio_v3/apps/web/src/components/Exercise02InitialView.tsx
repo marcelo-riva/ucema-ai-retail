@@ -1060,17 +1060,37 @@ export function Exercise02InitialView({
           <p className="muted">
             En 07_PRICING hay dos columnas nuevas que trabajan juntas:
           </p>
-          <ul className="simpleList">
-            <li>
-              <strong>pricing_decision</strong> describe qué le pasa al precio: Subir precio / Bajar precio / Mantener precio / Liquidación / Revisar competitividad. Es la acción ejecutada.
-            </li>
-            <li>
-              <strong>positioning_rule</strong> explica por qué: Premium / Igual mercado / Más barato / Excepción: Eliminar / Excepción: margen negativo / Excepción: elasticidad alta. Es el origen de la decisión — si viene de la arquitectura de precios definida en la Parte C o de una excepción que pisa la regla.
-            </li>
-          </ul>
-          <p className="muted">
-            Leer las dos columnas juntas responde: ¿qué pasa con el precio y por qué? Una fila que dice Mantener precio + Excepción: elasticidad alta comunica algo completamente distinto a Mantener precio + Igual mercado.
-          </p>
+
+          <div className={styles.defGrid}>
+            <div className={styles.defCard}>
+              <div className={styles.tag}>pricing_decision</div>
+              <h3>Acción ejecutada</h3>
+              <ul className="simpleList">
+                <li>Subir precio</li>
+                <li>Bajar precio</li>
+                <li>Mantener precio</li>
+                <li>Liquidación</li>
+                <li>Revisar competitividad</li>
+              </ul>
+            </div>
+            <div className={styles.defCard}>
+              <div className={styles.tag}>positioning_rule</div>
+              <h3>Origen de la decisión</h3>
+              <ul className="simpleList">
+                <li>Premium</li>
+                <li>Igual mercado</li>
+                <li>Más barato</li>
+                <li>Excepción: Eliminar</li>
+                <li>Excepción: margen negativo</li>
+                <li>Excepción: elasticidad alta</li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="exampleBox" style={{ marginTop: 14 }}>
+            Leer las dos columnas juntas responde: ¿qué pasa con el precio y por qué? Una fila que dice <strong>Mantener precio</strong> + <strong>Excepción: elasticidad alta</strong> comunica algo completamente distinto a <strong>Mantener precio</strong> + <strong>Igual mercado</strong>.
+          </div>
+
           <p className="muted" style={{ marginBottom: 0 }}>
             <code>expected_volume_effect_pct</code> se calcula como −elasticity_proxy × price_move_pct. En esta versión del workbook la columna no tiene fórmula: la completa la IA y el equipo la audita.
           </p>
@@ -1082,17 +1102,31 @@ export function Exercise02InitialView({
           <p className="muted">
             En tu trabajo real, definir reglas de negocio ejecutables va a ser una de tus tareas centrales al trabajar con IA. Una regla de pricing ejecutable tiene tres componentes:
           </p>
-          <ul className="simpleList">
-            <li>
-              <strong>Target medible</strong> — ¿a dónde quiero llegar? En este ejercicio: el índice de competitividad objetivo por posicionamiento (0.95 / 1.00 / 1.05). Sin un target numérico, la regla es una expresión de deseo.
-            </li>
-            <li>
-              <strong>Límite operativo</strong> — ¿cuánto me puedo mover por período? Acá: tope de ±10%. El límite protege al negocio de la propia regla — nadie pega saltos de 20% de una, aunque el target lo pida.
-            </li>
-            <li>
-              <strong>Excepciones explícitas</strong> — ¿qué casos pisan la regla? Margen negativo, SKUs a eliminar, elasticidad alta. Las excepciones son la diferencia entre una regla robusta y una que rompe cosas en los bordes.
-            </li>
-          </ul>
+
+          <div className={styles.tensionGrid}>
+            <div className={styles.tensionCard}>
+              <span className={styles.tensionVs}>Componente 1</span>
+              <h3>Target medible</h3>
+              <p>
+                ¿A dónde quiero llegar? En este ejercicio: el índice de competitividad objetivo por posicionamiento (0.95 / 1.00 / 1.05). Sin un target numérico, la regla es una expresión de deseo.
+              </p>
+            </div>
+            <div className={styles.tensionCard}>
+              <span className={styles.tensionVs}>Componente 2</span>
+              <h3>Límite operativo</h3>
+              <p>
+                ¿Cuánto me puedo mover por período? Acá: tope de ±10%. El límite protege al negocio de la propia regla — nadie pega saltos de 20% de una, aunque el target lo pida.
+              </p>
+            </div>
+            <div className={styles.tensionCard}>
+              <span className={styles.tensionVs}>Componente 3</span>
+              <h3>Excepciones explícitas</h3>
+              <p>
+                ¿Qué casos pisan la regla? Margen negativo, SKUs a eliminar, elasticidad alta. Las excepciones son la diferencia entre una regla robusta y una que rompe cosas en los bordes.
+              </p>
+            </div>
+          </div>
+
           <p className="muted" style={{ marginBottom: 0 }}>
             Si falta cualquiera de los tres componentes, la regla no se puede delegar — ni a un analista junior ni a una IA. Fijate que el Prompt 4 no es otra cosa que esta regla escrita de forma ejecutable: <strong>una regla bien especificada ES un prompt</strong>.
           </p>
