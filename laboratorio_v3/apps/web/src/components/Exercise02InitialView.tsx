@@ -260,6 +260,28 @@ Cerrá con "Respuesta para plataforma" en 5 bloques:
 4) Decisiones a revisar
 5) Supuestos a validar`;
 
+const promptExtendedRule = `Sos un consultor de pricing. Usá 03_BASE_SKUS, 06_PORTFOLIO
+y 07_PRICING ya completada con la regla original.
+
+Diseñé una nueva regla de pricing con estos tres componentes:
+
+1. Target: [definí tu target de price_index_vs_market por familia
+   o por tipo de SKU — puede ser distinto al original]
+2. Límite operativo: [definí tu tope de movimiento por período
+   — puede ser distinto al ±10% original]
+3. Excepciones: [definí qué casos pisan tu regla y qué acción
+   toman — podés mantener las originales, modificarlas o agregar nuevas]
+
+Ejecutá mi regla sobre el portfolio y devolveme:
+1. Distribución de decisiones con mi regla vs la regla original.
+2. Revenue y margen proyectado M13–M15: mi regla vs la original.
+3. Dónde mi regla genera mejores resultados y dónde peores.
+4. Qué casos borde mi regla no cubre bien — SKUs donde el resultado
+   es cuestionable o inconsistente.
+5. Una recomendación: ¿qué componente de mi regla ajustarías y por qué?
+
+No inventes datos. Presentá el impacto como proyección estimada.`;
+
 const positioningOptions = [
   "Más barato que mercado",
   "Igual mercado",
@@ -1055,6 +1077,28 @@ export function Exercise02InitialView({
         </section>
 
         <section className="card">
+          <div className="eyebrow">Anatomía de una regla</div>
+          <h3>Una regla bien definida es lo que hace posible delegar</h3>
+          <p className="muted">
+            En tu trabajo real, definir reglas de negocio ejecutables va a ser una de tus tareas centrales al trabajar con IA. Una regla de pricing ejecutable tiene tres componentes:
+          </p>
+          <ul className="simpleList">
+            <li>
+              <strong>Target medible</strong> — ¿a dónde quiero llegar? En este ejercicio: el índice de competitividad objetivo por posicionamiento (0.95 / 1.00 / 1.05). Sin un target numérico, la regla es una expresión de deseo.
+            </li>
+            <li>
+              <strong>Límite operativo</strong> — ¿cuánto me puedo mover por período? Acá: tope de ±10%. El límite protege al negocio de la propia regla — nadie pega saltos de 20% de una, aunque el target lo pida.
+            </li>
+            <li>
+              <strong>Excepciones explícitas</strong> — ¿qué casos pisan la regla? Margen negativo, SKUs a eliminar, elasticidad alta. Las excepciones son la diferencia entre una regla robusta y una que rompe cosas en los bordes.
+            </li>
+          </ul>
+          <p className="muted" style={{ marginBottom: 0 }}>
+            Si falta cualquiera de los tres componentes, la regla no se puede delegar — ni a un analista junior ni a una IA. Fijate que el Prompt 4 no es otra cosa que esta regla escrita de forma ejecutable: <strong>una regla bien especificada ES un prompt</strong>.
+          </p>
+        </section>
+
+        <section className="card">
           <div className="eyebrow">Prompt 4 · Completar 07_PRICING</div>
           <h3>Bajar la arquitectura al nivel de SKU</h3>
           <p className="muted">
@@ -1120,6 +1164,30 @@ export function Exercise02InitialView({
               <pre style={{ background: "#14211b", color: "#eff8f1", fontFamily: "SFMono-Regular, Consolas, monospace", fontSize: 13, lineHeight: 1.55, margin: 0, overflowX: "auto", padding: 16, whiteSpace: "pre-wrap" }}>
                 {prompt5full}
               </pre>
+            </div>
+          </details>
+
+          <details className="promptReveal" style={{ marginTop: 12 }}>
+            <summary>
+              <span>Ejercicio extendido · Diseñá tu propia regla</span>
+              <span className="muted" style={{ fontWeight: 700, fontSize: 13 }}>
+                Para completar fuera de clase ▾
+              </span>
+            </summary>
+            <div>
+              <p className="muted" style={{ padding: "12px 16px 0" }}>
+                En clase ejecutaste una regla que te dimos hecha. En tu empresa, la regla la vas a tener que definir vos. Este ejercicio te hace recorrer ese camino completo: diseñar la regla, delegar su ejecución a la IA, y comparar el impacto contra la regla original.
+              </p>
+              <div className="promptSingleHeader" style={{ padding: "12px 16px" }}>
+                <span className="statusPill warning">Ejercicio extendido</span>
+                <CopyButton text={promptExtendedRule} />
+              </div>
+              <pre style={{ background: "#14211b", color: "#eff8f1", fontFamily: "SFMono-Regular, Consolas, monospace", fontSize: 13, lineHeight: 1.55, margin: 0, overflowX: "auto", padding: 16, whiteSpace: "pre-wrap" }}>
+                {promptExtendedRule}
+              </pre>
+              <p className="muted" style={{ padding: "0 16px 16px", margin: 0 }}>
+                El punto 4 es el más valioso: las reglas se aprenden en los bordes. Una regla que funciona en el 95% de los casos y rompe el 5% restante puede destruir más valor del que crea — y ese 5% solo se descubre ejecutando.
+              </p>
             </div>
           </details>
         </section>
