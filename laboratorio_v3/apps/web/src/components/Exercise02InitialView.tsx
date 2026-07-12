@@ -155,8 +155,11 @@ Posicionamiento elegido:
 - SELECTIVOS: [posicionamiento]
 
 Completá 07_PRICING con una decisión por SKU. Para cada uno:
-- pricing_decision: Aplicar regla / Mantener precio / Revisar competitividad /
-  Liquidación.
+- pricing_decision: Subir precio / Bajar precio / Mantener precio /
+  Liquidación / Revisar competitividad.
+- positioning_rule: Premium / Igual mercado / Más barato /
+  Excepción: Eliminar / Excepción: margen negativo /
+  Excepción: elasticidad alta.
 - price_move_pct: % de movimiento de precio (0% si se mantiene).
 - price_m13, price_m14, price_m15: current_price_m12 × (1 + price_move_pct),
   igual en los tres meses.
@@ -172,10 +175,12 @@ Aplicá la regla de traducción:
   Si el gap supera el tope, aplicá el máximo y marcá el SKU con ⚠ como caso
   a revisar.
 - Excepciones (pisan la regla):
-  - Margen negativo → Revisar competitividad, price_move_pct = 0%.
-  - Eliminar → Liquidación, price_move_pct = −20%.
-  - elasticity_proxy 2.0 → no subir precio; Mantener precio o Revisar
-    competitividad.
+  - Margen negativo → pricing_decision = Revisar competitividad,
+    positioning_rule = Excepción: margen negativo, price_move_pct = 0%.
+  - Eliminar → pricing_decision = Liquidación,
+    positioning_rule = Excepción: Eliminar, price_move_pct = −20%.
+  - elasticity_proxy 2.0 → pricing_decision = Mantener precio,
+    positioning_rule = Excepción: elasticidad alta, price_move_pct = 0%.
 - Mantener coherencia de precios dentro de cada familia.
 
 Antes de recomendar una suba, mirá el efecto en volumen — una suba que captura
@@ -1031,7 +1036,21 @@ export function Exercise02InitialView({
           <div className="eyebrow">Regla de negocio del workbook</div>
           <h3>El efecto en volumen sale de la elasticidad</h3>
           <p className="muted">
-            En 07_PRICING, <code>expected_volume_effect_pct</code> se calcula como −elasticity_proxy × price_move_pct. Un mismo movimiento de precio impacta distinto según la sensibilidad del SKU: subir 5% un producto con elasticidad 0.2 casi no mueve el volumen (−1%); el mismo 5% en uno con elasticidad 2.0 cuesta −10% de volumen. Por eso la elasticidad no es solo una variable de diagnóstico — es la que define cuánto te cuesta cada punto de margen que capturás. En esta versión del workbook la columna no tiene fórmula: la completa la IA y el equipo la audita.
+            En 07_PRICING hay dos columnas nuevas que trabajan juntas:
+          </p>
+          <ul className="simpleList">
+            <li>
+              <strong>pricing_decision</strong> describe qué le pasa al precio: Subir precio / Bajar precio / Mantener precio / Liquidación / Revisar competitividad. Es la acción ejecutada.
+            </li>
+            <li>
+              <strong>positioning_rule</strong> explica por qué: Premium / Igual mercado / Más barato / Excepción: Eliminar / Excepción: margen negativo / Excepción: elasticidad alta. Es el origen de la decisión — si viene de la arquitectura de precios definida en la Parte C o de una excepción que pisa la regla.
+            </li>
+          </ul>
+          <p className="muted">
+            Leer las dos columnas juntas responde: ¿qué pasa con el precio y por qué? Una fila que dice Mantener precio + Excepción: elasticidad alta comunica algo completamente distinto a Mantener precio + Igual mercado.
+          </p>
+          <p className="muted" style={{ marginBottom: 0 }}>
+            <code>expected_volume_effect_pct</code> se calcula como −elasticity_proxy × price_move_pct. En esta versión del workbook la columna no tiene fórmula: la completa la IA y el equipo la audita.
           </p>
         </section>
 
@@ -1052,7 +1071,7 @@ export function Exercise02InitialView({
           <div className="tipBox" style={{ marginTop: 16 }}>
             <h3>Validá una recomendación</h3>
             <p className="muted" style={{ margin: 0 }}>
-              Antes de cerrar esta parte, elegí un SKU con suba de precio recomendada y hacé la cuenta a mano: price_move_pct × (−elasticity_proxy) = efecto en volumen. Verificá que el margen adicional capturado compense el volumen perdido, y que el precio resultante no supere el target de la familia. Si no cierra, marcalo en la columna <code>risk</code>.
+              Antes de cerrar esta parte, elegí un SKU con suba de precio recomendada y hacé la cuenta a mano: price_move_pct × (−elasticity_proxy) = expected_volume_effect_pct. Verificá que el margen adicional capturado compense el volumen perdido, y que el precio resultante no supere el target de la familia. Chequeá también que <code>positioning_rule</code> sea consistente con el posicionamiento elegido para esa familia — si el SKU es Core SELECTIVOS y elegiste Premium, <code>positioning_rule</code> debe decir Premium, no Igual mercado. Si no cierra, marcalo en la columna <code>risk</code>.
             </p>
           </div>
         </section>
