@@ -1056,33 +1056,85 @@ export function Exercise02InitialView({
 
         <section className="card">
           <div className="eyebrow">Regla de negocio del workbook</div>
-          <h3>El efecto en volumen sale de la elasticidad</h3>
+          <h3>Una decisión de pricing combina acción y motivo</h3>
           <p className="muted">
-            En 07_PRICING hay dos columnas que trabajan juntas. <code>pricing_decision</code> describe qué le pasa al precio: Subir precio, Bajar precio, Mantener precio, Liquidación o Revisar competitividad. <code>positioning_rule</code> explica por qué: Premium, Igual mercado, Más barato, o una de tres excepciones que pisan la regla (Eliminar, margen negativo, elasticidad alta).
+            En 07_PRICING, <code>pricing_decision</code> define qué pasa con el precio y <code>positioning_rule</code> explica por qué.
           </p>
 
-          <div className="exampleBox" style={{ marginTop: 14 }}>
-            Leer las dos columnas juntas responde: ¿qué pasa con el precio y por qué? Una fila que dice <strong>Mantener precio</strong> + <strong>Excepción: elasticidad alta</strong> comunica algo completamente distinto a <strong>Mantener precio</strong> + <strong>Igual mercado</strong>.
+          <div className={styles.exercise2PricingComparison}>
+            <div className={styles.exercise2PricingComparison__item}>
+              <span>CASO 1 · POSICIONAMIENTO</span>
+              <code>pricing_decision</code>
+              <p>Mantener precio</p>
+              <code>positioning_rule</code>
+              <p>Igual mercado</p>
+              <p>El precio ya se encuentra en el posicionamiento objetivo.</p>
+            </div>
+            <div className={styles.exercise2PricingComparison__item}>
+              <span>CASO 2 · EXCEPCIÓN</span>
+              <code>pricing_decision</code>
+              <p>Mantener precio</p>
+              <code>positioning_rule</code>
+              <p>Excepción: elasticidad alta</p>
+              <p>No se mueve el precio porque existe riesgo de perder volumen.</p>
+            </div>
           </div>
 
-          <p className="muted" style={{ marginBottom: 0 }}>
-            <code>expected_volume_effect_pct</code> se calcula como −elasticity_proxy × price_move_pct. En esta versión del workbook la columna no tiene fórmula: la completa la IA y el equipo la audita.
+          <div className="exampleBox">
+            Leer las dos columnas juntas responde qué pasa con el precio y por qué. <strong>Mantener precio</strong> + <strong>Excepción: elasticidad alta</strong> comunica algo distinto de <strong>Mantener precio</strong> + <strong>Igual mercado</strong>.
+          </div>
+
+          <div className="promptSingle">
+            <div className="promptSingleHeader">
+              <span className="statusPill info">EFECTO ESPERADO EN VOLUMEN</span>
+            </div>
+            <pre>
+              expected_volume_effect_pct =
+              − elasticity_proxy × price_move_pct
+            </pre>
+          </div>
+          <p className="muted">
+            En esta versión del workbook, la columna no tiene fórmula: la completa la IA y el equipo la audita.
           </p>
         </section>
 
         <section className="card">
           <div className="eyebrow">Anatomía de una regla</div>
-          <h3>Una regla bien definida es lo que hace posible delegar</h3>
-          <div className={styles.whyBox} style={{ marginTop: 12 }}>
-            <h3>Los tres componentes de una regla ejecutable</h3>
-            <p style={{ marginBottom: 0 }}>
-              Toda regla de pricing delegable tiene tres componentes. Un <strong>target medible</strong> — ¿a dónde quiero llegar? Acá: índice de competitividad 0.95 / 1.00 / 1.05. Un <strong>límite operativo</strong> — ¿cuánto me puedo mover? Acá: tope de ±10%. Y <strong>excepciones explícitas</strong> — ¿qué casos pisan la regla? Acá: margen negativo, Eliminar, elasticidad alta. Sin cualquiera de los tres, la regla no se puede delegar.
-            </p>
+          <h3>Una regla delegable define objetivo, límite y excepciones</h3>
+          <p className="muted">
+            Los tres elementos deben estar explícitos para que una IA pueda ejecutar la regla sin completar supuestos por su cuenta.
+          </p>
+
+          <div className={styles.exercise2PricingRuleGrid}>
+            <div className={styles.exercise2PricingRuleGrid__item}>
+              <span>01</span>
+              <h4>Target medible</h4>
+              <p>¿A dónde quiero llegar?</p>
+              <p>Índice de competitividad</p>
+              <p><strong>0.95 / 1.00 / 1.05</strong></p>
+            </div>
+            <div className={styles.exercise2PricingRuleGrid__item}>
+              <span>02</span>
+              <h4>Límite operativo</h4>
+              <p>¿Cuánto me puedo mover?</p>
+              <p>Variación máxima de precio</p>
+              <p><strong>±10%</strong></p>
+            </div>
+            <div className={styles.exercise2PricingRuleGrid__item}>
+              <span>03</span>
+              <h4>Excepciones explícitas</h4>
+              <p>¿Qué casos pisan la regla?</p>
+              <div>
+                <span className={styles.tag}>Eliminar</span>
+                <span className={styles.tag}>Margen negativo</span>
+                <span className={styles.tag}>Elasticidad alta</span>
+              </div>
+            </div>
           </div>
 
-          <p className="muted" style={{ marginBottom: 0 }}>
-            Fijate que el Prompt 4 no es otra cosa que esta regla escrita de forma ejecutable: <strong>una regla bien especificada ES un prompt</strong>.
-          </p>
+          <div className="exampleBox">
+            Una regla bien especificada es un prompt ejecutable.
+          </div>
         </section>
 
         <section className="card">

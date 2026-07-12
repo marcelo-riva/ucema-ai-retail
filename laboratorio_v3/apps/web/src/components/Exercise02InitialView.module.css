@@ -331,3 +331,120 @@
     grid-template-columns: 1fr;
   }
 }
+
+.exercise2PricingComparison {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: 1fr 1fr;
+  margin-top: 6px;
+}
+
+.exercise2PricingComparison__item {
+  background: var(--surface-muted);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.exercise2PricingComparison__item > span {
+  display: inline-block;
+  background: rgba(191, 111, 40, 0.12);
+  color: var(--accent);
+  font-weight: 850;
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  margin-bottom: 12px;
+  letter-spacing: 0.04em;
+}
+
+.exercise2PricingComparison__item > code {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--brand-strong);
+  margin: 0 0 2px;
+  letter-spacing: 0.04em;
+}
+
+.exercise2PricingComparison__item > p {
+  color: var(--ink);
+  font-size: 14px;
+  line-height: 1.45;
+  margin: 0 0 10px;
+}
+
+.exercise2PricingComparison__item > p:last-child {
+  color: var(--muted);
+  font-size: 13px;
+  margin-bottom: 0;
+}
+
+.exercise2PricingRuleGrid {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-top: 6px;
+}
+
+.exercise2PricingRuleGrid__item {
+  background: var(--surface-muted);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.exercise2PricingRuleGrid__item > span {
+  display: block;
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--accent);
+  margin-bottom: 8px;
+  line-height: 1;
+}
+
+.exercise2PricingRuleGrid__item > h4 {
+  font-size: 15px;
+  color: var(--brand-strong);
+  margin: 0 0 4px;
+}
+
+.exercise2PricingRuleGrid__item > p {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.45;
+  margin: 0 0 8px;
+}
+
+.exercise2PricingRuleGrid__item > p strong {
+  color: var(--ink);
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.exercise2PricingRuleGrid__item > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+@media (max-width: 760px) {
+  .exercise2PricingComparison,
+  .exercise2PricingRuleGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.exercise2PricingComparison + .exampleBox {
+  margin-top: 14px;
+}
+
+.exercise2PricingComparison + .exampleBox + .promptSingle,
+.exercise2PricingComparison + .exampleBox + .promptSingle + .muted {
+  margin-top: 14px;
+}
+
+.exercise2PricingRuleGrid + .exampleBox {
+  margin-top: 14px;
+}
