@@ -525,7 +525,7 @@ export function Exercise02InitialView({
       <div className="caseMeta">
         <div><span>Grupo</span><strong>{group.name}</strong></div>
         <div><span>Estado</span><strong>{checkpointStatus === "submitted" ? "Enviado" : "Borrador"}</strong></div>
-        <div><span>Workbook</span><strong>NEXUS_RETAIL_LAB01_EJ02_v3</strong></div>
+        <div><span>Workbook</span><strong>NEXUS_RETAIL_LAB01_EJ02_v4</strong></div>
         <div><span>Tiempo estimado</span><strong>~50 min</strong></div>
       </div>
 
