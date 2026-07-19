@@ -111,9 +111,9 @@ export const INITIAL_EXERCISES: ExerciseMeta[] = [
     title: "Ejercicio 3: Forecast Engine",
     path: "/labs/lab-01/exercises/ex-03",
     order: 3,
-    status: "draft",
+    status: "active",
     version: 1,
-    workbookBaseKey: "NEXUS_RETAIL_LAB01_WORKBOOK_COMPLETO.xlsx"
+    workbookBaseKey: "NEXUS_RETAIL_LAB01_EJ03_FORECAST.xlsx"
   },
   {
     id: "ex-04",

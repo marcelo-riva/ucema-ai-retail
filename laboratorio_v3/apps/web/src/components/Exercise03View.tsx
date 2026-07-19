@@ -1,619 +1,961 @@
 "use client";
 
-import { ExerciseHeader } from "./labs/ExerciseHeader";
-import { PromptBlock } from "./labs/PromptBlock";
-import { CheckpointForm } from "./labs/CheckpointForm";
-import { ExerciseWorkbookDownloadCard } from "./ExerciseWorkbookDownloadCard";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Check, Copy, Save, Send } from "lucide-react";
+import { AppShell } from "./AppShell";
+import { getLabRepository } from "../lib/repositories/labRepository";
+import { LAB01_EXERCISE_WORKBOOKS } from "../lib/constants";
 import type { Group } from "../types/lab";
+import type { Session } from "../lib/repositories/labRepository.types";
+import styles from "./Exercise03View.module.css";
 
-type Exercise03ViewProps = {
-  group: Group;
-  stateVersion: string;
+const workbookFileName = LAB01_EXERCISE_WORKBOOKS["ex-03"];
+
+const promptDetection = `Sos un analista de demanda para una cadena de retail de salud y belleza en Argentina.
+Tenés acceso a las hojas 03_SEÑALES_EXTERNAS y 04_DATASET_VENTAS del workbook.
+
+Tu tarea:
+1. Para cada uno de los 10 productos en 04_DATASET_VENTAS, describí su patrón:
+   estacionalidad (si existe), tendencia (creciente/decreciente/estable) y
+   cualquier anomalía — pico o caída que no siga el patrón general.
+2. Correlacioná las tres series de 03_SEÑALES_EXTERNAS (Búsqueda Roja, Azul,
+   Verde) con los productos del dataset. Decime a qué producto corresponde
+   cada una y qué evidencia numérica lo sostiene.
+3. Correlacioná la serie de temperatura con los productos sensibles al clima.
+   Señalá específicamente qué pasa en los meses de las dos olas de calor
+   fuera de temporada.
+4. Cruzá el log de movimientos de competencia con el dataset: ¿qué producto
+   se ve afectado por cada evento, y en qué dirección?
+5. Cerrá con los dos hallazgos más sorprendentes — patrones que no eran
+   obvios mirando solo el total de ventas por producto.
+
+No inventes relaciones que los datos no sostienen. Marcá con ⚠ cualquier
+correlación que te parezca débil o casual.`;
+
+const promptForecast = `Sos un sistema de forecast comercial para una cadena de retail de salud y
+belleza en Argentina. Tenés:
+— Serie de ventas mensuales de [producto] (hoja 04_DATASET_VENTAS)
+— Stock disponible actual: [X unidades] (hoja 05_STOCK_Y_FORECAST)
+— Señales de contexto: temperatura, tendencia de búsquedas, movimientos de
+  precio de competencia (hoja 03_SEÑALES_EXTERNAS)
+
+Tu tarea:
+1. Detectá estacionalidad, tendencia y anomalías en la serie histórica.
+2. Generá un forecast semanal para los próximos 90 días (13 semanas), con
+   nivel de confianza para cada semana.
+3. Con el stock actual, proyectá semana a semana cuándo se produce un
+   quiebre si no hay reposición.
+4. Indicá qué señales externas moverían este forecast hacia arriba o hacia
+   abajo, y en qué magnitud aproximada.
+5. Documentá el método exacto que usaste — fórmulas, parámetros, supuestos —
+   de forma que el cálculo sea reproducible por otra persona con los mismos
+   datos. No me des solo el número: mostrame el camino.
+6. Cerrá con una alerta ejecutiva de una línea: ¿cuál es el mayor riesgo de
+   este producto en los próximos 90 días?`;
+
+const promptPerturbation = `Al forecast que ya construiste para [producto] en la Parte D, sumale este dato:
+
+El equipo tomó una decisión de precio conocida — no es una señal de mercado:
+- Decisión: [Liquidación / Premium]
+- price_move_pct: [-20% / +10%]
+- elasticity_proxy: [0.8 / 0.4]
+- Efecto de volumen esperado: −elasticity_proxy × price_move_pct
+
+Tratá este movimiento como una perturbación estructural conocida del sistema,
+separada de la tendencia y la estacionalidad histórica — no la confundas con
+un cambio de demanda espontáneo del mercado.
+
+Recalculá el forecast semanal a 90 días incorporando este efecto desde la
+semana 1, y explicá cómo cambia respecto del forecast original de la Parte D.`;
+
+const searchRojaHeights = [
+  35, 31, 19, 10, 5, 4, 4, 5, 8, 13, 23, 28, 100, 94, 63, 31, 2, 2, 2, 2, 8, 13, 22, 31, 34, 34, 22, 11, 6, 4, 4, 5, 8, 13, 23, 32
+];
+
+const searchAzulHeights = [
+  86, 70, 42, 18, 9, 8, 8, 11, 16, 32, 56, 78, 96, 83, 44, 19, 10, 8, 8, 11, 20, 36, 59, 89, 100, 91, 53, 20, 10, 9, 8, 13, 22, 41, 69, 99
+];
+
+const searchVerdeHeights = [
+  26, 26, 38, 59, 77, 92, 87, 77, 52, 32, 25, 27, 25, 25, 39, 62, 82, 100, 94, 80, 53, 38, 26, 24, 28, 26, 40, 65, 79, 93, 87, 77, 54, 36, 27, 25
+];
+
+const temperaturaHeights = [
+  82, 87, 75, 65, 52, 40, 39, 44, 52, 61, 73, 84, 93, 85, 78, 62, 71, 43, 30, 39, 45, 56, 71, 86, 89, 87, 80, 68, 50, 45, 59, 41, 48, 58, 70, 82
+];
+
+const forecastTableRows = [
+  ["Repelente de insectos", "+45% vs. año anterior", "Ajustado", "Semana 6", "🔴 Riesgo de quiebre"],
+  ["Protector solar FPS 50", "+30% vs. año anterior", "Amplio", "Sin quiebre", "✅ OK"],
+  ["Vitamina C efervescente", "Estable", "—", "Sin quiebre", "✅ OK"],
+  ["…", "…", "…", "…", "…"],
+  ["Protector solar FPS 30", "−20% vs. año anterior", "Sobrestock", "Sin quiebre", "⚠️ Riesgo de sobrestock"]
+];
+
+type Message = {
+  type: "success" | "error" | "info";
+  text: string;
 };
 
-export function Exercise03View({ group, stateVersion }: Exercise03ViewProps) {
+async function copyToClipboard(text: string) {
+  try {
+    if (typeof navigator !== "undefined" && navigator.clipboard) {
+      await navigator.clipboard.writeText(text);
+    }
+  } catch {
+    // Silently ignore copy errors.
+  }
+}
+
+function CopyButton({ text }: { text: string }) {
+  const [copied, setCopied] = useState(false);
+
   return (
-    <ExerciseHeader
-      eyebrow="AI Revenue & Inventory Copilot"
-      title="Ejercicio 3: Forecast Engine"
-      subtitle="Proyectar resultados a 90 días a partir de las decisiones de portfolio y pricing."
-      groupName={group.name}
-      checkpointStatus="borrador"
+    <button
+      aria-label={copied ? "Copiado" : "Copiar prompt"}
+      className={styles.copyButton}
+      onClick={async () => {
+        await copyToClipboard(text);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      }}
+      type="button"
     >
-      <ExerciseWorkbookDownloadCard exerciseId="ex-03" />
+      {copied ? <Check size={16} /> : <Copy size={16} />}
+    </button>
+  );
+}
 
-      <section className="card" style={{ background: "rgba(15, 107, 93, 0.06)", borderColor: "var(--brand)" }}>
-        <div className="eyebrow" style={{ color: "var(--brand-strong)" }}>Memoria del laboratorio</div>
-        <h2>El workbook sostiene el recorrido</h2>
-        <p className="muted">
-          La plataforma acompaña el análisis y registra la síntesis del equipo. El forecast se trabaja en el workbook, principalmente en la hoja <strong>07_FORECAST_90_DIAS</strong>. El checkpoint guarda la decisión, los supuestos y los riesgos que el equipo defendería frente a dirección.
-        </p>
-      </section>
+function BarChart({ heights, variant }: { heights: number[]; variant: "roja" | "azul" | "verde" | "temp" }) {
+  const chartClass =
+    variant === "roja"
+      ? styles.barChartRoja
+      : variant === "azul"
+        ? styles.barChartAzul
+        : variant === "verde"
+          ? styles.barChartVerde
+          : styles.barChartTemp;
 
-      <section className="card">
-        <div className="eyebrow">Objetivo</div>
-        <h2>Qué estás resolviendo</h2>
-        <p className="muted">
-          Hasta ahora el equipo definió qué productos sostener, revisar o eliminar y qué estrategia de precios aplicar. Ahora el desafío es proyectar qué pasa con revenue, volumen y margen en los próximos 90 días.
+  return (
+    <div className={`${styles.barChart} ${chartClass}`}>
+      {heights.map((height, index) => (
+        <div className={styles.bar} key={index} style={{ height: `${height}%` }} />
+      ))}
+    </div>
+  );
+}
+
+export function Exercise03View({
+  group,
+  stateVersion: _stateVersion,
+  checkpoint: _checkpoint,
+  onSave: _onSave,
+  onSubmit: _onSubmit
+}: {
+  group: Group;
+  stateVersion: string;
+  checkpoint: unknown;
+  onSave?: (payload: { fields: Record<string, string>; confirmations: Record<string, boolean>; workbookName?: string; reportName?: string }) => Promise<void>;
+  onSubmit?: (payload: { fields: Record<string, string>; confirmations: Record<string, boolean>; workbookName?: string; reportName?: string; requiredFields: string[]; requiredConfirmations: string[] }) => Promise<void>;
+}) {
+  const repo = getLabRepository();
+  const [session, setSession] = useState<Session | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [errors, setErrors] = useState<Set<string>>(new Set());
+  const [checkpointStatus, setCheckpointStatus] = useState<string>("borrador");
+  const [submittedAt, setSubmittedAt] = useState<string | undefined>();
+  const successRef = useRef<HTMLDivElement | null>(null);
+
+  const [signalSurprise, setSignalSurprise] = useState("");
+  const [productUncertainty, setProductUncertainty] = useState("");
+  const [forecastProcess, setForecastProcess] = useState("");
+
+  const fieldValues = {
+    signal_surprise: signalSurprise,
+    product_uncertainty: productUncertainty,
+    forecast_process: forecastProcess
+  };
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function load() {
+      const currentSession = await repo.getSession();
+      if (cancelled) return;
+      setSession(currentSession);
+
+      if (currentSession?.groupId) {
+        const submission = await repo.getSubmission({
+          groupId: currentSession.groupId,
+          exerciseId: "ex-03",
+          exerciseVersion: 1
+        });
+        if (cancelled) return;
+
+        if (submission) {
+          setCheckpointStatus(submission.status);
+          setSubmittedAt(submission.submittedAt ?? undefined);
+
+          const responses = submission.responsesJson as Record<string, string>;
+          setSignalSurprise(responses.signal_surprise ?? "");
+          setProductUncertainty(responses.product_uncertainty ?? "");
+          setForecastProcess(responses.forecast_process ?? "");
+        }
+      }
+    }
+
+    load();
+    return () => {
+      cancelled = true;
+    };
+  }, [repo]);
+
+  useEffect(() => {
+    const hasSuccess = messages.some((m) => m.type === "success");
+    if (hasSuccess && successRef.current) {
+      successRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }, [messages]);
+
+  function validate(): string[] {
+    const missing: string[] = [];
+    if (!signalSurprise.trim()) missing.push("Señal externa que te sorprendió");
+    if (!productUncertainty.trim()) missing.push("Producto con mayor incertidumbre");
+    if (!forecastProcess.trim()) missing.push("Proceso de forecast en tu empresa");
+    return missing;
+  }
+
+  async function handleSaveDraft() {
+    if (!session?.groupId) {
+      setMessages([{ type: "error", text: "Iniciá sesión como grupo para guardar el borrador." }]);
+      return;
+    }
+
+    setLoading(true);
+    setMessages([]);
+    setErrors(new Set());
+
+    try {
+      await repo.saveSubmission({
+        groupId: session.groupId,
+        exerciseId: "ex-03",
+        exerciseVersion: 1,
+        responsesJson: fieldValues,
+        status: "draft"
+      });
+      setCheckpointStatus("draft");
+      setSubmittedAt(undefined);
+      setMessages([{ type: "success", text: "Borrador guardado." }]);
+    } catch (error) {
+      setMessages([{ type: "error", text: `No se pudo guardar: ${String(error)}` }]);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleSubmit() {
+    if (!session?.groupId) {
+      setMessages([{ type: "error", text: "Iniciá sesión como grupo para enviar el checkpoint." }]);
+      return;
+    }
+
+    const missing = validate();
+    if (missing.length > 0) {
+      setErrors(new Set(["signal_surprise", "product_uncertainty", "forecast_process"]));
+      setMessages([{ type: "error", text: `Faltan campos obligatorios: ${missing.join(", ")}.` }]);
+      return;
+    }
+
+    setLoading(true);
+    setErrors(new Set());
+    setMessages([]);
+
+    try {
+      const now = new Date().toISOString();
+      await repo.submitSubmission({
+        groupId: session.groupId,
+        exerciseId: "ex-03",
+        exerciseVersion: 1,
+        responsesJson: fieldValues
+      });
+      setCheckpointStatus("submitted");
+      setSubmittedAt(now);
+      setMessages([{ type: "success", text: "Checkpoint enviado correctamente." }]);
+    } catch (error) {
+      setMessages([{ type: "error", text: `No se pudo enviar: ${String(error)}` }]);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  const statusLabel = checkpointStatus === "submitted" ? "Enviado" : "Borrador";
+
+  return (
+    <AppShell>
+      <div className={styles.hero}>
+        <div className={styles.heroEyebrow}>AI Revenue &amp; Inventory Copilot</div>
+        <h1>Ejercicio 3: Forecast Engine</h1>
+        <p className={styles.heroLead}>
+          El forecast no arranca en un modelo: arranca en las señales que decidís mirar. En este ejercicio la IA detecta patrones y construye un forecast reproducible; el equipo decide qué señales pesan y quién es dueño de esa decisión.
         </p>
-        <p className="muted">
-          Un forecast comercial no es una predicción exacta. Es una forma disciplinada de traducir decisiones en impacto esperado. En este ejercicio vas a construir un forecast base, comparar escenarios de mercado y completar una proyección por SKU en <strong>07_FORECAST_90_DIAS</strong>.
-        </p>
-        <p className="muted">
-          El objetivo no es adivinar el futuro. Es explicitar supuestos, cuantificar exposición y entender cómo las decisiones de portfolio y pricing pueden impactar en ventas, volumen y margen.
-        </p>
-        <div className="grid two">
-          <div className="panel">
-            <h3>Hojas principales</h3>
-            <p className="muted">07_FORECAST_90_DIAS</p>
+
+        <div className={styles.metaRow}>
+          <div className={styles.metaCard}>
+            <div className={styles.metaCardKey}>Grupo</div>
+            <div className={styles.metaCardValue}>{group.name}</div>
           </div>
-          <div className="panel">
-            <h3>Hojas de apoyo</h3>
-            <p className="muted">03_BASE_SKUS, 06_PORTFOLIO, 09_PRICING</p>
+          <div className={styles.metaCard}>
+            <div className={styles.metaCardKey}>Estado</div>
+            <div className={styles.metaCardValue}>
+              <span className={`${styles.badge} ${styles.badgeWarn}`}>{statusLabel}</span>
+            </div>
+          </div>
+          <div className={styles.metaCard}>
+            <div className={styles.metaCardKey}>Workbook</div>
+            <div className={styles.metaCardValue}>NEXUS_RETAIL_LAB01_EJ03</div>
+          </div>
+          <div className={styles.metaCard}>
+            <div className={styles.metaCardKey}>Tiempo estimado</div>
+            <div className={styles.metaCardValue}>~40 min</div>
+          </div>
+        </div>
+
+        <div className={styles.workbookBox}>
+          <div>
+            <div className={styles.workbookTitle}>Workbook del ejercicio</div>
+            <div className={styles.workbookDesc}>
+              Este archivo es el punto de partida: señales externas, dataset de 10 productos y la hoja de trabajo para el forecast reproducible. Trabajalo con tu IA personal y guardá la síntesis en la plataforma.
+            </div>
+          </div>
+          <a className={styles.btn} href={`/templates/${workbookFileName}`} download>
+            Descargar workbook
+          </a>
+        </div>
+
+        <div className={styles.chain}>
+          <div className={styles.chainStep}>
+            Negocio
+            <br />
+            Ejercicio 0
+          </div>
+          <span className={styles.chainArrow}>→</span>
+          <div className={styles.chainStep}>
+            Familias / Portfolio
+            <br />
+            Ejercicio 1
+          </div>
+          <span className={styles.chainArrow}>→</span>
+          <div className={styles.chainStep}>
+            Pricing
+            <br />
+            Ejercicio 2
+          </div>
+          <span className={styles.chainArrow}>→</span>
+          <div className={`${styles.chainStep} ${styles.chainStepHere}`}>
+            Forecast
+            <br />
+            Ejercicio 3 · acá
+          </div>
+          <span className={styles.chainArrow}>→</span>
+          <div className={styles.chainStep}>
+            Inventario
+            <br />
+            Ejercicio 4
+          </div>
+        </div>
+      </div>
+
+      <div className={styles.noticeBox}>
+        <div className={styles.noticeIcon}>📎</div>
+        <div>
+          <div className={styles.noticeTitle}>Antes de arrancar: este workbook es nuevo</div>
+          <p>
+            No es continuación del workbook de Pricing ni un recorte del portfolio de 8.000 SKUs. Es un archivo aparte, armado especialmente para este ejercicio con 10 productos elegidos a propósito — pocos, para que puedan ver los patrones a simple vista y con su IA, sin perderse en el volumen. Descarguen este workbook aunque ya hayan trabajado con el anterior.
+          </p>
+        </div>
+      </div>
+
+      {/* PARTE A */}
+      <section className={styles.section}>
+        <div className={styles.sectionHead}>
+          <div className={styles.stepMark}>A</div>
+          <div>
+            <div className={styles.sectionTitle}>El problema y las señales</div>
+            <div className={styles.sectionSub}>Reencuadre — antes de ver el dataset de ventas</div>
+          </div>
+          <div className={styles.timer}>⏱ ~8 min</div>
+        </div>
+
+        <p className={styles.body}>
+          Un forecast basado únicamente en el histórico de ventas describe el pasado. Un forecast útil incorpora señales que todavía no aparecen en esas ventas — búsquedas, clima, movimientos de la competencia. La IA puede leer esas señales en segundos; el trabajo del equipo es saber cuáles pedirle.
+        </p>
+
+        <div className={styles.tensionGrid}>
+          <div className={styles.tensionCard}>
+            <h4>Histórico vs. señal</h4>
+            <p>El histórico te dice qué pasó. La señal te dice qué está por pasar. Ninguna de las dos alcanza sola.</p>
+          </div>
+          <div className={styles.tensionCard}>
+            <h4>Anomalía vs. patrón</h4>
+            <p>No todo pico es estacionalidad y no toda caída es tendencia. Separar una cosa de la otra es el primer trabajo del forecast.</p>
+          </div>
+          <div className={styles.tensionCard}>
+            <h4>Confianza vs. reproducibilidad</h4>
+            <p>Un número sin método no sirve para decidir. Si no podés repetirlo, no podés confiar en él.</p>
+          </div>
+        </div>
+
+        <div className={styles.closingNote}>
+          <p>
+            <b>¿Para qué sirve esto?</b> El método real de forecast con variables externas funciona así: generás una hipótesis de qué señal podría explicar la demanda, y la testeás contra el histórico para confirmar si correlaciona de verdad — se agrega clima, una promoción, lo que sea, y se coteja para atrás. Si correlaciona, se queda; si no, se descarta. Antes de armar el prompt de forecast, practiquen ese primer paso — generar la hipótesis — con estas tres señales.
+          </p>
+        </div>
+
+        <hr className={styles.divider} />
+
+        <div className={styles.calloutTitle}>Señales externas — sin dataset de ventas todavía</div>
+        <p className={styles.body}>
+          Las tres series de abajo corresponden a 3 de los 10 productos que van a encontrar en la hoja <b>04_DATASET_VENTAS</b> del workbook. Todavía no sabemos a cuáles — eso lo van a confirmar recién en la Parte C, con su IA. Antes de ver los productos: ¿qué producto de una cadena de salud y belleza esperarías que se mueva con cada señal? Debatan en grupo 2 minutos.
+        </p>
+
+        <div className={styles.signalBlock}>
+          <div className={styles.signalLabel}>
+            <span className={`${styles.dot} ${styles.dotRoja}`} />
+            Búsqueda Roja — índice de tendencia de búsqueda (0–100), 36 meses
+          </div>
+          <BarChart heights={searchRojaHeights} variant="roja" />
+          <div className={styles.axisLabels}>
+            <span>M01</span>
+            <span>M12</span>
+            <span>M24</span>
+            <span>M36</span>
+          </div>
+        </div>
+
+        <div className={styles.signalBlock}>
+          <div className={styles.signalLabel}>
+            <span className={`${styles.dot} ${styles.dotAzul}`} />
+            Búsqueda Azul — índice de tendencia de búsqueda (0–100), 36 meses
+          </div>
+          <BarChart heights={searchAzulHeights} variant="azul" />
+          <div className={styles.axisLabels}>
+            <span>M01</span>
+            <span>M12</span>
+            <span>M24</span>
+            <span>M36</span>
+          </div>
+        </div>
+
+        <div className={styles.signalBlock}>
+          <div className={styles.signalLabel}>
+            <span className={`${styles.dot} ${styles.dotVerde}`} />
+            Búsqueda Verde — índice de tendencia de búsqueda (0–100), 36 meses
+          </div>
+          <BarChart heights={searchVerdeHeights} variant="verde" />
+          <div className={styles.axisLabels}>
+            <span>M01</span>
+            <span>M12</span>
+            <span>M24</span>
+            <span>M36</span>
+          </div>
+        </div>
+
+        <div className={styles.signalBlock}>
+          <div className={styles.signalLabel}>🌡️ Temperatura promedio mensual — Buenos Aires (°C), 36 meses</div>
+          <BarChart heights={temperaturaHeights} variant="temp" />
+          <div className={styles.axisLabels}>
+            <span>M01</span>
+            <span>M12</span>
+            <span>M24</span>
+            <span>M36</span>
+          </div>
+          <p className={styles.body} style={{ marginTop: 10, fontSize: 12.5, color: "var(--muted)" }}>
+            Hay dos olas de calor fuera de temporada en la serie — identificalas por el salto respecto del mes equivalente de otros años.
+          </p>
+        </div>
+
+        <div className={styles.calloutTitle} style={{ marginTop: 20 }}>
+          Log de movimientos de competencia
+        </div>
+        <div className={styles.logList}>
+          <div className={styles.logItem}>
+            <span className={styles.logMonth}>M14</span>
+            Rotura de stock generalizada en la competencia para repelentes de insectos.
+          </div>
+          <div className={styles.logItem}>
+            <span className={styles.logMonth}>M20</span>
+            Competidor lanza promoción 2x1 en protector solar de menor FPS.
+          </div>
+          <div className={styles.logItem}>
+            <span className={styles.logMonth}>M31</span>
+            Competidor baja 20% el precio de lista en una línea de cuidado capilar.
+          </div>
+        </div>
+
+        <div className={styles.debateBox} style={{ marginTop: 22 }}>
+          <div className={styles.debateQuestion}>
+            ¿Qué producto del portfolio explica cada señal? Escriban su hipótesis en grupo — la van a confirmar más adelante con el dataset y su IA.
           </div>
         </div>
       </section>
 
-      <section className="card">
-        <div className="eyebrow">Conceptos clave</div>
-        <div className="factGrid">
-          <article className="factCard">
-            <h3>Baseline</h3>
-            <p>Forecast base de continuidad antes de aplicar una lectura de escenario. Sirve como punto de comparación.</p>
-          </article>
-          <article className="factCard">
-            <h3>Projected</h3>
-            <p>Escenario proyectado después de incorporar decisiones de portfolio, pricing y supuestos de demanda.</p>
-          </article>
-          <article className="factCard">
-            <h3>M13-M15</h3>
-            <p>Próximos 90 días. El equipo debe completar unidades, precios, costos, stock, revenue y margen.</p>
-          </article>
-          <article className="factCard">
-            <h3>Supuestos explícitos</h3>
-            <p>Todo forecast depende de hipótesis. El equipo debe explicar qué mueve volumen, precio, margen y riesgo.</p>
-          </article>
+      {/* PARTE B */}
+      <section className={styles.section}>
+        <div className={styles.sectionHead}>
+          <div className={styles.stepMark}>B</div>
+          <div>
+            <div className={styles.sectionTitle}>Qué es un forecast</div>
+            <div className={styles.sectionSub}>El piso conceptual antes de pedírselo a la IA</div>
+          </div>
+          <div className={styles.timer}>⏱ ~4 min</div>
+        </div>
+
+        <p className={styles.body}>
+          Un forecast clásico toma el promedio de los períodos anteriores, lo ajusta por estación, y proyecta eso hacia adelante — es básicamente lo que hace un promedio móvil en Excel. Funciona bien cuando el mundo se parece al pasado. El problema es que se mueve lento: cuando la demanda real cambia de rumbo, el forecast clásico tarda varios períodos en darse cuenta, porque está mirando por el espejo retrovisor.
+        </p>
+
+        <div className={styles.compareGrid}>
+          <div className={`${styles.compareCard} ${styles.compareCardClassic}`}>
+            <h4>📉 Forecast clásico (promedio móvil)</h4>
+            <p>Promedia lo último que pasó y lo proyecta. Reacciona con rezago ante cambios de tendencia. Es lo que la mayoría aprendimos a hacer a mano, por familia, una vez al mes.</p>
+          </div>
+          <div className={`${styles.compareCard} ${styles.compareCardAi}`}>
+            <h4>📈 Forecast con IA</h4>
+            <p>Cruza el histórico con señales en tiempo real — búsquedas, clima, competencia — y ajusta más rápido. No adivina mejor: mira más variables a la vez de las que una persona puede sostener a mano.</p>
+          </div>
+        </div>
+
+        <div className={styles.calloutTitle} style={{ marginTop: 18 }}>
+          La escalera de madurez
+        </div>
+        <div className={styles.ladder}>
+          <div className={styles.ladderStep}>
+            <div className={styles.ladderStepNumber}>1</div>
+            <div className={styles.ladderStepTitle}>Capitán</div>
+            <div className={styles.ladderStepDesc}>Decisión por experiencia e intuición</div>
+          </div>
+          <span className={styles.ladderArrow}>→</span>
+          <div className={styles.ladderStep}>
+            <div className={styles.ladderStepNumber}>2</div>
+            <div className={styles.ladderStepTitle}>Excel</div>
+            <div className={styles.ladderStepDesc}>Datos históricos, análisis manual</div>
+          </div>
+          <span className={styles.ladderArrow}>→</span>
+          <div className={styles.ladderStep}>
+            <div className={styles.ladderStepNumber}>3</div>
+            <div className={styles.ladderStepTitle}>BI</div>
+            <div className={styles.ladderStepDesc}>Reportes y dashboards del pasado</div>
+          </div>
+          <span className={styles.ladderArrow}>→</span>
+          <div className={`${styles.ladderStep} ${styles.ladderStepCurrent}`}>
+            <div className={styles.ladderStepNumber}>4</div>
+            <div className={styles.ladderStepTitle}>IA</div>
+            <div className={styles.ladderStepDesc}>Predicción en tiempo real, acá estamos</div>
+          </div>
+          <span className={styles.ladderArrow}>→</span>
+          <div className={styles.ladderStep}>
+            <div className={styles.ladderStepNumber}>5</div>
+            <div className={styles.ladderStepTitle}>Empresa Aumentada</div>
+            <div className={styles.ladderStepDesc}>Decisiones anticipadas</div>
+          </div>
+        </div>
+
+        <div className={styles.calloutTitle} style={{ marginTop: 18 }}>
+          Las señales que explican la demanda
+        </div>
+        <p className={styles.body}>
+          La demanda no depende solo de lo que pasa afuera. También depende de las decisiones que la propia empresa toma — precio, promociones, surtido, stock. Un forecast completo tiene que poder incorporar los dos tipos de señal.
+        </p>
+        <div className={styles.frameworkGrid}>
+          <div className={`${styles.frameworkCol} ${styles.frameworkColControlled}`}>
+            <h4>🎛️ Señales que se controlan (internas)</h4>
+            <ul>
+              <li>
+                <b>Precio</b> — impacto directo en volumen y mix
+              </li>
+              <li>
+                <b>Promociones</b> — generan picos o caídas
+              </li>
+              <li>
+                <b>Surtido</b> — disponibilidad y variedad
+              </li>
+              <li>
+                <b>Stock</b> — habilita o limita la venta
+              </li>
+            </ul>
+          </div>
+          <div className={`${styles.frameworkCol} ${styles.frameworkColObserved}`}>
+            <h4>🌐 Señales que se observan (externas)</h4>
+            <ul>
+              <li>
+                <b>Inflación</b> — poder de compra
+              </li>
+              <li>
+                <b>Clima</b> — patrones de consumo
+              </li>
+              <li>
+                <b>Competencia</b> — precios, surtido, promociones
+              </li>
+              <li>
+                <b>Estacionalidad</b> — fechas, eventos, ciclos
+              </li>
+            </ul>
+          </div>
+        </div>
+        <p className={styles.body}>
+          Este ejercicio arranca por las señales que se observan — son las que hoy, en general, monitoreamos peor. Las señales que se controlan, empezando por el precio, vuelven a aparecer más adelante en la Parte F.
+        </p>
+
+        <div className={styles.calloutTitle} style={{ marginTop: 18 }}>
+          Por qué esto ya no se hace por familia, una vez al mes
+        </div>
+        <p className={styles.body}>
+          Cuando muchos de ustedes estudiaron esto en la facultad, el forecast se armaba por familia de producto, a mano, con una corrida mensual. Hoy una operación de e-commerce grande puede correr forecast de miles de SKUs por día — no porque haya más gente haciendo cuentas, sino porque el cálculo se automatizó y se puede repetir todas las veces que haga falta.
+        </p>
+        <div className={styles.scaleStat}>
+          <div className={styles.scaleStatItem}>
+            <div className={styles.scaleStatNum}>1 / mes</div>
+            <div className={styles.scaleStatLbl}>Forecast manual por familia</div>
+          </div>
+          <div className={styles.scaleStatItem}>
+            <div className={styles.scaleStatNum}>→</div>
+            <div className={styles.scaleStatLbl} />
+          </div>
+          <div className={styles.scaleStatItem}>
+            <div className={styles.scaleStatNum}>1000s / día</div>
+            <div className={styles.scaleStatLbl}>Forecast automatizado por SKU</div>
+          </div>
+        </div>
+        <p className={styles.body}>
+          Eso es lo que van a ver en la Parte D de este ejercicio: el mismo forecast que hagan a mano para 3 productos, corrido automáticamente para los 10.000 SKUs del portfolio, todas las semanas.
+        </p>
+      </section>
+
+      {/* PARTE C */}
+      <section className={styles.section}>
+        <div className={styles.sectionHead}>
+          <div className={styles.stepMark}>C</div>
+          <div>
+            <div className={styles.sectionTitle}>Detectá lo que el Excel no te dice</div>
+            <div className={styles.sectionSub}>Correlación de señales + detección de estacionalidad y anomalías</div>
+          </div>
+          <div className={styles.timer}>⏱ ~8 min</div>
+        </div>
+
+        <p className={styles.body}>
+          Ahora sí: el dataset completo está en la hoja <b>04_DATASET_VENTAS</b> del workbook — 10 productos de salud y belleza, con nombre real, entre 12 y 36 meses de historia cada uno. Usá tu IA para confirmar o refutar la hipótesis que armaste en la Parte A.
+        </p>
+
+        <div className={styles.promptLabel}>
+          <span className={styles.promptName}>Prompt · Detección y correlación</span>
+          <span className={styles.copyTag}>Copiar y pegar en tu IA</span>
+          <CopyButton text={promptDetection} />
+        </div>
+        <div className={styles.promptBox}>{promptDetection}</div>
+
+        <div className={styles.calloutTitle} style={{ marginTop: 20 }}>
+          Antes de seguir
+        </div>
+        <div className={styles.checklist}>
+          <div className={styles.checkItem}>
+            <span className={styles.checkBox} />
+            ¿Coincide lo que la IA encontró con la hipótesis del grupo en la Parte A?
+          </div>
+          <div className={styles.checkItem}>
+            <span className={styles.checkBox} />
+            ¿Hay algún producto cuyo patrón te sorprendió?
+          </div>
+          <div className={styles.checkItem}>
+            <span className={styles.checkBox} />
+            ¿Identificaron los dos meses de ola de calor fuera de temporada?
+          </div>
         </div>
       </section>
 
-      <section className="card" style={{ background: "rgba(15, 107, 93, 0.06)", borderColor: "var(--brand)" }}>
-        <div className="eyebrow" style={{ color: "var(--brand-strong)" }}>Parte A</div>
-        <h2>Exploración por familias</h2>
-        <p className="muted">
-          Antes de completar SKU por SKU, analizá el forecast a nivel de familias. El objetivo es detectar dónde se concentra el revenue base, dónde está el margen proyectado, qué familias dependen más de decisiones de pricing y dónde hay mayor riesgo de sobreestimar demanda.
+      {/* PARTE D */}
+      <section className={styles.section}>
+        <div className={styles.sectionHead}>
+          <div className={styles.stepMark}>D</div>
+          <div>
+            <div className={styles.sectionTitle}>El forecast inteligente y reproducible</div>
+            <div className={styles.sectionSub}>Forecast semanal a 90 días, con detección de quiebre de stock</div>
+          </div>
+          <div className={styles.timer}>⏱ ~10 min</div>
+        </div>
+
+        <p className={styles.body}>
+          Para tres productos con stock disponible, construyan un forecast semanal a 90 días y la proyección de cuándo se produce un quiebre si no hay reposición. Noventa días con ventana semanal es el horizonte donde un negocio real puede accionar — pedir reposición, ajustar una promoción, avisar a compras. El punto 5 del prompt es el más importante: un forecast que no podés reproducir no sirve para decidir una compra.
+        </p>
+
+        <div className={styles.stockGrid}>
+          <div className={styles.stockCard}>
+            <h4>Repelente de insectos</h4>
+            <div className={styles.stockRow}>
+              <span>Último mes (M36)</span>
+              <b>2.603 u.</b>
+            </div>
+            <div className={styles.stockRow}>
+              <span>Stock actual</span>
+              <b>3.200 u.</b>
+            </div>
+            <span className={`${styles.tag} ${styles.tagTight}`}>Ajustado entrando a temporada alta</span>
+          </div>
+          <div className={styles.stockCard}>
+            <h4>Protector solar FPS 50</h4>
+            <div className={styles.stockRow}>
+              <span>Último mes (M36)</span>
+              <b>2.261 u.</b>
+            </div>
+            <div className={styles.stockRow}>
+              <span>Stock actual</span>
+              <b>9.500 u.</b>
+            </div>
+            <span className={`${styles.tag} ${styles.tagOk}`}>Stock amplio, situación cómoda</span>
+          </div>
+          <div className={styles.stockCard}>
+            <h4>Protector solar FPS 30</h4>
+            <div className={styles.stockRow}>
+              <span>Último mes (M36)</span>
+              <b>942 u.</b>
+            </div>
+            <div className={styles.stockRow}>
+              <span>Stock actual</span>
+              <b>7.800 u.</b>
+            </div>
+            <span className={`${styles.tag} ${styles.tagOver}`}>Sobrestock — tendencia decreciente</span>
+          </div>
+        </div>
+
+        <div className={styles.promptLabel}>
+          <span className={styles.promptName}>Prompt · Forecast reproducible + quiebre proyectado</span>
+          <span className={styles.copyTag}>Corré una vez por producto</span>
+          <CopyButton text={promptForecast} />
+        </div>
+        <div className={styles.promptBox}>{promptForecast}</div>
+
+        <p className={styles.body} style={{ marginTop: 16 }}>
+          Volcá el resultado en la hoja <b>05_STOCK_Y_FORECAST</b> del workbook — celdas amarillas. Guardá el forecast semanal y la alerta ejecutiva de cada producto.
+        </p>
+
+        <div className={styles.calloutTitle} style={{ marginTop: 20 }}>
+          Así se ve a escala completa
+        </div>
+        <p className={styles.body}>
+          Esto que están construyendo a mano para 3 productos, un sistema automatizado lo corre todas las semanas para los 10.000 SKUs del portfolio — con el mismo método, documentado y reproducible.
+        </p>
+        <table className={styles.dataTable}>
+          <thead>
+            <tr>
+              <th>Producto</th>
+              <th>Forecast 90 días</th>
+              <th>Stock actual</th>
+              <th>Quiebre proyectado</th>
+              <th>Alerta</th>
+            </tr>
+          </thead>
+          <tbody>
+            {forecastTableRows.map((row, index) => (
+              <tr key={index}>
+                {row.map((cell, cellIndex) => (
+                  <td key={cellIndex}>{cell}</td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </section>
+
+      {/* PARTE E */}
+      <section className={styles.section}>
+        <div className={styles.sectionHead}>
+          <div className={styles.stepMark}>E</div>
+          <div>
+            <div className={styles.sectionTitle}>¿A quién le creés?</div>
+            <div className={styles.sectionSub}>Trade-off y gobernanza del forecast</div>
+          </div>
+          <div className={styles.timer}>⏱ ~7 min</div>
+        </div>
+
+        <div className={styles.debateBox}>
+          <div className={styles.debateQuestion}>
+            Tu modelo dice que el Repelente va a crecer 45% este verano. Pero el histórico de los últimos dos años está distorsionado por un evento excepcional. ¿Le creés al algoritmo o lo overrideás con tu juicio? ¿Y quién en tu organización tiene la autoridad para tomar esa decisión?
+          </div>
+        </div>
+        <p className={styles.body} style={{ marginTop: 14 }}>
+          No hay una respuesta correcta. El objetivo es que el equipo sienta que la gobernanza del forecast pesa tanto como el modelo mismo — la misma tensión de <i>&quot;Gobernanza antes que Algoritmo&quot;</i> de la clase.
         </p>
       </section>
 
-      <PromptBlock
-        eyebrow="Prompt 1"
-        title="Lectura inicial por familias"
-        helperText="Usá este prompt para que la IA entienda el forecast base y detecte familias críticas antes de completar el escenario proyectado."
-        prompt={`Usando el workbook del Laboratorio 1, trabajá con estas hojas:
+      {/* PARTE F */}
+      <section className={styles.section}>
+        <div className={styles.sectionHead}>
+          <div className={styles.stepMark}>F</div>
+          <div>
+            <div className={styles.sectionTitle}>Cuando vos mismo movés la demanda</div>
+            <div className={styles.sectionSub}>El forecast también tiene que digerir tus propias decisiones</div>
+          </div>
+          <div className={styles.timer}>⏱ ~6 min</div>
+        </div>
 
-* 03_BASE_SKUS: fuente histórica de ventas, unidades, precios, costos e inventario.
-* 06_PORTFOLIO: decisiones de portfolio ya completadas.
-* 09_PRICING: decisiones de pricing ya completadas.
-* 07_FORECAST_90_DIAS: hoja de trabajo del forecast.
-
-No inventes nombres de hojas.
-No modifiques 03_BASE_SKUS.
-No cambies las decisiones ya tomadas en 06_PORTFOLIO o 09_PRICING salvo que encuentres una inconsistencia evidente y la marques para revisión.
-
-Quiero que actúes como analista senior de forecast comercial.
-
-Antes de completar el forecast SKU por SKU, analizá el negocio por familias.
-
-Devolveme:
-
-1. Qué familias concentran mayor revenue histórico.
-2. Qué familias concentran mayor margen histórico.
-3. Qué familias tienen mayor volumen y podrían mover más el forecast.
-4. Qué familias tienen más SKUs marcados como CORE, REVIEW o ELIMINAR en 06_PORTFOLIO.
-5. Qué familias concentran más decisiones de pricing relevantes en 09_PRICING.
-6. Qué familias podrían crecer, mantenerse o caer según las decisiones tomadas.
-7. Qué familias tienen mayor riesgo de sobreestimar demanda.
-8. Qué familias tienen mayor riesgo de subestimar demanda.
-9. Qué familias deberían revisarse con más cuidado antes de completar M13-M15.
-10. Qué tensiones aparecen entre portfolio, pricing, volumen, revenue y margen.
-
-No completes todavía todos los SKUs.
-Primero quiero una lectura ejecutiva por familia.
-Separá datos observados, cálculos y supuestos.`}
-      />
-
-      <section className="card" style={{ background: "rgba(191, 111, 40, 0.06)", borderColor: "var(--accent)" }}>
-        <div className="eyebrow" style={{ color: "var(--accent)" }}>Parte B</div>
-        <h2>Escenarios de mercado</h2>
-        <p className="muted">
-          El forecast no debería depender de un único número. El equipo debe comparar escenarios para entender sensibilidad comercial. En este ejercicio se trabajan tres escenarios de mercado: Conservador, Base y Agresivo.
+        <p className={styles.body}>
+          Hasta acá el forecast solo miró señales del mercado. Pero si en un ejercicio anterior ustedes movieron el precio de un producto, esa decisión también mueve la demanda — y el modelo no puede tratarla como si fuera una señal orgánica del mercado. Si lo hace, va a confundir su propia decisión con un cambio de tendencia espontáneo.
         </p>
-      </section>
+        <p className={styles.body}>
+          La forma correcta de resolverlo no es pedirle a la IA que lo adivine: es decírselo explícitamente. Tomemos dos productos y apliquemos una decisión de precio, con el mismo lenguaje del Ejercicio 2 de Pricing:
+        </p>
 
-      <section className="card">
-        <div className="factGrid">
-          <article className="factCard">
-            <h3>Conservador</h3>
-            <p>Demanda débil o adopción lenta de decisiones comerciales. Menor crecimiento de unidades, mayor prudencia en revenue proyectado, menor margen esperado si cae volumen. Más foco en riesgo y validación.</p>
-          </article>
-          <article className="factCard">
-            <h3>Base</h3>
-            <p>Continuidad ajustada por decisiones de portfolio y pricing. Proyección cercana al baseline, ajuste moderado, margen consistente, riesgo medio.</p>
-          </article>
-          <article className="factCard">
-            <h3>Agresivo</h3>
-            <p>Demanda favorable o alta captura de valor. Mayor crecimiento de unidades o revenue, mejor margen esperado, mayor riesgo de sobreestimación, requiere justificar supuestos.</p>
-          </article>
+        <div className={styles.pricingMoveGrid}>
+          <div className={styles.moveCard}>
+            <h4>Protector solar FPS 30</h4>
+            <div className={styles.moveRow}>
+              <span>Decisión</span>
+              <b>Liquidación</b>
+            </div>
+            <div className={styles.moveRow}>
+              <span>price_move_pct</span>
+              <b>−20%</b>
+            </div>
+            <div className={styles.moveRow}>
+              <span>elasticity_proxy</span>
+              <b>0.8</b>
+            </div>
+            <div className={styles.moveRow}>
+              <span>Efecto de volumen esperado</span>
+              <b>−0.8 × (−0.20) = +16%</b>
+            </div>
+            <span className={`${styles.tag} ${styles.tagLiq}`}>Ya venía en tendencia decreciente</span>
+          </div>
+          <div className={styles.moveCard}>
+            <h4>Protector solar FPS 50</h4>
+            <div className={styles.moveRow}>
+              <span>Decisión</span>
+              <b>Premium</b>
+            </div>
+            <div className={styles.moveRow}>
+              <span>price_move_pct</span>
+              <b>+10%</b>
+            </div>
+            <div className={styles.moveRow}>
+              <span>elasticity_proxy</span>
+              <b>0.4</b>
+            </div>
+            <div className={styles.moveRow}>
+              <span>Efecto de volumen esperado</span>
+              <b>−0.4 × 0.10 = −4%</b>
+            </div>
+            <span className={`${styles.tag} ${styles.tagPrem}`}>Producto en crecimiento, margen defendible</span>
+          </div>
+        </div>
+
+        <div className={styles.promptLabel}>
+          <span className={styles.promptName}>Prompt · Forecast con perturbación de precio conocida</span>
+          <span className={styles.copyTag}>Corré para FPS 30 y FPS 50</span>
+          <CopyButton text={promptPerturbation} />
+        </div>
+        <div className={styles.promptBox}>{promptPerturbation}</div>
+
+        <div className={styles.closingNote}>
+          <p>
+            Esto que hicimos acá fue una sola corrida, con un cambio de precio ya conocido de antemano. En una empresa real esto no es un evento — es un proceso: cada semana entra la venta real, se compara contra lo que el forecast esperaba, y si la diferencia es mayor a lo normal, ese es el momento de recalibrar. No se espera al cierre del mes para descubrir que el forecast estaba mal — se lo ve venir semana a semana.
+          </p>
         </div>
       </section>
 
-      <PromptBlock
-        eyebrow="Prompt 2"
-        title="Construir escenarios Conservador, Base y Agresivo"
-        helperText="Usá este prompt para que la IA proponga escenarios de mercado y sus supuestos antes de que el equipo elija uno."
-        prompt={`Usando el análisis por familias y las hojas 03_BASE_SKUS, 06_PORTFOLIO y 09_PRICING, construí tres escenarios de forecast para M13-M15:
-
-No uses 07_FORECAST_90_DIAS en esta etapa.
-La calibración numérica con baseline se hace en el Prompt 2B.
-
-1. Conservador
-2. Base
-3. Agresivo
-
-Definiciones:
-
-Escenario Conservador:
-Asume demanda más débil, respuesta más lenta a las decisiones comerciales, mayor riesgo competitivo o mayor sensibilidad negativa a cambios de precio. Debe evitar sobreestimar unidades, revenue y margen.
-
-Escenario Base:
-Asume continuidad razonable ajustada por las decisiones de portfolio y pricing. Es el escenario de referencia para defender ante dirección.
-
-Escenario Agresivo:
-Asume demanda favorable, buena captura de margen, menor elasticidad negativa y mayor capacidad de sostener volumen aun con decisiones de pricing.
-
-Para cada escenario, devolveme:
-
-1. Supuesto general de demanda.
-2. Supuesto de crecimiento.
-3. Cómo debería impactar en unidades M13-M15.
-4. Cómo debería impactar en revenue M13-M15.
-5. Cómo debería impactar en margen M13-M15.
-6. Qué familias serían más beneficiadas.
-7. Qué familias tendrían mayor riesgo.
-8. Cómo debería tratar SKUs CORE.
-9. Cómo debería tratar SKUs REVIEW.
-10. Cómo debería tratar SKUs ELIMINAR.
-11. Cómo debería incorporar decisiones de pricing.
-12. Qué riesgos debería monitorear el equipo.
-
-Después recomendá cuál escenario usar como base de trabajo y por qué.
-
-No completes todavía todos los SKUs.
-No presentes el forecast como certeza.
-Separá datos observados de supuestos.`}
-      />
-
-      <section className="card" style={{ background: "rgba(191, 111, 40, 0.06)", borderColor: "var(--accent)" }}>
-        <div className="eyebrow" style={{ color: "var(--accent)" }}>Parte B.2</div>
-        <h2>Calibrar escenarios con números</h2>
-        <p className="muted">
-          Antes de elegir un escenario, el equipo necesita comparar el impacto económico de cada alternativa. Un escenario no es una etiqueta narrativa: es una hipótesis cuantificada sobre demanda, crecimiento, volumen, revenue y margen.
-        </p>
-        <p className="muted">
-          La decisión debe apoyarse en una comparación clara entre forecast baseline, escenario Conservador, escenario Base y escenario Agresivo. El objetivo es entender cuánto cambia el resultado proyectado, qué familias explican la diferencia y qué riesgos aparecen si el equipo se equivoca con el supuesto de demanda.
-        </p>
-      </section>
-
-      <section className="card">
-        <div className="factGrid">
-          <article className="factCard">
-            <h3>Revenue 90 días</h3>
-            <p>Venta proyectada total para M13, M14 y M15. Permite comparar el tamaño económico de cada escenario.</p>
-          </article>
-          <article className="factCard">
-            <h3>Margen 90 días</h3>
-            <p>Margen proyectado total para M13, M14 y M15. Permite evaluar si el escenario mejora rentabilidad o sólo empuja volumen.</p>
-          </article>
-          <article className="factCard">
-            <h3>Volumen 90 días</h3>
-            <p>Unidades proyectadas para M13, M14 y M15. Permite entender si el forecast depende de crecimiento real de demanda.</p>
-          </article>
-          <article className="factCard">
-            <h3>Sensibilidad vs baseline</h3>
-            <p>Diferencia porcentual contra el forecast base. Ayuda a detectar escenarios demasiado optimistas o demasiado conservadores.</p>
-          </article>
+      {/* CHECKPOINT */}
+      <section className={styles.section}>
+        <div className={styles.sectionHead}>
+          <div className={styles.stepMark}>✓</div>
+          <div>
+            <div className={styles.sectionTitle}>Checkpoint</div>
+            <div className={styles.sectionSub}>Guardá la síntesis, no el output completo de la IA</div>
+          </div>
         </div>
-      </section>
 
-      <PromptBlock
-        eyebrow="Prompt 2B"
-        title="Calibrar escenarios con cálculos comparativos"
-        helperText="Usá este prompt para que la IA calcule una comparación cuantitativa entre baseline, Conservador, Base y Agresivo antes de elegir el escenario final."
-        prompt={`Usando el workbook del Laboratorio 1, trabajá con estas hojas:
-
-* 03_BASE_SKUS: datos históricos de SKUs.
-* 06_PORTFOLIO: decisiones de portfolio ya completadas.
-* 09_PRICING: decisiones de pricing ya completadas.
-* 07_FORECAST_90_DIAS: hoja de trabajo del forecast.
-
-Objetivo:
-Antes de elegir el escenario final, quiero comparar cuantitativamente el forecast baseline contra tres escenarios posibles:
-
-1. Conservador
-2. Base
-3. Agresivo
-
-Primero calculá o estimá el forecast baseline para M13-M15 usando las columnas baseline de 07_FORECAST_90_DIAS:
-
-* baseline_units_m13
-* baseline_units_m14
-* baseline_units_m15
-* baseline_price_m13
-* baseline_price_m14
-* baseline_price_m15
-* baseline_cost_m13
-* baseline_cost_m14
-* baseline_cost_m15
-
-Calculá para baseline:
-
-1. Revenue baseline M13, M14 y M15.
-2. Revenue baseline total 90 días.
-3. Margen baseline M13, M14 y M15.
-4. Margen baseline total 90 días.
-5. Volumen baseline M13, M14 y M15.
-6. Volumen baseline total 90 días.
-
-Después construí tres escenarios comparativos:
-
-Escenario Conservador:
-
-* Demanda más débil.
-* Menor crecimiento de unidades.
-* Mayor impacto negativo si hubo subas de precio.
-* Salida más prudente de SKUs ELIMINAR.
-* Mayor riesgo de revenue en familias sensibles.
-
-Escenario Base:
-
-* Continuidad ajustada por portfolio y pricing.
-* Crecimiento moderado.
-* Efecto pricing razonable.
-* Salida ordenada de SKUs ELIMINAR.
-* Proyección defendible como caso central.
-
-Escenario Agresivo:
-
-* Demanda favorable.
-* Mayor captura de revenue y margen.
-* Menor impacto negativo de subas de precio.
-* Mejor desempeño de SKUs CORE.
-* Mayor riesgo de sobreestimación.
-
-Para cada escenario, devolveme una tabla comparativa con estas columnas:
-
-* escenario
-* supuesto de demanda
-* supuesto de crecimiento
-* volumen proyectado 90 días
-* revenue proyectado 90 días
-* margen proyectado 90 días
-* variación de volumen vs baseline
-* variación de revenue vs baseline
-* variación de margen vs baseline
-* familias que explican la diferencia
-* riesgo principal
-* nivel de confianza: Alto / Medio / Bajo
-
-También devolveme una segunda tabla por familia con:
-
-* family
-* revenue baseline 90 días
-* revenue conservador 90 días
-* revenue base 90 días
-* revenue agresivo 90 días
-* margen baseline 90 días
-* margen conservador 90 días
-* margen base 90 días
-* margen agresivo 90 días
-* principal driver del cambio
-* riesgo de sobreestimación
-* riesgo de subestimación
-
-Después respondé:
-
-1. Qué escenario parece más defendible con los datos disponibles.
-2. Qué escenario maximiza margen.
-3. Qué escenario minimiza riesgo.
-4. Qué escenario depende más de supuestos optimistas.
-5. Qué familias deberían revisar manualmente antes de elegir.
-6. Qué sensibilidad tiene el forecast frente a cambios de volumen.
-7. Qué sensibilidad tiene el forecast frente a cambios de precio.
-8. Qué escenario recomendarías como punto de partida y por qué.
-
-Importante:
-
-* No inventes datos.
-* Si faltan columnas o no podés calcular una métrica, aclaralo.
-* Separá cálculos de supuestos.
-* No completes todavía 07_FORECAST_90_DIAS SKU por SKU.
-* Esta etapa es sólo para elegir el escenario con mejor criterio.
-* No presentes el forecast como certeza.
-* Mostrá números en ARS y unidades cuando estén disponibles.
-* Redondeá los montos en MM si mejora la lectura ejecutiva.
-
-Cierre obligatorio:
-Terminá con una sección llamada “Recomendación para elegir escenario” con 5 bullets ejecutivos.`}
-      />
-
-      <section className="card" style={{ background: "rgba(15, 107, 93, 0.06)", borderColor: "var(--brand)" }}>
-        <div className="eyebrow" style={{ color: "var(--brand-strong)" }}>Parte C</div>
-        <h2>Decisión de escenario y variables ajustables</h2>
-        <p className="muted">
-          El escenario elegido debe surgir de la comparación anterior. El equipo no debería elegir solamente por preferencia o apetito de riesgo, sino por la relación entre impacto económico, sensibilidad, confianza y riesgo de forecast.
-        </p>
-      </section>
-
-      <section className="card">
-        <div className="eyebrow">Criterios para elegir escenario</div>
-        <ul className="simpleList">
-          <li>Si el objetivo es defender un número prudente ante dirección, usar Conservador o Base.</li>
-          <li>Si el objetivo es construir el caso más defendible, usar Base.</li>
-          <li>Si el objetivo es mostrar upside comercial, usar Agresivo, pero explicitando riesgos.</li>
-          <li>Si el margen mejora sólo por supuestos débiles de volumen, revisar antes de elegir.</li>
-          <li>Si pocas familias explican casi todo el upside, validar esas familias manualmente.</li>
-          <li>Si el escenario depende de subas de precio con elasticidad incierta, marcarlo como riesgo.</li>
-        </ul>
-      </section>
-
-      <section className="card">
-        <div className="factGrid">
-          <article className="factCard">
-            <h3>Escenario demanda</h3>
-            <p>Define si la demanda esperada es débil, estable o favorable. Afecta principalmente projected_units_m13, projected_units_m14 y projected_units_m15.</p>
-          </article>
-          <article className="factCard">
-            <h3>Escenario crecimiento</h3>
-            <p>Define si el negocio proyecta caída, continuidad o expansión. Afecta la trayectoria M13-M15.</p>
-          </article>
-          <article className="factCard">
-            <h3>Efecto pricing</h3>
-            <p>Incorpora el efecto esperado de las decisiones tomadas en 09_PRICING sobre volumen, revenue y margen.</p>
-          </article>
-          <article className="factCard">
-            <h3>Efecto portfolio</h3>
-            <p>Incorpora si los SKUs CORE se sostienen, los REVIEW se moderan y los ELIMINAR salen progresivamente o reducen volumen.</p>
-          </article>
+        <div className={styles.formGrid}>
+          <div className={`${styles.formField} ${errors.has("signal_surprise") ? styles.formFieldError : ""}`}>
+            <label>
+              1. ¿Qué señal externa te sorprendió más y por qué no la estabas considerando antes? <span style={{ color: "var(--danger)" }}>*</span>
+            </label>
+            <textarea
+              onChange={(event) => {
+                setSignalSurprise(event.target.value);
+                setErrors((current) => {
+                  const next = new Set(current);
+                  next.delete("signal_surprise");
+                  return next;
+                });
+              }}
+              placeholder="Escribí la síntesis del equipo…"
+              value={signalSurprise}
+            />
+            {errors.has("signal_surprise") ? <span className={styles.errorText}>Este campo es obligatorio.</span> : null}
+          </div>
+          <div className={`${styles.formField} ${errors.has("product_uncertainty") ? styles.formFieldError : ""}`}>
+            <label>
+              2. De los tres productos analizados, ¿cuál te genera más incertidumbre en el forecast y qué harías para reducirla? <span style={{ color: "var(--danger)" }}>*</span>
+            </label>
+            <textarea
+              onChange={(event) => {
+                setProductUncertainty(event.target.value);
+                setErrors((current) => {
+                  const next = new Set(current);
+                  next.delete("product_uncertainty");
+                  return next;
+                });
+              }}
+              placeholder="Escribí la síntesis del equipo…"
+              value={productUncertainty}
+            />
+            {errors.has("product_uncertainty") ? <span className={styles.errorText}>Este campo es obligatorio.</span> : null}
+          </div>
+          <div className={`${styles.formField} ${errors.has("forecast_process") ? styles.formFieldError : ""}`}>
+            <label>
+              3. ¿Cómo es el proceso de forecast en tu empresa hoy? ¿Quién es dueño? ¿Qué cambiarías después de este ejercicio? <span style={{ color: "var(--danger)" }}>*</span>
+            </label>
+            <textarea
+              onChange={(event) => {
+                setForecastProcess(event.target.value);
+                setErrors((current) => {
+                  const next = new Set(current);
+                  next.delete("forecast_process");
+                  return next;
+                });
+              }}
+              placeholder="Escribí la síntesis del equipo…"
+              value={forecastProcess}
+            />
+            {errors.has("forecast_process") ? <span className={styles.errorText}>Este campo es obligatorio.</span> : null}
+          </div>
         </div>
+
+        {messages.length > 0 ? (
+          <div className={styles.messageList} ref={successRef}>
+            {messages.map((message, index) => (
+              <div
+                className={`${styles.message} ${
+                  message.type === "error" ? styles.messageError : message.type === "success" ? styles.messageSuccess : styles.messageInfo
+                }`}
+                key={`${message.type}-${index}`}
+              >
+                {message.text}
+              </div>
+            ))}
+          </div>
+        ) : null}
+
+        <div className={styles.formActions}>
+          <button className={`${styles.btn} ${styles.btnSecondary}`} disabled={loading} onClick={handleSaveDraft} type="button">
+            <Save size={17} /> Guardar borrador
+          </button>
+          <button className={styles.btn} disabled={loading} onClick={handleSubmit} type="button">
+            <Send size={17} /> Enviar checkpoint
+          </button>
+        </div>
+        <div className={styles.formNote}>Modo local: el borrador y el checkpoint se guardan en este dispositivo.</div>
       </section>
 
-      <PromptBlock
-        eyebrow="Prompt 3"
-        title="Completar 07_FORECAST_90_DIAS SKU por SKU"
-        helperText="Usá este prompt para que la IA complete o proponga los campos de forecast por SKU usando el escenario elegido."
-        prompt={`Usando el workbook del Laboratorio 1, trabajá con estas hojas:
-
-* 03_BASE_SKUS: datos históricos de SKUs.
-* 06_PORTFOLIO: decisiones de portfolio ya completadas.
-* 09_PRICING: decisiones de pricing ya completadas.
-* 07_FORECAST_90_DIAS: hoja que hay que completar.
-
-El escenario elegido por el equipo es:
-[Conservador / Base / Agresivo]
-
-Supuesto de demanda:
-[describir supuesto]
-
-Supuesto de crecimiento:
-[describir supuesto]
-
-Objetivo:
-Completar o proponer valores para 07_FORECAST_90_DIAS, proyectando M13, M14 y M15.
-
-Columnas a completar o revisar:
-
-* projected_units_m13
-* projected_units_m14
-* projected_units_m15
-* projected_price_m13
-* projected_price_m14
-* projected_price_m15
-* projected_cost_m13
-* projected_cost_m14
-* projected_cost_m15
-* projected_stock_m13
-* projected_stock_m14
-* projected_stock_m15
-* revenue_m13
-* revenue_m14
-* revenue_m15
-* margin_m13
-* margin_m14
-* margin_m15
-* scenario
-* forecast_assumption
-* ai_comment
-* team_comment
-
-Reglas de negocio:
-
-1. Si portfolio_decision es CORE:
-   * sostener el SKU como parte del forecast.
-   * proyectar continuidad o crecimiento según escenario.
-   * cuidar que pricing no destruya volumen sin justificación.
-
-2. Si portfolio_decision es REVIEW:
-   * aplicar una proyección más prudente.
-   * marcar riesgos o supuestos en forecast_assumption.
-   * evitar crecimiento agresivo salvo que haya evidencia.
-
-3. Si portfolio_decision es ELIMINAR:
-   * reflejar salida progresiva, liquidación o reducción de volumen.
-   * no proyectar crecimiento normal salvo justificación comercial.
-   * explicar si queda revenue residual por liquidación o transición.
-
-4. Si pricing_decision implica subir precio:
-   * considerar posible efecto negativo en unidades.
-   * estimar si el margen compensa el menor volumen.
-   * explicar el supuesto.
-
-5. Si pricing_decision implica bajar precio o promoción:
-   * considerar posible efecto positivo en unidades.
-   * no asumir crecimiento ilimitado.
-   * revisar impacto en margen.
-
-6. Si pricing_decision es mantener:
-   * usar baseline ajustado por escenario de demanda.
-
-7. Revenue:
-   * revenue_m13 = projected_units_m13 * projected_price_m13.
-   * revenue_m14 = projected_units_m14 * projected_price_m14.
-   * revenue_m15 = projected_units_m15 * projected_price_m15.
-
-8. Margin:
-   * margin_m13 = projected_units_m13 * (projected_price_m13 - projected_cost_m13).
-   * margin_m14 = projected_units_m14 * (projected_price_m14 - projected_cost_m14).
-   * margin_m15 = projected_units_m15 * (projected_price_m15 - projected_cost_m15).
-
-Importante:
-
-* No inventes datos.
-* Si una columna ya tiene fórmula válida, no la reemplaces innecesariamente.
-* Si no podés editar el archivo directamente, devolveme una tabla lista para copiar en 07_FORECAST_90_DIAS.
-* Respetá sku_id.
-* Marcá scenario con el escenario elegido.
-* En forecast_assumption explicá el supuesto principal.
-* En ai_comment dejá una explicación breve.
-* team_comment debe quedar vacío salvo que el equipo quiera desafiar la recomendación.
-
-No cambies las decisiones de 06_PORTFOLIO ni 09_PRICING.
-No uses hojas inexistentes.
-Separá datos de supuestos.`}
-      />
-
-      <section className="card" style={{ background: "rgba(191, 111, 40, 0.06)", borderColor: "var(--accent)" }}>
-        <div className="eyebrow" style={{ color: "var(--accent)" }}>Parte D</div>
-        <h2>Reporte y síntesis ejecutiva</h2>
-        <p className="muted">
-          Una vez completada la hoja 07_FORECAST_90_DIAS, el equipo debe resumir el impacto. La plataforma no necesita toda la tabla, sino la síntesis ejecutiva: escenario elegido, supuestos, revenue proyectado, margen proyectado, riesgos y decisiones que requieren validación.
-        </p>
-      </section>
-
-      <PromptBlock
-        eyebrow="Prompt 4"
-        title="Reporte final del forecast"
-        helperText="Usá este prompt para que la IA resuma el resultado del forecast y lo traduzca en una lectura ejecutiva."
-        prompt={`Usá la hoja 07_FORECAST_90_DIAS ya completada como fuente principal del forecast. Si necesitás contexto de portfolio o pricing, cruzá contra:
-
-* 06_PORTFOLIO
-* 09_PRICING
-* 03_BASE_SKUS
-
-El escenario elegido fue:
-[Conservador / Base / Agresivo]
-
-Devolveme:
-
-1. Revenue proyectado total 90 días.
-2. Revenue proyectado por M13, M14 y M15.
-3. Margen proyectado total 90 días.
-4. Margen proyectado por M13, M14 y M15.
-5. Volumen proyectado total 90 días.
-6. Volumen proyectado por M13, M14 y M15.
-7. Comparación contra baseline.
-8. Familias que más explican el revenue proyectado.
-9. Familias que más explican el margen proyectado.
-10. Familias o SKUs con mayor riesgo de forecast.
-11. Impacto de las decisiones de portfolio.
-12. Impacto de las decisiones de pricing.
-13. Qué parte del forecast depende de datos históricos.
-14. Qué parte del forecast depende de supuestos.
-15. Riesgos de sobreestimación.
-16. Riesgos de subestimación.
-17. Métricas que deberían monitorearse durante los próximos 90 días.
-18. Decisiones que deberían revisarse antes de ejecutar.
-
-Variables para Executive Scoreboard:
-
-* Revenue Base.
-* Margen Base.
-
-No presentes el forecast como resultado garantizado.
-Hablá de proyección, escenario, exposición y supuestos.
-Separá datos calculados de hipótesis.
-Marcá cualquier inconsistencia o dato faltante.
-
-Cerrá con una sección llamada “Respuesta para plataforma” usando exactamente estos bloques:
-
-1. Escenario elegido
-2. Supuestos de demanda y crecimiento
-3. Forecast proyectado 90 días
-4. Impacto potencial en revenue y margen
-5. Riesgos y decisiones a revisar`}
-      />
-
-      <section className="card">
-        <div className="eyebrow">Output esperado</div>
-        <h2>Qué completar en el workbook</h2>
-        <ul className="simpleList">
-          <li>07_FORECAST_90_DIAS completa.</li>
-          <li>scenario y forecast_assumption completos.</li>
-          <li>projected_units_m13, projected_units_m14, projected_units_m15 completos o validados.</li>
-          <li>revenue_m13, revenue_m14, revenue_m15 calculados.</li>
-          <li>margin_m13, margin_m14, margin_m15 calculados.</li>
-        </ul>
-      </section>
-
-      <section className="card">
-        <div className="eyebrow">Checkpoint</div>
-        <h2>Guardá la síntesis del forecast</h2>
-        <p className="muted">
-          No copies toda la respuesta de la IA ni toda la tabla del Excel. Guardá la síntesis del escenario elegido, los supuestos, el impacto proyectado y los riesgos que revisarías antes de ejecutar.
-        </p>
-
-        <CheckpointForm
-          exerciseId="ex-03"
-          exerciseVersion={1}
-          fields={[
-            {
-              id: "forecast_scenario",
-              label: "1. Escenario elegido",
-              type: "textarea",
-              placeholder: "Conservador, Base o Agresivo. Explicá por qué el equipo eligió ese escenario.",
-              required: true
-            },
-            {
-              id: "demand_growth_assumptions",
-              label: "2. Supuestos de demanda y crecimiento",
-              type: "textarea",
-              placeholder: "Explicá qué supuestos usaron para proyectar unidades M13-M15 y cómo incorporaron escenario de demanda y crecimiento.",
-              required: true
-            },
-            {
-              id: "forecast_projection_summary",
-              label: "3. Forecast proyectado 90 días",
-              type: "textarea",
-              placeholder: "Resumí venta proyectada, volumen proyectado y margen proyectado para los próximos 90 días.",
-              required: true
-            },
-            {
-              id: "business_impact",
-              label: "4. Impacto potencial en revenue y margen",
-              type: "textarea",
-              placeholder: "Explicá cómo impactan las decisiones de portfolio y pricing en revenue, margen y volumen proyectado.",
-              required: true
-            },
-            {
-              id: "risks_to_review",
-              label: "5. Riesgos y decisiones a revisar",
-              type: "textarea",
-              placeholder: "Identificá riesgos del forecast, familias sensibles, SKUs críticos, supuestos débiles o decisiones que requieren validación comercial.",
-              required: true
-            }
-          ]}
-          saveLabel="Guardar borrador"
-          submitLabel="Enviar checkpoint"
-        />
-      </section>
-    </ExerciseHeader>
+      <div className={styles.footerNote}>NEXUS Retail Labs · Laboratorio 1 · Ejercicio 3 de 5</div>
+    </AppShell>
   );
 }
