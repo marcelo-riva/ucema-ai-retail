@@ -318,6 +318,9 @@ export function Exercise04View({
           <div className={styles.tensionCard}>
             <h4>Inventario Óptimo = Cobertura + Protección</h4>
             <p>El stock que sostienen cubre la demanda esperada, más un stock de seguridad que protege contra la incertidumbre de esa demanda. A mayor variabilidad, mayor protección necesaria.</p>
+            <p style={{ marginTop: 8, fontSize: 13, color: "var(--muted)" }}>
+              <b>El % de seguridad se aplica sobre la cobertura base (1.5× lead time), no sobre el capital ni sobre el inventario final.</b> El mismo % mueve pocos días en una categoría de lead time corto, y muchos en una de lead time largo.
+            </p>
           </div>
           <div className={styles.tensionCard}>
             <h4>Forecast ≠ Variabilidad</h4>
@@ -411,6 +414,11 @@ export function Exercise04View({
           <p>
             <b>Importante:</b> el DDI mínimo de seguridad = 1.5× el lead time -- el piso de cobertura para sobrevivir un ciclo y medio de reposición. Y el % de stock de seguridad es un <b>rango</b>, no un número único -- la Parte C decide dónde pararse dentro de ese rango.
           </p>
+          <p style={{ marginTop: 10 }}>
+            <b>Sobre qué se aplica el %:</b>{" "}
+            <span className={styles.mono}>Inventario objetivo = venta diaria × cobertura base × (1 + % seguridad)</span>
+            . La cobertura base es el DDI mínimo (1.5× lead time). El % no es un porcentaje del capital ni del inventario final -- es un porcentaje de esos días base. Ejemplo: con lead time 15 días (cobertura base 22.5 días) y banda 10%-15%, el DDI final se mueve entre 24.75 y 25.9 días -- poco más de un día de diferencia.
+          </p>
         </div>
 
         <table className={styles.dataTable}>
@@ -460,26 +468,35 @@ export function Exercise04View({
         <div className={styles.sectionHead}>
           <div className={styles.stepMark}>C</div>
           <div>
-            <div className={styles.sectionTitle}>El DDI óptimo, en dos pasos</div>
-            <div className={styles.sectionSub}>Variabilidad fija el rango. Costo decide la posición.</div>
+            <div className={styles.sectionTitle}>El DDI óptimo, en tres pasos</div>
+            <div className={styles.sectionSub}>El rango es estadístico. La posición es económica. La restricción es de caja.</div>
           </div>
           <div className={styles.timer}>⏱ ~12 min</div>
         </div>
 
         <div className={styles.ladder}>
           <div className={styles.ladderStep}>
-            <div className={styles.ladderStepNumber}>PASO 1 -- ¿QUÉ RANGO ME PERMITO?</div>
+            <div className={styles.ladderStepNumber}>PASO 1 — ¿QUÉ RANGO ME PERMITO?</div>
             <div className={styles.ladderStepTitle}>La variabilidad fija el rango</div>
             <div className={styles.ladderStepDesc}>
-              Cada subgrupo cae en una banda del cuadro de arriba según su coeficiente de variación. Ejemplo: si un subgrupo es &quot;Volátil&quot;, su stock de seguridad tiene que estar entre 30% y 40% del inventario objetivo -- ni menos, ni más. Ese rango no se negocia.
+              Cada subgrupo cae en una banda según su coeficiente de variación. Si es &quot;Volátil&quot;, su stock de seguridad va entre 30% y 40%: ni menos, ni más. Ese rango no se negocia.
             </div>
           </div>
           <span className={styles.ladderArrow}>→</span>
           <div className={styles.ladderStep}>
-            <div className={styles.ladderStepNumber}>PASO 2 -- ¿DÓNDE, DENTRO DE ESE RANGO?</div>
-            <div className={styles.ladderStepTitle}>El costo decide la posición</div>
+            <div className={styles.ladderStepNumber}>PASO 2 — ¿QUÉ CONVIENE?</div>
+            <div className={styles.ladderStepTitle}>El costo unitario dice: techo</div>
             <div className={styles.ladderStepDesc}>
-              Siguiendo el ejemplo: entre 30% y 40, ¿van con 30 o con 40? Si guardar esos días extra de stock cuesta (en capital inmovilizado al 3% mensual) más de lo que arriesgan perdiendo en un quiebre, eligen 30% -- el piso, menos capital atado. Si el quiebre les sale más caro que ese costo, eligen 40% -- el techo, más protección.
+              A 3% mensual, sostener unos días extra de cobertura cuesta centavos por unidad. Perder una venta cuesta el margen entero. Producto por producto, casi siempre conviene el techo.
+            </div>
+          </div>
+          <span className={styles.ladderArrow}>→</span>
+          <div className={`${styles.ladderStep} ${styles.ladderStepHighlight}`}>
+            <div className={`${styles.ladderStepNumber} ${styles.ladderStepNumberHighlight}`}>PASO 3 — ¿QUÉ ALCANZA?</div>
+            <div className={styles.ladderStepTitle}>El capital disponible no da para todos</div>
+            <div className={styles.ladderStepDesc}>
+              Si protegen todo al techo no llegan al 15% que pide Finanzas. Ahí aparece la decisión real:{" "}
+              <b>a qué subgrupos les bajan la protección al piso</b> para financiar la de los demás.
             </div>
           </div>
         </div>
@@ -491,7 +508,7 @@ export function Exercise04View({
         <div className={styles.promptBox}>{promptDdiOptimo}</div>
 
         <div className={`${styles.formField} ${errors.has("resumen_c") ? styles.formFieldError : ""}`} style={{ marginTop: 16 }}>
-          <label>Resumen para la plataforma (2-3 líneas): con el plan ya completo en su Excel, ¿llegaron al 15%? ¿Qué subgrupo aportó más capital liberado?</label>
+          <label>Resumen para la plataforma (2-3 líneas): ¿cuánto liberaba el escenario de máxima protección, y qué subgrupos tuvieron que bajar al piso para llegar al 15%?</label>
           <textarea
             onChange={(event) => {
               setResumenC(event.target.value);
@@ -554,7 +571,8 @@ export function Exercise04View({
               En la Parte A, Medicamentos Bajo Receta probablemente les quedó con criticidad de quiebre alta -- eso empuja a protegerlo, no a recortarlo. Pero en el Ejercicio 1 ya lo clasificaron REVIEW, y un REVIEW es candidato a achicar. Son dos señales opuestas sobre el mismo subgrupo: la variabilidad dice &quot;cuidalo&quot;, el portfolio dice &quot;recortalo&quot;.
             </p>
             <p style={{ marginTop: 8 }}>
-              <b>La regla para esta parte: cuando las dos chocan, gana la decisión de portfolio</b> -- porque ya fue tomada por el equipo con más contexto estratégico que un cálculo estadístico. Achíquenlo igual, y dejen registrado qué riesgo aceptan al hacerlo.
+              <b>La regla para esta parte: cuando las dos chocan, gana la decisión de portfolio</b> -- porque ya fue tomada por el equipo con más contexto estratégico que un cálculo estadístico. Y hay una consecuencia práctica: bajar los REVIEW al piso es, en buena medida,{" "}
+              <b>lo que financia mantener protegidos a los CORE</b> sin incumplir la meta.
             </p>
           </div>
         </div>
@@ -575,7 +593,7 @@ export function Exercise04View({
         <div className={styles.promptBox}>{promptPortfolio}</div>
 
         <div className={`${styles.formField} ${errors.has("resumen_e") ? styles.formFieldError : ""}`} style={{ marginTop: 16 }}>
-          <label>Resumen para la plataforma (2-3 líneas): con el plan final ya completo en su Excel, ¿qué riesgo comercial o regulatorio aceptaron al priorizar los REVIEW?</label>
+          <label>Resumen para la plataforma (2-3 líneas): ¿cuánto capital adicional aportó priorizar los REVIEW, y qué riesgo aceptaron a cambio en cada uno?</label>
           <textarea
             onChange={(event) => {
               setResumenE(event.target.value);

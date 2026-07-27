@@ -68,6 +68,12 @@ belleza en Argentina. Tenés la hoja 03_SUBGRUPOS del workbook: 12 meses de
 historia de venta, precio, costo, lead time, canal de reposición y stock
 actual por subgrupo.
 
+Convención de cálculo (usala tal cual, para que todos los equipos lleguen
+a números comparables):
+- Venta promedio diaria = suma de los 12 meses / 365.
+- Cobertura operativa base = 1.5 x lead time. Es también el DDI mínimo de
+  seguridad: el piso para sobrevivir un ciclo y medio de reposición.
+
 Usá esta tabla de bandas de stock de seguridad -- no inventes tus propios
 cortes de coeficiente de variación:
 
@@ -103,22 +109,35 @@ negocio:
 - Meta: liberar al menos 15% del capital de trabajo total actual, sin
   llevar ningún subgrupo CORE por debajo de su DDI mínimo de seguridad.
 
-Para cada subgrupo:
-1. Calculá el costo mensual de sostener el extra de cobertura si te
-   parás en el TECHO del rango (días extra x costo unitario x 3% / 30) y
-   comparalo contra el margen unitario que se pierde en un quiebre
-   (aproximalo con el margen_cualitativo y la criticidad_quiebre dados).
-2. Elegí tu posición dentro del rango de stock de seguridad: más cerca
-   del techo solo si el costo de quiebre supera al costo de capital;
-   más cerca del piso si es al revés. Nunca salgas del rango.
-3. Con esa posición, calculá Stock de Seguridad, Inventario Objetivo,
-   DDI recomendado, Capital Objetivo y Capital Liberado por subgrupo.
-4. Sumá el capital liberado total. Si no llegan al 15% sin poner un CORE
-   en riesgo, decilo explícitamente -- no fuerces un número que no
-   sostiene la restricción -- y proponé qué subgrupo tiene más margen
-   para ceder más.
-5. Documentá, subgrupo por subgrupo, en qué punto del rango te ubicaste
-   y por qué (costo de capital vs. costo de quiebre).`;
+Convención de cálculo (la misma de la Parte B):
+- Venta promedio diaria = suma de los 12 meses / 365.
+- Cobertura operativa base = 1.5 x lead time.
+- Inventario objetivo = venta diaria x cobertura base x (1 + % seguridad).
+- Capital objetivo = inventario objetivo x costo unitario.
+
+Hacé esto en tres pasos, en este orden:
+
+PASO 1 -- Escenario de máxima protección.
+Ubicá todos los subgrupos en el TECHO de su banda. Calculá Stock de
+Seguridad, Inventario Objetivo, DDI recomendado, Capital Objetivo y
+Capital Liberado por subgrupo, y el total liberado como % del capital
+actual. Decime explícitamente si ese escenario alcanza el 15%.
+
+PASO 2 -- Si no alcanza, mostrame el costo de proteger.
+Para cada subgrupo calculá cuánto capital adicional se libera al bajarlo
+del techo al piso de su banda, y qué días de cobertura resigna al
+hacerlo. Ordená la lista de mayor a menor capital liberado por día
+resignado.
+
+PASO 3 -- Armá un plan que cumpla la meta.
+Elegí, subgrupo por subgrupo, techo o piso, hasta llegar al 15%. Ningún
+subgrupo puede salir de su banda ni quedar por debajo de su DDI mínimo
+de seguridad. Justificá cada subgrupo que dejes en el piso: qué riesgo
+comercial se asume a cambio de esa liberación.
+
+Si algún subgrupo requiere INVERSIÓN en lugar de liberar capital (su
+stock actual está por debajo del inventario objetivo), señalalo -- no lo
+escondas en el neto.`;
 
 export const promptPortfolio = `Al plan de la Parte C, sumale este dato conocido -- es una restricción de
 negocio ya decidida, no algo que tengas que inferir de la variabilidad:
@@ -128,12 +147,21 @@ negocio ya decidida, no algo que tengas que inferir de la variabilidad:
 - Protección Solar, Repelentes de Insectos, Vitaminas y Suplementos,
   Nutrición Infantil y Farmacia OTC: clasificados CORE.
 
-Recalculá dando prioridad a liberar capital en los subgrupos REVIEW,
-aunque su variabilidad y criticidad hubieran sugerido más protección, y
-explicá qué riesgo comercial y regulatorio asume el equipo al hacerlo en
-cada uno (por ejemplo, exigencias de disponibilidad en la categoría
-regulada de Medicamentos Bajo Receta). Ningún CORE puede quedar por
-debajo de su DDI mínimo de seguridad.`;
+Recalculá el plan con esta regla: los subgrupos REVIEW van al PISO de su
+banda y los CORE al TECHO, aunque la variabilidad o la criticidad de
+algún REVIEW hubieran sugerido más protección.
+
+Devolveme:
+1. El plan completo con esa regla y el % total de capital liberado.
+2. La comparación contra el plan de la Parte C: cuánto capital adicional
+   aporta priorizar los REVIEW, y si ese aporte es lo que permite cumplir
+   la meta del 15%.
+3. Por cada REVIEW que baja al piso: qué días de cobertura resigna y qué
+   riesgo comercial o regulatorio asume el equipo a cambio (por ejemplo,
+   exigencias de disponibilidad en la categoría regulada de Medicamentos
+   Bajo Receta).
+4. Si algún subgrupo quedara por debajo de su DDI mínimo de seguridad,
+   señalalo y no lo apliques.`;
 
 export const checkpointFields = [
   {

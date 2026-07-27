@@ -1,6 +1,11 @@
 /* Exercise04View.module.css — estilos específicos del Ejercicio 4: Inventory Optimization. */
 /* Mantiene el diseño exacto del HTML de referencia. */
 
+.mono {
+  font-family: SFMono-Regular, Consolas, monospace;
+  font-size: 12.5px;
+}
+
 .hero {
   background: var(--surface);
   border: 1px solid var(--line);
@@ -423,6 +428,15 @@
   color: var(--muted);
   font-size: 18px;
   padding: 0 4px;
+}
+
+.ladderStepHighlight {
+  border-color: #E8CDC0;
+  background: #FBF3EF;
+}
+
+.ladderStepNumberHighlight {
+  color: #8B5A2B;
 }
 
 .stockGrid {
