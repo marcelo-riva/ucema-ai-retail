@@ -138,6 +138,28 @@ export function Exercise04View({
   }, [repo]);
 
   useEffect(() => {
+    const groupId = session?.groupId;
+    if (!groupId) return;
+    if (Object.keys(posturas).length === 0) return;
+
+    const timeout = setTimeout(() => {
+      repo.saveSubmission({
+        groupId,
+        exerciseId: "ex-04",
+        exerciseVersion: 1,
+        responsesJson: { ...posturas }
+      }).catch((error) => {
+        setMessages((current) => [
+          ...current,
+          { type: "error", text: `No se pudo guardar la postura: ${String(error)}` }
+        ]);
+      });
+    }, 500);
+
+    return () => clearTimeout(timeout);
+  }, [posturas, session, repo]);
+
+  useEffect(() => {
     const hasSuccess = messages.some((m) => m.type === "success");
     if (hasSuccess && successRef.current) {
       successRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
