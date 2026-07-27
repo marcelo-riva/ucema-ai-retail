@@ -168,7 +168,7 @@ export const lab01ExerciseSpecs = [
   {
     id: "ex-04",
     order: 4,
-    title: "Inventory & Working Capital Optimization",
+    title: "Inventory Optimization",
     route: "/labs/lab-01/exercises/ex-04",
     objective: "Definir stock objetivo, DDI y capital liberado.",
     checkpointName: "Checkpoint de Inventario",

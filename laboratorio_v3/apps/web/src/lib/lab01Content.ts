@@ -143,7 +143,7 @@ export const lab01ExerciseContent = {
     confirmations: []
   },
   "ex-04": {
-    title: "Ejercicio 4: Inventory & Working Capital Optimization",
+    title: "Ejercicio 4: Inventory Optimization",
     subtitle: "Optimizar capital de trabajo minimizando riesgo de quiebres.",
     context: "Hasta ahora tu equipo definió portfolio, pricing y forecast. Ahora el desafío es traducir esa proyección en decisiones de inventario y capital de trabajo. Un inventario más bajo libera capital, pero puede aumentar el riesgo de quiebre. Un inventario más alto protege ventas, pero inmoviliza caja. El objetivo es construir una política de cobertura que respete el rol de cada SKU, el forecast de demanda y la presión sobre capital de trabajo.",
     mainSheets: ["08_INVENTARIO"],

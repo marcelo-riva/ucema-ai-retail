@@ -118,12 +118,12 @@ export const INITIAL_EXERCISES: ExerciseMeta[] = [
   {
     id: "ex-04",
     labId: "lab-01",
-    title: "Ejercicio 4: Inventory & Working Capital Optimization",
+    title: "Ejercicio 4: Inventory Optimization",
     path: "/labs/lab-01/exercises/ex-04",
     order: 4,
-    status: "draft",
+    status: "active",
     version: 1,
-    workbookBaseKey: "NEXUS_RETAIL_LAB01_WORKBOOK_COMPLETO.xlsx"
+    workbookBaseKey: "NEXUS_RETAIL_LAB01_EJ04_INVENTARIO.xlsx"
   },
   {
     id: "lab02-ex01",
