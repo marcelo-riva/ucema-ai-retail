@@ -33,23 +33,6 @@ export const initialClients = [
   }
 ] as const;
 
-export const portfolioCategories = [
-  "Cosmética",
-  "Higiene",
-  "Nutrición",
-  "Bebé & Mamá",
-  "Parafarmacia",
-  "Dermocosmética",
-  "Suplementos",
-  "Fragancias"
-] as const;
-
-export const healthOptions = [
-  { key: "sana", label: "Sana" },
-  { key: "vigilar", label: "Vigilar" },
-  { key: "fragil", label: "Frágil" }
-] as const;
-
 export const segmentCollapseTable = [
   {
     segment: "VIP",
@@ -71,13 +54,6 @@ export const segmentCollapseTable = [
     cells: "Dormidos, Dormidos Profundos",
     logic: "Ya perdidos hace tiempo -- no entran en los 3 segmentos centrales."
   }
-] as const;
-
-export const scoreboardVariables = [
-  { key: "clv_total", label: "CLV total de la base (ARS)" },
-  { key: "pct_riesgo", label: "% de clientes en riesgo de fuga" },
-  { key: "cantidad_riesgo", label: "Clientes en riesgo de fuga (cantidad)" },
-  { key: "pct_clv_vip", label: "% del CLV concentrado en VIP" }
 ] as const;
 
 export const checkpointQuestions = [

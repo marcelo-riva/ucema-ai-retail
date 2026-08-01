@@ -7,15 +7,12 @@ import { getLabRepository } from "../lib/repositories/labRepository";
 import { LAB02_EXERCISE_WORKBOOKS } from "../lib/constants";
 import {
   checkpointQuestions,
-  healthOptions,
   initialClients,
-  portfolioCategories,
   promptArquetipos,
   promptCalidadCartera,
   promptClustering,
   promptRfm,
   promptSegmentacionFinal,
-  scoreboardVariables,
   segmentCollapseTable
 } from "../lib/lab02Ex01Content";
 import type { Group } from "../types/lab";
@@ -81,15 +78,10 @@ export function ExerciseLab02E01View({
   const successRef = useRef<HTMLDivElement | null>(null);
 
   const [rankings, setRankings] = useState<Record<string, string>>({});
-  const [categoryClassifications, setCategoryClassifications] = useState<Record<string, string>>({});
-  const [categoryJustifications, setCategoryJustifications] = useState<Record<string, string>>({});
-  const [primerCategory, setPrimerCategory] = useState("");
-  const [ultimaCategory, setUltimaCategory] = useState("");
   const [resumenB, setResumenB] = useState("");
   const [resumenC, setResumenC] = useState("");
   const [resumenD, setResumenD] = useState("");
   const [resumenE, setResumenE] = useState("");
-  const [scoreboardValues, setScoreboardValues] = useState<Record<string, string>>({});
   const [arquetipoResumen, setArquetipoResumen] = useState("");
   const [auditoriaCluster, setAuditoriaCluster] = useState("");
   const [checkpoint1, setCheckpoint1] = useState("");
@@ -99,15 +91,10 @@ export function ExerciseLab02E01View({
 
   const fieldValues = useMemo(() => ({
     ...rankings,
-    ...categoryClassifications,
-    ...categoryJustifications,
-    primer_category: primerCategory,
-    ultima_category: ultimaCategory,
     resumen_b: resumenB,
     resumen_c: resumenC,
     resumen_d: resumenD,
     resumen_e: resumenE,
-    ...scoreboardValues,
     arquetipo_resumen: arquetipoResumen,
     auditoria_cluster: auditoriaCluster,
     checkpoint_1: checkpoint1,
@@ -116,15 +103,10 @@ export function ExerciseLab02E01View({
     checkpoint_4: checkpoint4
   }), [
     rankings,
-    categoryClassifications,
-    categoryJustifications,
-    primerCategory,
-    ultimaCategory,
     resumenB,
     resumenC,
     resumenD,
     resumenE,
-    scoreboardValues,
     arquetipoResumen,
     auditoriaCluster,
     checkpoint1,
@@ -161,31 +143,10 @@ export function ExerciseLab02E01View({
           });
           setRankings(loadedRankings);
 
-          const loadedClassifications: Record<string, string> = {};
-          const loadedJustifications: Record<string, string> = {};
-          portfolioCategories.forEach((category) => {
-            const key = category.toLowerCase().replace(/[^a-z0-9]/g, "_");
-            const classification = responses[`classification_${key}`];
-            const justification = responses[`justification_${key}`];
-            if (classification) loadedClassifications[`classification_${key}`] = classification;
-            if (justification) loadedJustifications[`justification_${key}`] = justification;
-          });
-          setCategoryClassifications(loadedClassifications);
-          setCategoryJustifications(loadedJustifications);
-
-          setPrimerCategory(responses.primer_category ?? "");
-          setUltimaCategory(responses.ultima_category ?? "");
           setResumenB(responses.resumen_b ?? "");
           setResumenC(responses.resumen_c ?? "");
           setResumenD(responses.resumen_d ?? "");
           setResumenE(responses.resumen_e ?? "");
-
-          const loadedScoreboard: Record<string, string> = {};
-          scoreboardVariables.forEach((variable) => {
-            const value = responses[variable.key];
-            if (value) loadedScoreboard[variable.key] = value;
-          });
-          setScoreboardValues(loadedScoreboard);
 
           setArquetipoResumen(responses.arquetipo_resumen ?? "");
           setAuditoriaCluster(responses.auditoria_cluster ?? "");
@@ -311,20 +272,6 @@ export function ExerciseLab02E01View({
 
   function setRanking(clientId: string, value: string) {
     setRankings((current) => ({ ...current, [`rank_${clientId}`]: value }));
-  }
-
-  function setClassification(category: string, value: string) {
-    const key = category.toLowerCase().replace(/[^a-z0-9]/g, "_");
-    setCategoryClassifications((current) => ({ ...current, [`classification_${key}`]: value }));
-  }
-
-  function setJustification(category: string, value: string) {
-    const key = category.toLowerCase().replace(/[^a-z0-9]/g, "_");
-    setCategoryJustifications((current) => ({ ...current, [`justification_${key}`]: value }));
-  }
-
-  function setScoreboardValue(key: string, value: string) {
-    setScoreboardValues((current) => ({ ...current, [key]: value }));
   }
 
   return (
@@ -501,66 +448,13 @@ export function ExerciseLab02E01View({
         </div>
         <div className={styles.promptBox}>{promptCalidadCartera}</div>
 
-        <div className={styles.categoryGrid}>
-          {portfolioCategories.map((category) => {
-            const key = category.toLowerCase().replace(/[^a-z0-9]/g, "_");
-            const classification = categoryClassifications[`classification_${key}`] ?? "";
-            const justification = categoryJustifications[`justification_${key}`] ?? "";
-            return (
-              <div className={styles.categoryCard} key={category}>
-                <div className={styles.categoryHeader}>
-                  <h4>{category}</h4>
-                  <select
-                    className={styles.categorySelect}
-                    onChange={(event) => setClassification(category, event.target.value)}
-                    value={classification}
-                  >
-                    <option value="">— Clasificación —</option>
-                    {healthOptions.map((option) => (
-                      <option key={option.key} value={option.key}>{option.label}</option>
-                    ))}
-                  </select>
-                </div>
-                <div className={styles.formField}>
-                  <label>Justificación</label>
-                  <textarea
-                    onChange={(event) => setJustification(category, event.target.value)}
-                    placeholder="¿Por qué Sana, Vigilar o Frágil?"
-                    value={justification}
-                  />
-                </div>
-              </div>
-            );
-          })}
-        </div>
-
-        <div className={styles.formGrid}>
-          <div className={styles.formField}>
-            <label>Primera categoría que sacarían de las promociones</label>
-            <input
-              onChange={(event) => setPrimerCategory(event.target.value)}
-              placeholder="Escriban su respuesta..."
-              type="text"
-              value={primerCategory}
-            />
-          </div>
-          <div className={styles.formField}>
-            <label>Última categoría que tocarían</label>
-            <input
-              onChange={(event) => setUltimaCategory(event.target.value)}
-              placeholder="Escriban su respuesta..."
-              type="text"
-              value={ultimaCategory}
-            />
-          </div>
-          <div className={styles.formField}>
-            <label>Resumen para la plataforma (2-3 líneas)</label>
-            <textarea
-              onChange={(event) => setResumenB(event.target.value)}
-              placeholder="Si el mes que viene tuvieran que sacar una categoría de las promociones, ¿cuál elegirían primero -- y cuál es la última que tocarían? (documenten la clasificación completa en 05_CALIDAD_CARTERA)"
-              value={resumenB}
-            />
-          </div>
+        <div className={styles.formField} style={{ marginTop: 16 }}>
+          <label>Resumen para la plataforma (2-3 líneas)</label>
+          <textarea
+            onChange={(event) => setResumenB(event.target.value)}
+            placeholder="Si el mes que viene tuvieran que sacar una categoría de las promociones, ¿cuál elegirían primero -- y cuál es la última que tocarían? (documenten la clasificación completa en 05_CALIDAD_CARTERA)"
+            value={resumenB}
+          />
         </div>
       </section>
 
@@ -646,25 +540,11 @@ export function ExerciseLab02E01View({
         </div>
         <div className={styles.promptBox}>{promptSegmentacionFinal}</div>
 
-        <div className={styles.scoreboardGrid}>
-          {scoreboardVariables.map((variable) => (
-            <div className={styles.scoreboardField} key={variable.key}>
-              <label>{variable.label}</label>
-              <input
-                onChange={(event) => setScoreboardValue(variable.key, event.target.value)}
-                placeholder="0"
-                type="text"
-                value={scoreboardValues[variable.key] ?? ""}
-              />
-            </div>
-          ))}
-        </div>
-
         <div className={styles.formField} style={{ marginTop: 16 }}>
           <label>Resumen para la plataforma (2-3 líneas)</label>
           <textarea
             onChange={(event) => setResumenD(event.target.value)}
-            placeholder="Con la segmentación ya completa: ¿qué % del CLV total está concentrado en VIP, y los sorprendió ese número?"
+            placeholder="Con la segmentación completa: ¿qué CLV total y qué % de clientes en riesgo de fuga encontraron, y qué % del CLV está concentrado en VIP? Contálo en prosa, no como números sueltos."
             value={resumenD}
           />
         </div>
