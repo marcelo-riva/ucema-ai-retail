@@ -1,0 +1,637 @@
+/* ExerciseLab02E01View.module.css — estilos específicos del Ejercicio 1 del Laboratorio 2: Customer Segmentation. */
+/* Mantiene la misma estructura visual de los ejercicios del Laboratorio 1. */
+
+.hero {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+  padding: 28px 30px;
+  margin-bottom: 22px;
+}
+
+.heroEyebrow {
+  color: var(--brand);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+
+.hero h1 {
+  font-size: clamp(24px, 4vw, 34px);
+  line-height: 1.1;
+  margin: 0 0 10px;
+}
+
+.heroLead {
+  color: var(--ink);
+  font-size: 15px;
+  line-height: 1.55;
+  max-width: 820px;
+  margin: 0;
+}
+
+.metaRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 20px;
+}
+
+.metaCard {
+  background: var(--surface-muted);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 10px 16px;
+  min-width: 140px;
+}
+
+.metaCardKey {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.metaCardValue {
+  font-size: 14px;
+  font-weight: 750;
+  margin-top: 2px;
+}
+
+.statusPill {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 800;
+  gap: 6px;
+  padding: 4px 10px;
+  text-transform: uppercase;
+  background: rgba(15, 107, 93, 0.1);
+  color: var(--brand);
+}
+
+.workbookBox {
+  background: linear-gradient(135deg, rgba(15, 107, 93, 0.06), rgba(191, 111, 40, 0.06));
+  border: 1px dashed var(--brand);
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin-top: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.workbookTitle {
+  font-weight: 800;
+  font-size: 14px;
+}
+
+.workbookDesc {
+  color: var(--muted);
+  font-size: 13px;
+  margin-top: 4px;
+  max-width: 560px;
+}
+
+.btn {
+  background: var(--brand);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 11px 20px;
+  font-weight: 800;
+  font-size: 13px;
+  cursor: pointer;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+}
+
+.btnSecondary {
+  background: #fff;
+  color: var(--brand-strong);
+  border: 1px solid var(--brand);
+}
+
+.noticeBox {
+  background: rgba(191, 111, 40, 0.08);
+  border: 1px solid rgba(191, 111, 40, 0.35);
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin-bottom: 22px;
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+
+.noticeIcon {
+  font-size: 20px;
+  line-height: 1;
+}
+
+.noticeTitle {
+  font-weight: 800;
+  font-size: 13.5px;
+  color: var(--warning);
+  margin-bottom: 4px;
+}
+
+.noticeBox p {
+  font-size: 13px;
+  color: var(--ink);
+  line-height: 1.55;
+  margin: 0;
+}
+
+.section {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+  padding: 28px 30px;
+  margin-bottom: 22px;
+}
+
+.sectionHead {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.stepMark {
+  background: var(--brand-strong);
+  color: #fff;
+  font-weight: 800;
+  font-size: 15px;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.sectionTitle {
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.sectionSub {
+  color: var(--muted);
+  font-size: 12.5px;
+  margin-top: 2px;
+}
+
+.timer {
+  margin-left: auto;
+  background: var(--surface-muted);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 5px 12px;
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--brand-strong);
+  white-space: nowrap;
+}
+
+.bodyTxt {
+  color: var(--ink);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.bodyTxt p {
+  margin: 0 0 10px;
+}
+
+.bodyTxt p:last-child {
+  margin-bottom: 0;
+}
+
+.tensionGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 14px;
+  margin: 16px 0;
+}
+
+.tensionCard {
+  background: var(--surface-muted);
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--accent);
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.tensionCard h3 {
+  font-size: 14.5px;
+  color: var(--brand-strong);
+  margin: 0 0 6px;
+}
+
+.tensionCard p {
+  color: var(--muted);
+  line-height: 1.45;
+  margin: 0;
+  font-size: 13.5px;
+}
+
+.tensionCardDesafio {
+  border-left-color: var(--danger);
+  background: rgba(180, 35, 24, 0.04);
+}
+
+.tensionCardFact {
+  display: inline-block;
+  margin-top: 10px;
+  font-size: 11px;
+  font-weight: 800;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: rgba(180, 35, 24, 0.12);
+  color: var(--danger);
+}
+
+.stockGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 14px;
+  margin-top: 14px;
+}
+
+.stockCard {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 16px;
+  background: var(--surface-muted);
+}
+
+.stockCard h4 {
+  font-size: 13.5px;
+  margin: 0 0 4px;
+}
+
+.cardId {
+  font-size: 10.5px;
+  color: var(--muted);
+  letter-spacing: 0.04em;
+  margin-bottom: 8px;
+}
+
+.stockRow {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12.5px;
+  padding: 3px 0;
+  color: var(--muted);
+}
+
+.stockRow b {
+  color: var(--ink);
+  text-align: right;
+}
+
+.rankRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--line);
+}
+
+.rankRow label {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--brand-strong);
+}
+
+.rankSelect {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-family: inherit;
+  font-size: 12.5px;
+  background: #fff;
+  color: var(--ink);
+  font-weight: 700;
+}
+
+.rankSelectDuplicate {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+.rankWarning {
+  color: var(--danger);
+  font-size: 12px;
+  font-weight: 700;
+  margin-top: 10px;
+  display: none;
+}
+
+.rankWarningVisible {
+  display: block;
+}
+
+.dataTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  margin-top: 10px;
+}
+
+.dataTable th {
+  background: var(--brand-strong);
+  color: #fff;
+  text-align: left;
+  padding: 8px 10px;
+  font-size: 12px;
+}
+
+.dataTable td {
+  border-bottom: 1px solid var(--line);
+  padding: 8px 10px;
+}
+
+.dataTable tr:nth-child(even) td {
+  background: var(--surface-muted);
+}
+
+.dataTable td.name {
+  font-weight: 700;
+}
+
+.categoryGrid {
+  display: grid;
+  gap: 14px;
+  margin-top: 14px;
+}
+
+.categoryCard {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 16px;
+  background: var(--surface-muted);
+}
+
+.categoryCard h4 {
+  font-size: 14px;
+  margin: 0 0 10px;
+}
+
+.categoryHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+.categorySelect {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-family: inherit;
+  font-size: 13px;
+  background: #fff;
+  color: var(--ink);
+  font-weight: 700;
+  min-width: 140px;
+}
+
+.ladder {
+  display: flex;
+  align-items: stretch;
+  gap: 6px;
+  margin: 16px 0;
+  flex-wrap: wrap;
+}
+
+.ladderStep {
+  flex: 1 1 0;
+  min-width: 200px;
+  background: var(--surface-muted);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 14px;
+}
+
+.ladderStepNumber {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--muted);
+}
+
+.ladderStepTitle {
+  font-size: 14px;
+  font-weight: 800;
+  margin-top: 4px;
+}
+
+.ladderStepDesc {
+  font-size: 12.5px;
+  color: var(--muted);
+  margin-top: 6px;
+  line-height: 1.5;
+}
+
+.ladderArrow {
+  align-self: center;
+  color: var(--muted);
+  font-size: 18px;
+  padding: 0 4px;
+}
+
+.promptLabel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 18px;
+  margin-bottom: 2px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.promptName {
+  font-weight: 800;
+  font-size: 13px;
+}
+
+.copyButton {
+  align-items: center;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--brand);
+  display: inline-flex;
+  height: 34px;
+  padding: 0 12px;
+  justify-content: center;
+  cursor: pointer;
+  font-weight: 800;
+  font-size: 12px;
+  gap: 6px;
+}
+
+.copyButton:hover {
+  background: var(--surface-muted);
+}
+
+.promptBox {
+  background: #1b241d;
+  color: #eef4ee;
+  border-radius: 12px;
+  padding: 20px 22px;
+  font-family: SFMono-Regular, Consolas, monospace;
+  font-size: 12.4px;
+  line-height: 1.65;
+  white-space: pre-wrap;
+  margin-top: 12px;
+}
+
+.formGrid {
+  display: grid;
+  gap: 18px;
+  margin-top: 16px;
+}
+
+.formField {
+  display: grid;
+  gap: 8px;
+}
+
+.formField label {
+  font-weight: 800;
+  font-size: 13px;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.formField textarea,
+.formField input[type="text"] {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 11px 13px;
+  font-family: inherit;
+  font-size: 13.5px;
+  resize: vertical;
+  background: #fff;
+  min-height: 76px;
+}
+
+.formField input[type="text"] {
+  min-height: auto;
+}
+
+.formFieldError textarea,
+.formFieldError input[type="text"] {
+  border-color: var(--danger);
+}
+
+.errorText {
+  color: var(--danger);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.formActions {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+
+.formNote {
+  color: var(--muted);
+  font-size: 12px;
+  margin-top: 10px;
+}
+
+.footerNote {
+  color: var(--muted);
+  font-size: 12px;
+  text-align: center;
+  margin: 26px 0 8px;
+}
+
+.messageList {
+  display: grid;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.message {
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.messageSuccess {
+  background: rgba(25, 115, 90, 0.1);
+  color: var(--success);
+}
+
+.messageError {
+  background: rgba(180, 35, 24, 0.08);
+  color: var(--danger);
+}
+
+.scoreboardGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+  margin-top: 14px;
+}
+
+.scoreboardField {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 12px 14px;
+  background: var(--surface-muted);
+}
+
+.scoreboardField label {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  display: block;
+  margin-bottom: 6px;
+}
+
+.scoreboardField input {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-family: inherit;
+  font-size: 13px;
+  background: #fff;
+}
+
+@media (max-width: 760px) {
+  .ladder {
+    flex-direction: column;
+  }
+
+  .ladderArrow {
+    transform: rotate(90deg);
+  }
+}

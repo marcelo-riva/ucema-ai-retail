@@ -6,11 +6,17 @@ import { ExerciseStepLayout } from "./ExerciseStepLayout";
 import { ConceptExplainer } from "./ConceptExplainer";
 import { AIPromptCards } from "./AIPromptCards";
 import { CheckpointForm, type CheckpointField } from "./labs/CheckpointForm";
+import { ExerciseLab02E01View } from "./ExerciseLab02E01View";
 import { lab02ExerciseContent, type Lab02ExerciseId } from "../lib/lab02Content";
 import type { ExerciseMeta, Session, Submission } from "../lib/repositories/labRepository.types";
 import { getLabRepository } from "../lib/repositories/labRepository";
+import type { Group } from "../types/lab";
 
 const repo = getLabRepository();
+
+const customViews: Partial<Record<Lab02ExerciseId, React.ComponentType<any>>> = {
+  "lab02-ex01": ExerciseLab02E01View
+};
 
 export function Lab02ExerciseClient({ exerciseId }: { exerciseId: Lab02ExerciseId }) {
   const router = useRouter();
@@ -104,6 +110,25 @@ export function Lab02ExerciseClient({ exerciseId }: { exerciseId: Lab02ExerciseI
 
   const checkpointStatus = submission?.status ?? "borrador";
   const groupName = session?.role === "admin" ? session.username : (session?.groupId ?? "Sin grupo");
+
+  const effectiveGroup: Group = {
+    id: session?.groupId ?? "admin",
+    name: session?.role === "admin" ? (session?.username ?? "Admin") : (session?.groupId ?? "Sin grupo"),
+    role: session?.role === "admin" ? "admin" : "student"
+  };
+
+  const CustomView = customViews[exerciseId];
+  if (CustomView) {
+    return (
+      <CustomView
+        checkpoint={null}
+        group={effectiveGroup}
+        stateVersion="state_v0"
+        onSave={async () => {}}
+        onSubmit={async () => {}}
+      />
+    );
+  }
 
   const checkpointFields: CheckpointField[] = content.fields.map((field) => ({
     id: field.key,
