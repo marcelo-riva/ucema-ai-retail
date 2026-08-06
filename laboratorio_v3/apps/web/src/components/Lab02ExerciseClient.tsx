@@ -7,6 +7,7 @@ import { ConceptExplainer } from "./ConceptExplainer";
 import { AIPromptCards } from "./AIPromptCards";
 import { CheckpointForm, type CheckpointField } from "./labs/CheckpointForm";
 import { ExerciseLab02E01View } from "./ExerciseLab02E01View";
+import { ExerciseLab02E02View } from "./ExerciseLab02E02View";
 import { lab02ExerciseContent, type Lab02ExerciseId } from "../lib/lab02Content";
 import type { ExerciseMeta, Session, Submission } from "../lib/repositories/labRepository.types";
 import { getLabRepository } from "../lib/repositories/labRepository";
@@ -15,7 +16,8 @@ import type { Group } from "../types/lab";
 const repo = getLabRepository();
 
 const customViews: Partial<Record<Lab02ExerciseId, React.ComponentType<any>>> = {
-  "lab02-ex01": ExerciseLab02E01View
+  "lab02-ex01": ExerciseLab02E01View,
+  "lab02-ex02": ExerciseLab02E02View
 };
 
 export function Lab02ExerciseClient({ exerciseId }: { exerciseId: Lab02ExerciseId }) {

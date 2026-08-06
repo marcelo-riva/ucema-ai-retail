@@ -10,7 +10,8 @@ export const LAB01_EXERCISE_WORKBOOKS: Record<Lab01ExerciseId, string> = {
 };
 
 export const LAB02_EXERCISE_WORKBOOKS: Partial<Record<Lab02ExerciseId, string>> = {
-  "lab02-ex01": "NEXUS_LAB02_EJ01_SEGMENTACION.xlsx"
+  "lab02-ex01": "NEXUS_LAB02_EJ01_SEGMENTACION.xlsx",
+  "lab02-ex02": "NEXUS_LAB02_EJ02_BASE.xlsx"
 };
 
 export const LAB01_WORKBOOK_FILENAME = "NEXUS_RETAIL_LAB01_WORKBOOK_COMPLETO.xlsx";
