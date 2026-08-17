@@ -44,32 +44,24 @@ const checkpointQuestions = [
   }
 ] as const;
 
-const actionRows = [
-  { id: "accion_1", num: 1 },
-  { id: "accion_2", num: 2 },
-  { id: "accion_3", num: 3 },
-  { id: "accion_4", num: 4 },
-  { id: "accion_5", num: 5 }
-] as const;
-
-const actionColumns = [
-  { id: "nombre", header: "Acción" },
-  { id: "eje", header: "Eje" },
-  { id: "ebitda", header: "Impacto EBITDA" },
-  { id: "caja", header: "Impacto caja" },
-  { id: "restriccion", header: "Restricción que la limita" },
-  { id: "supuesto", header: "Supuesto" }
+const actionChips = [
+  "Acción concreta",
+  "Eje",
+  "Impacto en EBITDA",
+  "Impacto en caja",
+  "Restricción que la limita",
+  "Supuesto"
 ] as const;
 
 const scoreboardRows = [
-  { id: "ebitda", indicator: "EBITDA acumulado 12m (ARS M)", baseline: "396", meta: "600" },
-  { id: "capital", indicator: "Capital liberado de inventario (ARS M)", baseline: "0", meta: "350" },
-  { id: "ingresos", indicator: "Ingresos por ventas 12m (ARS M)", baseline: "10.937", meta: "—" },
-  { id: "margen", indicator: "Margen bruto % promedio", baseline: "28,4%", meta: "—" },
-  { id: "caja", indicator: "Saldo de caja al mes 12 (ARS M)", baseline: "269", meta: "—" },
-  { id: "inventario", indicator: "Días de inventario al mes 12", baseline: "76", meta: "—" },
-  { id: "vip", indicator: "Facturación segmento VIP", baseline: "base 100", meta: "≥ 100" },
-  { id: "skus", indicator: "SKUs discontinuados", baseline: "0", meta: "≤ 40" }
+  { id: "ebitda", indicator: "EBITDA acumulado 12m (ARS M)", baseline: "396", meta: "600", goal: true },
+  { id: "capital", indicator: "Capital liberado de inventario (ARS M)", baseline: "0", meta: "350", goal: true },
+  { id: "vip", indicator: "Facturación segmento VIP", baseline: "base 100", meta: "≥ 100", goal: true },
+  { id: "skus", indicator: "SKUs discontinuados", baseline: "0", meta: "≤ 40", goal: true },
+  { id: "ingresos", indicator: "Ingresos por ventas 12m (ARS M)", baseline: "10.937", meta: "—", goal: false },
+  { id: "margen", indicator: "Margen bruto % promedio", baseline: "28,4%", meta: "—", goal: false },
+  { id: "caja", indicator: "Saldo de caja al mes 12 (ARS M)", baseline: "269", meta: "—", goal: false },
+  { id: "inventario", indicator: "Días de inventario al mes 12", baseline: "76", meta: "—", goal: false }
 ] as const;
 
 export function ExerciseLab02E04View({
@@ -96,6 +88,7 @@ export function ExerciseLab02E04View({
 
   const [diagnostico, setDiagnostico] = useState("");
   const [acciones, setAcciones] = useState("");
+  const [scoreboard, setScoreboard] = useState("");
   const [instrumento, setInstrumento] = useState("");
   const [checkpoint1, setCheckpoint1] = useState("");
   const [checkpoint2, setCheckpoint2] = useState("");
@@ -103,35 +96,31 @@ export function ExerciseLab02E04View({
   const [checkpoint4, setCheckpoint4] = useState("");
   const [checkpoint5, setCheckpoint5] = useState("");
   const [checkpoint6, setCheckpoint6] = useState("");
-  const [actionCells, setActionCells] = useState<Record<string, string>>({});
-  const [scoreCells, setScoreCells] = useState<Record<string, string>>({});
 
   const fieldValues = useMemo(
     () => ({
       ej04_diagnostico_cerrado: diagnostico,
       ej04_acciones: acciones,
+      ej04_scoreboard: scoreboard,
       ej04_instrumento: instrumento,
       ej04_checkpoint_1: checkpoint1,
       ej04_checkpoint_2: checkpoint2,
       ej04_checkpoint_3: checkpoint3,
       ej04_checkpoint_4: checkpoint4,
       ej04_checkpoint_5: checkpoint5,
-      ej04_checkpoint_6: checkpoint6,
-      ...actionCells,
-      ...scoreCells
+      ej04_checkpoint_6: checkpoint6
     }),
     [
       diagnostico,
       acciones,
+      scoreboard,
       instrumento,
       checkpoint1,
       checkpoint2,
       checkpoint3,
       checkpoint4,
       checkpoint5,
-      checkpoint6,
-      actionCells,
-      scoreCells
+      checkpoint6
     ]
   );
 
@@ -158,6 +147,7 @@ export function ExerciseLab02E04View({
           const responses = submission.responsesJson as Record<string, string>;
           setDiagnostico(responses.ej04_diagnostico_cerrado ?? "");
           setAcciones(responses.ej04_acciones ?? "");
+          setScoreboard(responses.ej04_scoreboard ?? "");
           setInstrumento(responses.ej04_instrumento ?? "");
           setCheckpoint1(responses.ej04_checkpoint_1 ?? "");
           setCheckpoint2(responses.ej04_checkpoint_2 ?? "");
@@ -165,19 +155,6 @@ export function ExerciseLab02E04View({
           setCheckpoint4(responses.ej04_checkpoint_4 ?? "");
           setCheckpoint5(responses.ej04_checkpoint_5 ?? "");
           setCheckpoint6(responses.ej04_checkpoint_6 ?? "");
-
-          const loadedActions: Record<string, string> = {};
-          const loadedScores: Record<string, string> = {};
-          Object.entries(responses).forEach(([key, value]) => {
-            if (key.startsWith("ej04_accion_")) {
-              loadedActions[key] = value;
-            }
-            if (key.startsWith("ej04_score_")) {
-              loadedScores[key] = value;
-            }
-          });
-          setActionCells(loadedActions);
-          setScoreCells(loadedScores);
         }
       }
     }
@@ -216,43 +193,12 @@ export function ExerciseLab02E04View({
     }
   }, [messages]);
 
-  function actionCellKey(rowId: string, colId: string): string {
-    return `ej04_accion_${rowId}_${colId}`;
-  }
-
-  function scoreCellKey(rowId: string, column: "proyeccion" | "supuesto"): string {
-    return `ej04_score_${rowId}_${column}`;
-  }
-
-  function setActionCell(rowId: string, colId: string, value: string) {
-    setActionCells((current) => ({ ...current, [actionCellKey(rowId, colId)]: value }));
-  }
-
-  function setScoreCell(rowId: string, column: "proyeccion" | "supuesto", value: string) {
-    setScoreCells((current) => ({ ...current, [scoreCellKey(rowId, column)]: value }));
-  }
-
   function validate(): string[] {
     const missing: string[] = [];
     if (!diagnostico.trim()) missing.push("Diagnóstico cerrado");
     if (!acciones.trim()) missing.push("Resumen de acciones");
+    if (!scoreboard.trim()) missing.push("El número al que llegamos");
     if (!instrumento.trim()) missing.push("Instrumento");
-
-    actionRows.forEach((row) => {
-      actionColumns.forEach((col) => {
-        const key = actionCellKey(row.id, col.id);
-        if (!actionCells[key]?.trim()) missing.push(`Acción ${row.num} · ${col.header}`);
-      });
-    });
-
-    scoreboardRows.forEach((row) => {
-      if (!scoreCells[scoreCellKey(row.id, "proyeccion")]?.trim()) {
-        missing.push(`Scoreboard · ${row.indicator} · proyección`);
-      }
-      if (!scoreCells[scoreCellKey(row.id, "supuesto")]?.trim()) {
-        missing.push(`Scoreboard · ${row.indicator} · supuesto`);
-      }
-    });
 
     checkpointQuestions.forEach((field) => {
       const value = fieldValues[field.id as keyof typeof fieldValues] as string;
@@ -298,23 +244,15 @@ export function ExerciseLab02E04View({
 
     const missing = validate();
     if (missing.length > 0) {
-      const nextErrors = new Set<string>([
-        "ej04_diagnostico_cerrado",
-        "ej04_acciones",
-        "ej04_instrumento",
-        ...checkpointQuestions.map((f) => f.id)
-      ]);
-      actionRows.forEach((row) => {
-        actionColumns.forEach((col) => {
-          const key = actionCellKey(row.id, col.id);
-          if (!actionCells[key]?.trim()) nextErrors.add(key);
-        });
-      });
-      scoreboardRows.forEach((row) => {
-        if (!scoreCells[scoreCellKey(row.id, "proyeccion")]?.trim()) nextErrors.add(scoreCellKey(row.id, "proyeccion"));
-        if (!scoreCells[scoreCellKey(row.id, "supuesto")]?.trim()) nextErrors.add(scoreCellKey(row.id, "supuesto"));
-      });
-      setErrors(nextErrors);
+      setErrors(
+        new Set([
+          "ej04_diagnostico_cerrado",
+          "ej04_acciones",
+          "ej04_scoreboard",
+          "ej04_instrumento",
+          ...checkpointQuestions.map((f) => f.id)
+        ])
+      );
       setMessages([{ type: "error", text: `Faltan campos obligatorios: ${missing.join(", ")}.` }]);
       return;
     }
@@ -532,40 +470,15 @@ export function ExerciseLab02E04View({
           </div>
           <div className={baseStyles.timer}>⏱ ~20 min</div>
         </div>
-        <div className={styles.tableWrap}>
-          <table className={styles.fillTable}>
-            <thead>
-              <tr>
-                <th style={{ width: 32 }}>#</th>
-                {actionColumns.map((col) => (
-                  <th key={col.id}>{col.header}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {actionRows.map((row) => (
-                <tr key={row.id}>
-                  <td>{row.num}</td>
-                  {actionColumns.map((col) => {
-                    const key = actionCellKey(row.id, col.id);
-                    return (
-                      <td
-                        key={col.id}
-                        className={`${styles.fillCell} ${errors.has(key) ? baseStyles.formFieldError : ""}`}
-                      >
-                        <input
-                          onChange={(event) => setActionCell(row.id, col.id, event.target.value)}
-                          placeholder=""
-                          type="text"
-                          value={actionCells[key] ?? ""}
-                        />
-                      </td>
-                    );
-                  })}
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className={baseStyles.bodyTxt}>
+          <p>
+            Armen la lista con su IA. Cada acción tiene que quedar definida por seis cosas:
+          </p>
+        </div>
+        <div className={styles.fieldChips}>
+          {actionChips.map((chip) => (
+            <span key={chip}>{chip}</span>
+          ))}
         </div>
         <div className={baseStyles.bodyTxt}>
           <p>Tres controles antes de cerrar la lista:</p>
@@ -585,7 +498,7 @@ export function ExerciseLab02E04View({
           </div>
         </div>
         <div className={`${styles.answerBox} ${errors.has("ej04_acciones") ? baseStyles.formFieldError : ""}`}>
-          <div className={styles.answerLabel}>Nuestras acciones</div>
+          <div className={styles.answerLabel}>Nuestras acciones, en orden de impacto</div>
           <textarea
             onChange={(event) => {
               setAcciones(event.target.value);
@@ -595,7 +508,7 @@ export function ExerciseLab02E04View({
                 return next;
               });
             }}
-            placeholder="Una por línea, con impacto, restricción y supuesto"
+            placeholder="Una por línea: qué hacemos · eje · impacto en EBITDA y en caja · restricción · supuesto"
             value={acciones}
           />
         </div>
@@ -606,53 +519,56 @@ export function ExerciseLab02E04View({
         <div className={baseStyles.sectionHead}>
           <div className={baseStyles.stepMark}>C</div>
           <div>
-            <div className={baseStyles.sectionTitle}>Scoreboard proyectado</div>
-            <div className={baseStyles.sectionSub}>A 12 meses, contra el baseline</div>
+            <div className={baseStyles.sectionTitle}>El scoreboard</div>
+            <div className={baseStyles.sectionSub}>Contra qué se mide el plan</div>
           </div>
-          <div className={baseStyles.timer}>⏱ ~10 min</div>
+          <div className={baseStyles.timer}>⏱ ~5 min</div>
+        </div>
+        <div className={baseStyles.bodyTxt}>
+          <p>
+            Estos son los ocho indicadores contra los que se lee el plan. <strong>No hace falta cargarlos acá:</strong> van en el instrumento que arman en el bloque siguiente, que es donde el Comité los va a ver.
+          </p>
         </div>
         <div className={styles.tableWrap}>
-          <table className={styles.fillTable}>
+          <table className={baseStyles.dataTable}>
             <thead>
               <tr>
                 <th>Indicador</th>
                 <th>Baseline</th>
-                <th>Su proyección</th>
                 <th>Meta</th>
-                <th>Supuesto clave</th>
               </tr>
             </thead>
             <tbody>
-              {scoreboardRows.map((row) => {
-                const proyeccionKey = scoreCellKey(row.id, "proyeccion");
-                const supuestoKey = scoreCellKey(row.id, "supuesto");
-                return (
-                  <tr key={row.id}>
-                    <td className={baseStyles.name}>{row.indicator}</td>
-                    <td>{row.baseline}</td>
-                    <td className={`${styles.fillCell} ${errors.has(proyeccionKey) ? baseStyles.formFieldError : ""}`}>
-                      <input
-                        onChange={(event) => setScoreCell(row.id, "proyeccion", event.target.value)}
-                        type="text"
-                        value={scoreCells[proyeccionKey] ?? ""}
-                      />
-                    </td>
-                    <td>{row.meta}</td>
-                    <td className={`${styles.fillCell} ${errors.has(supuestoKey) ? baseStyles.formFieldError : ""}`}>
-                      <input
-                        onChange={(event) => setScoreCell(row.id, "supuesto", event.target.value)}
-                        type="text"
-                        value={scoreCells[supuestoKey] ?? ""}
-                      />
-                    </td>
-                  </tr>
-                );
-              })}
+              {scoreboardRows.map((row) => (
+                <tr className={row.goal ? styles.goalRow : undefined} key={row.id}>
+                  <td className={baseStyles.name}>{row.indicator}</td>
+                  <td>{row.baseline}</td>
+                  <td>{row.meta}</td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
+        <p className={styles.tableLegend}>
+          Las cuatro primeras son las metas del Comité. Las otras cuatro son contexto: proyéctenlas solo si les sirven para sostener el plan.
+        </p>
         <div className={styles.calloutSoft}>
-          La columna de supuesto es obligatoria en las filas que proyectaron. Es donde se evalúa la entrega.
+          Cada número proyectado necesita su supuesto al lado. Es donde se evalúa la entrega, no en la magnitud.
+        </div>
+        <div className={`${styles.answerBox} ${errors.has("ej04_scoreboard") ? baseStyles.formFieldError : ""}`}>
+          <div className={styles.answerLabel}>El número al que llegamos</div>
+          <textarea
+            onChange={(event) => {
+              setScoreboard(event.target.value);
+              setErrors((current) => {
+                const next = new Set(current);
+                next.delete("ej04_scoreboard");
+                return next;
+              });
+            }}
+            placeholder="EBITDA proyectado · capital liberado · y el supuesto que sostiene cada uno"
+            value={scoreboard}
+          />
         </div>
       </section>
 
@@ -764,7 +680,7 @@ export function ExerciseLab02E04View({
           </li>
           <li>
             <h3>Qué hacemos</h3>
-            <p>Las acciones en orden de impacto, con el supuesto de cada una dicho en voz alta.</p>
+            <p>Las acciones en orden de impacto, con el supuesto de cada uno dicho en voz alta.</p>
           </li>
           <li>
             <h3>A dónde llegamos</h3>
