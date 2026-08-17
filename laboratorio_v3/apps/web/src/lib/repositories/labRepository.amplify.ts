@@ -36,6 +36,32 @@ function getClient() {
   return clientInstance;
 }
 
+let seedPromise: Promise<void> | null = null;
+
+/**
+ * Lazy auto-seed: cuando el backend está vacío (por ejemplo, después de un
+ * deploy nuevo), poblamos ExerciseMeta con la definición actual del código.
+ * Esto evita que el usuario/admin tenga que hacer clic manual en /admin para
+ * empezar a usar el sitio en modo Amplify.
+ */
+async function ensureSeeded(): Promise<void> {
+  if (seedPromise) return seedPromise;
+  if (typeof window === "undefined") return;
+  seedPromise = (async () => {
+    try {
+      const { data, errors } = await getClient().models.ExerciseMeta.list();
+      if (errors) throw new Error(errors.map((e) => e.message).join(", "));
+      if ((data ?? []).length === 0) {
+        await seedExerciseMeta();
+      }
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.warn("Auto-seed de ExerciseMeta falló:", error);
+    }
+  })();
+  return seedPromise;
+}
+
 function buildSubmissionId(groupId: string, exerciseId: string, exerciseVersion: number): string {
   return `${groupId}_${exerciseId}_v${exerciseVersion}`;
 }
@@ -168,6 +194,7 @@ export const amplifyLabRepository: LabRepository = {
   // Exercise metadata (Amplify Data)
   // --------------------------------------------------------------------------
   async listExercises(input: { role: "admin" | "group" }): Promise<ExerciseMeta[]> {
+    await ensureSeeded();
     const { data, errors } = await getClient().models.ExerciseMeta.list();
     if (errors) throw new Error(`Error listando ejercicios: ${errors.map((e) => e.message).join(", ")}`);
 
@@ -179,6 +206,7 @@ export const amplifyLabRepository: LabRepository = {
   },
 
   async getExerciseMeta(input: { exerciseId: string }): Promise<ExerciseMeta | null> {
+    await ensureSeeded();
     const { data, errors } = await getClient().models.ExerciseMeta.get({ id: input.exerciseId });
     if (errors) throw new Error(`Error leyendo ejercicio: ${errors.map((e) => e.message).join(", ")}`);
     if (!data) return null;

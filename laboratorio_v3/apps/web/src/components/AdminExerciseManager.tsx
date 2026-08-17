@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import type { ExerciseMeta, ExerciseStatus } from "../lib/repositories/labRepository.types";
 import { getLabRepository } from "../lib/repositories/labRepository";
 
@@ -11,7 +11,7 @@ export function AdminExerciseManager() {
   const [seeding, setSeeding] = useState(false);
   const isAmplify = process.env.NEXT_PUBLIC_DATA_MODE === "amplify";
 
-  async function load() {
+  const load = useCallback(async () => {
     try {
       setLoading(true);
       const repo = getLabRepository();
@@ -22,25 +22,9 @@ export function AdminExerciseManager() {
     } finally {
       setLoading(false);
     }
-  }
-
-  useEffect(() => {
-    load();
   }, []);
 
-  async function changeStatus(exerciseId: string, status: ExerciseStatus) {
-    try {
-      const repo = getLabRepository();
-      await repo.updateExerciseStatus({ exerciseId, status });
-      setExercises((current) =>
-        current.map((ex) => (ex.id === exerciseId ? { ...ex, status } : ex))
-      );
-    } catch (err) {
-      setError(String(err));
-    }
-  }
-
-  async function seedExercises() {
+  const seedExercises = useCallback(async () => {
     if (!isAmplify) return;
     try {
       setSeeding(true);
@@ -52,6 +36,28 @@ export function AdminExerciseManager() {
       setError(String(err));
     } finally {
       setSeeding(false);
+    }
+  }, [isAmplify, load]);
+
+  useEffect(() => {
+    // En modo Amplify sincronizamos los metadatos automáticamente al abrir /admin.
+    // Así no hace falta clicar "Regenerar ejercicios desde código" después de cada deploy.
+    if (isAmplify) {
+      seedExercises();
+    } else {
+      load();
+    }
+  }, [isAmplify, load, seedExercises]);
+
+  async function changeStatus(exerciseId: string, status: ExerciseStatus) {
+    try {
+      const repo = getLabRepository();
+      await repo.updateExerciseStatus({ exerciseId, status });
+      setExercises((current) =>
+        current.map((ex) => (ex.id === exerciseId ? { ...ex, status } : ex))
+      );
+    } catch (err) {
+      setError(String(err));
     }
   }
 
