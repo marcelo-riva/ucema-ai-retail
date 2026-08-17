@@ -414,7 +414,7 @@ export async function seedExerciseMeta(): Promise<void> {
     {
       id: "lab02-ex03",
       labId: "lab-02",
-      title: "Ejercicio 3: Churn Recovery Simulator",
+      title: "Ejercicio 3: Integrador P1",
       path: "/labs/lab-02/exercises/ex-03",
       order: 3,
       status: "active",
@@ -423,18 +423,9 @@ export async function seedExerciseMeta(): Promise<void> {
     {
       id: "lab02-ex04",
       labId: "lab-02",
-      title: "Ejercicio 4: Opportunistic Customer Simulator",
+      title: "Ejercicio 4: Integrador P2",
       path: "/labs/lab-02/exercises/ex-04",
       order: 4,
-      status: "active",
-      version: 1
-    },
-    {
-      id: "lab02-ex05",
-      labId: "lab-02",
-      title: "Ejercicio 5: Marketing ROI Consolidator",
-      path: "/labs/lab-02/exercises/ex-05",
-      order: 5,
       status: "active",
       version: 1
     }

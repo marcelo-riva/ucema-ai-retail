@@ -23,8 +23,7 @@ const exerciseLabels: Record<string, string> = {
   "lab02-ex01": "Ejercicio 1",
   "lab02-ex02": "Ejercicio 2",
   "lab02-ex03": "Ejercicio 3",
-  "lab02-ex04": "Ejercicio 4",
-  "lab02-ex05": "Ejercicio 5"
+  "lab02-ex04": "Ejercicio 4"
 };
 
 const labTitles: Record<string, string> = {

@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nexus · Panorámica del negocio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0E1526;
+  --plate:#141D33;
+  --rule:#2A3category;
+  --rule:#28324F;
+  --rule-soft:#1D2740;
+  --text:#DDE3F0;
+  --dim:#7E8CAE;
+  --sodium:#E8C547;
+  --cyan:#7FB8D4;
+  --coral:#E07A5F;
+  --mint:#8FC9A8;
+  --disp:'Barlow Condensed', 'Arial Narrow', system-ui, sans-serif;
+  --body:'IBM Plex Sans', system-ui, -apple-system, sans-serif;
+  --mono:'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;background:var(--ink);color:var(--text);font-family:var(--body);
+  background-image:
+    linear-gradient(var(--rule-soft) 1px, transparent 1px),
+    linear-gradient(90deg, var(--rule-soft) 1px, transparent 1px);
+  background-size:44px 44px;
+  background-position:-1px -1px;
+  overflow:hidden;
+}
+.frame{height:100vh;display:flex;flex-direction:column;padding:2.2vh 2.4vw 1.6vh}
+
+/* ── header ─────────────────────────────── */
+header{display:flex;align-items:flex-end;justify-content:space-between;gap:2rem;
+  border-bottom:1px solid var(--rule);padding-bottom:1.1vh}
+.brandwrap{display:flex;align-items:baseline;gap:.8rem}
+.brand{font-family:var(--disp);font-weight:600;letter-spacing:.22em;text-transform:uppercase;
+  font-size:clamp(14px,1.5vw,20px);color:var(--sodium)}
+.brandsub{font-family:var(--mono);font-size:clamp(9px,.72vw,12px);color:var(--dim);letter-spacing:.1em}
+nav{display:flex;gap:.35rem}
+nav button{
+  font-family:var(--mono);font-size:clamp(9px,.72vw,12px);letter-spacing:.06em;
+  background:transparent;border:1px solid var(--rule);color:var(--dim);
+  padding:.45em .9em;cursor:pointer;border-radius:2px;transition:.18s}
+nav button:hover{color:var(--text);border-color:var(--cyan)}
+nav button[aria-current="true"]{color:var(--ink);background:var(--sodium);border-color:var(--sodium);font-weight:500}
+nav button:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+
+/* ── panel scaffold ─────────────────────── */
+main{flex:1;min-height:0;position:relative}
+.panel{position:absolute;inset:0;display:none;flex-direction:column;padding-top:1.8vh}
+.panel.on{display:flex;animation:rise .45s cubic-bezier(.2,.7,.3,1)}
+@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.panel.on{animation:none}}
+
+.plateno{font-family:var(--mono);font-size:clamp(9px,.72vw,12px);color:var(--sodium);
+  letter-spacing:.18em;margin-bottom:.3em}
+h1{font-family:var(--disp);font-weight:500;font-size:clamp(24px,3.1vw,46px);
+  margin:0;line-height:1.02;letter-spacing:.005em}
+.lede{font-size:clamp(11px,.92vw,15px);color:var(--dim);max-width:62ch;margin:.6vh 0 0;line-height:1.45}
+
+.stage{flex:1;min-height:0;display:flex;gap:2.2vw;margin-top:1.8vh}
+.canvas{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center}
+svg{width:100%;height:100%;overflow:visible;display:block}
+
+/* ── side readouts ──────────────────────── */
+.side{width:min(23vw,320px);display:flex;flex-direction:column;justify-content:center;gap:2.2vh;
+  border-left:1px solid var(--rule);padding-left:1.6vw}
+.read .k{font-family:var(--mono);font-size:clamp(8px,.66vw,11px);letter-spacing:.14em;
+  text-transform:uppercase;color:var(--dim);display:block;margin-bottom:.25em}
+.read .v{font-family:var(--disp);font-size:clamp(26px,2.9vw,44px);line-height:1;font-weight:500}
+.read .v small{font-family:var(--mono);font-size:.3em;letter-spacing:.1em;color:var(--dim);
+  margin-left:.5em;vertical-align:.35em}
+.read .note{font-size:clamp(10px,.78vw,13px);color:var(--dim);margin-top:.4em;line-height:1.4}
+.v.sodium{color:var(--sodium)} .v.coral{color:var(--coral)} .v.cyan{color:var(--cyan)} .v.mint{color:var(--mint)}
+
+/* ── footer: the signature line ─────────── */
+footer{border-top:1px solid var(--rule);margin-top:1.4vh;padding-top:1vh;
+  display:flex;justify-content:space-between;align-items:baseline;gap:2rem}
+.blind{font-family:var(--mono);font-size:clamp(9px,.75vw,12.5px);color:var(--dim);letter-spacing:.02em}
+.blind b{color:var(--coral);font-weight:500;letter-spacing:.1em;text-transform:uppercase;margin-right:.7em}
+.src{font-family:var(--mono);font-size:clamp(8px,.66vw,11px);color:#54608A;letter-spacing:.08em;white-space:nowrap}
+
+/* ── svg text defaults ──────────────────── */
+text{font-family:var(--mono);fill:var(--dim);font-size:11px;letter-spacing:.04em}
+.axis{stroke:var(--rule);stroke-width:1}
+.grid{stroke:var(--rule-soft);stroke-width:1}
+.lbl-big{font-family:var(--disp);font-size:15px;fill:var(--text);letter-spacing:.06em}
+.tick{font-size:10px}
+.legend{font-size:11px;fill:var(--dim)}
+.dot-lbl{font-size:10.5px;fill:var(--text)}
+.hit{fill:transparent;cursor:crosshair}
+.hoverable:hover{opacity:1}
+</style>
+</head>
+<body>
+<div class="frame">
+
+<header>
+  <div class="brandwrap">
+    <span class="brand">Nexus</span>
+    <span class="brandsub">PANORÁMICA PARA EL COMITÉ · 12 MESES DE HISTORIA + 12 DE PROYECCIÓN</span>
+  </div>
+  <nav id="nav" aria-label="Paneles"></nav>
+</header>
+
+<main id="main"></main>
+
+</div>
+
+<script>
+const D = {
+  months: ["2025-08","2025-09","2025-10","2025-11","2025-12","2026-01","2026-02","2026-03","2026-04","2026-05","2026-06","2026-07","2026-08","2026-09","2026-10","2026-11","2026-12","2027-01","2027-02","2027-03","2027-04","2027-05","2027-06","2027-07"],
+  ingresos: [884.7, 863.1, 875.3, 882.5, 959.1, 918.1, 900.2, 888.8, 886.6, 877.1, 905.7, 925.5, 900.4, 879, 876.3, 892.6, 984.2, 920, 925.8, 897.5, 896.4, 911.9, 918, 934.4],
+  cmv: [650.6, 625.5, 622.9, 620, 661.7, 638.1, 628.9, 631.6, 640.5, 640, 667.8, 685.7, 660.2, 637.6, 625.2, 627.7, 677.7, 642.3, 646, 637.9, 643.7, 666.1, 678.2, 690.2],
+  opex: [210.9, 211.6, 212.4, 213.3, 214.7, 215.2, 215.9, 216.6, 217.4, 218.2, 219.2, 220.2, 220.8, 221.5, 222.3, 223.3, 224.9, 225.2, 226.1, 226.8, 227.6, 228.6, 229.5, 230.5],
+  ebitda: [23.2, 26.1, 39.9, 49.2, 82.7, 64.8, 55.3, 40.7, 28.7, 18.9, 18.7, 19.6, 19.3, 19.8, 28.7, 41.6, 81.6, 52.4, 53.6, 32.8, 25.1, 17.2, 10.4, 13.7],
+  caja: [428.2, 443.3, 415.3, 412.8, 444.9, 493.4, 506.5, 499.5, 461, 406.4, 372.1, 380, 412.6, 422.5, 380.3, 368.3, 390.6, 435, 446.2, 423.6, 377.4, 319, 292.7, 269.3],
+  subgrupos: [
+    {sub:"ETI_CRONICOS", fam:"ETICOS", skus:38, fact:2256, mg:19.5, stock:394, dias:79},
+    {sub:"DERMOCOSMETICA", fam:"SELECTIVOS", skus:46, fact:2239, mg:44.1, stock:246, dias:72},
+    {sub:"ETI_AGUDOS", fam:"ETICOS", skus:34, fact:1761, mg:18.5, stock:299, dias:76},
+    {sub:"CUIDADO_PERSONAL", fam:"MASIVOS", skus:48, fact:1263, mg:29.1, stock:197, dias:80},
+    {sub:"OTC_VENTA_LIBRE", fam:"MASIVOS", skus:42, fact:959, mg:18.7, stock:190, dias:89},
+    {sub:"HOGAR", fam:"MASIVOS", skus:32, fact:777, mg:26.6, stock:79, dias:50},
+    {sub:"INFANTIL", fam:"MASIVOS", skus:30, fact:768, mg:28.1, stock:128, dias:85},
+    {sub:"MAQUILLAJE", fam:"SELECTIVOS", skus:30, fact:743, mg:44.4, stock:104, dias:91}
+  ],
+  segmentos: [
+    {seg:"VIP", n:44, fact:4897},
+    {seg:"RIESGO DE FUGA", n:42, fact:3112},
+    {seg:"OPORTUNISTAS", n:68, fact:2252},
+    {seg:"BAJA PRIORIDAD", n:46, fact:506}
+  ]
+};
+
+const SVGNS="http://www.w3.org/2000/svg";
+const el=(t,a={})=>{const n=document.createElementNS(SVGNS,t);for(const k in a)n.setAttribute(k,a[k]);return n;};
+const txt=(s,x,y,a={})=>{const n=el("text",Object.assign({x,y},a));n.textContent=s;return n;};
+const fmt=n=>n.toLocaleString("es-AR");
+
+/* ═══ PANEL 1 · la tijera ═══ */
+function plate1(){
+  const W=1180,H=600,L=76,R=24,T=22,B=44;
+  const s=el("svg",{viewBox:`0 0 ${W} ${H}`,preserveAspectRatio:"xMidYMid meet"});
+  const splitTop=372, gap=40, hTop=splitTop-T, yTop2=splitTop+gap, hBot=H-B-yTop2;
+  const n=D.months.length, iw=W-L-R;
+  const x=i=>L+(i+.5)*(iw/n);
+  const lo=805, hi=1010;                       // eje truncado: la tijera es el tema
+  const yT=v=>T+hTop-((v-lo)/(hi-lo))*hTop;
+  [850,900,950,1000].forEach(v=>{
+    s.appendChild(el("line",{x1:L,x2:W-R,y1:yT(v),y2:yT(v),class:"grid"}));
+    s.appendChild(txt(v,L-10,yT(v)+3.5,{"text-anchor":"end",class:"tick"}));
+  });
+  const dv=x(11)+(iw/n)/2;
+  s.appendChild(el("rect",{x:dv,y:T-8,width:W-R-dv,height:H-B-T+8,fill:"#7FB8D4",opacity:".045"}));
+  s.appendChild(el("line",{x1:dv,x2:dv,y1:T-8,y2:H-B,stroke:"#7FB8D4","stroke-width":1,"stroke-dasharray":"3 4",opacity:".7"}));
+  s.appendChild(txt("HISTORIA",dv-10,T-1,{"text-anchor":"end",class:"tick",fill:"#54608A"}));
+  s.appendChild(txt("FORECAST SIN CAMBIOS DE GESTIÓN",dv+10,T-1,{class:"tick",fill:"#7FB8D4"}));
+
+  const path=(arr,f)=>arr.map((v,i)=>`${i?"L":"M"}${x(i).toFixed(1)},${f(v).toFixed(1)}`).join(" ");
+  const costoTotal=D.cmv.map((c,i)=>c+D.opex[i]);
+  const area=path(D.ingresos,yT)+" "+costoTotal.map((v,i)=>`L${x(n-1-i).toFixed(1)},${yT(costoTotal[n-1-i]).toFixed(1)}`).join(" ")+" Z";
+  s.appendChild(el("path",{d:area,fill:"#E8C547",opacity:".13"}));
+  s.appendChild(el("path",{d:path(D.ingresos,yT),fill:"none",stroke:"#DDE3F0","stroke-width":2.4}));
+  s.appendChild(el("path",{d:path(costoTotal,yT),fill:"none",stroke:"#E07A5F","stroke-width":2.4}));
+  s.appendChild(txt("INGRESOS POR VENTAS",x(0),yT(D.ingresos[0])-16,{class:"legend",fill:"#DDE3F0"}));
+  s.appendChild(txt("COSTO DE MERCADERÍA + GASTOS OPERATIVOS",x(0),yT(costoTotal[0])+46,{class:"legend",fill:"#E07A5F"}));
+  s.appendChild(txt("ARS millones por mes · eje cortado en 805",L,T-16,{class:"tick",fill:"#54608A"}));
+
+  const maxE=90, yB=v=>yTop2+hBot-(v/maxE)*hBot;
+  s.appendChild(el("line",{x1:L,x2:W-R,y1:yB(0),y2:yB(0),class:"axis"}));
+  s.appendChild(txt("EBITDA MENSUAL · ARS MILLONES",L,yTop2-8,{class:"legend",fill:"#8FC9A8"}));
+  const bw=(iw/n)*.62;
+  D.ebitda.forEach((v,i)=>{
+    s.appendChild(el("rect",{x:x(i)-bw/2,y:yB(v),width:bw,height:Math.max((v/maxE)*hBot,1.2),
+      fill:i<12?"#8FC9A8":"#7FB8D4",opacity:i<12?.85:.6}));
+  });
+  D.months.forEach((m,i)=>{ if(i%3===0) s.appendChild(txt(m.slice(2).replace("-","/"),x(i),H-B+22,{"text-anchor":"middle",class:"tick"})); });
+  return s;
+}
+
+/* ═══ PANEL 2 · las ocho categorías ═══ */
+function plate2(){
+  const W=1180,H=600,L=76,R=178,T=30,B=56;
+  const s=el("svg",{viewBox:`0 0 ${W} ${H}`,preserveAspectRatio:"xMidYMid meet"});
+  const iw=W-L-R, ih=H-T-B;
+  const x=v=>L+(v/2400)*iw, y=v=>T+ih-((v-14)/34)*ih;
+  [0,600,1200,1800,2400].forEach(v=>{
+    s.appendChild(el("line",{x1:x(v),x2:x(v),y1:T,y2:T+ih,class:"grid"}));
+    s.appendChild(txt(fmt(v),x(v),T+ih+20,{"text-anchor":"middle",class:"tick"}));
+  });
+  [20,30,40,48].forEach(v=>{
+    s.appendChild(el("line",{x1:L,x2:L+iw,y1:y(v),y2:y(v),class:"grid"}));
+    s.appendChild(txt(v+"%",L-10,y(v)+3.5,{"text-anchor":"end",class:"tick"}));
+  });
+  s.appendChild(txt("FACTURACIÓN ANUAL · ARS MILLONES",L+iw/2,H-16,{"text-anchor":"middle",class:"legend"}));
+  s.appendChild(txt("MARGEN BRUTO",L-10,T-8,{"text-anchor":"end",class:"legend"}));
+  const col={ETICOS:"#7FB8D4",MASIVOS:"#E8C547",SELECTIVOS:"#E07A5F"};
+  const place={ETI_CRONICOS:"l",DERMOCOSMETICA:"l",ETI_AGUDOS:"b",CUIDADO_PERSONAL:"r",
+               OTC_VENTA_LIBRE:"r",HOGAR:"b",INFANTIL:"r",MAQUILLAJE:"r"};
+  D.subgrupos.forEach(d=>{
+    const r=8+Math.sqrt(d.skus)*2.1, cx=x(d.fact), cy=y(d.mg), p=place[d.sub];
+    const g=el("g");
+    g.appendChild(el("circle",{cx,cy,r,fill:col[d.fam],opacity:".22"}));
+    g.appendChild(el("circle",{cx,cy,r,fill:"none",stroke:col[d.fam],"stroke-width":1.6}));
+    let tx=cx, ty=cy-1, anchor="middle";
+    if(p==="r"){tx=cx+r+10;anchor="start";}
+    if(p==="l"){tx=cx-r-10;anchor="end";}
+    if(p==="b"){ty=cy+r+20;}
+    g.appendChild(txt(d.sub.replace(/_/g," "),tx,ty,{"text-anchor":anchor,class:"lbl-big"}));
+    g.appendChild(txt(d.skus+" SKUs",tx,ty+14,{"text-anchor":anchor,class:"tick"}));
+    s.appendChild(g);
+  });
+  // family legend
+  let ly=T+6;
+  Object.keys(col).forEach(k=>{
+    s.appendChild(el("circle",{cx:W-R+34,cy:ly,r:5,fill:col[k],opacity:".3",stroke:col[k]}));
+    s.appendChild(txt(k,W-R+46,ly+4,{class:"legend"}));
+    ly+=22;
+  });
+  s.appendChild(txt("el área del círculo",W-R+22,ly+18,{class:"tick",fill:"#54608A"}));
+  s.appendChild(txt("es la cantidad de SKUs",W-R+22,ly+32,{class:"tick",fill:"#54608A"}));
+  return s;
+}
+
+/* ═══ PANEL 3 · el capital dormido ═══ */
+function plate3(){
+  const W=1180,H=600,L=196,R=150,T=30,B=48;
+  const s=el("svg",{viewBox:`0 0 ${W} ${H}`,preserveAspectRatio:"xMidYMid meet"});
+  const iw=W-L-R, ih=H-T-B;
+  const rows=[...D.subgrupos].sort((a,b)=>b.dias-a.dias);
+  const bh=ih/rows.length;
+  const x=v=>L+(v/100)*iw;
+  [0,25,50,75,100].forEach(v=>{
+    s.appendChild(el("line",{x1:x(v),x2:x(v),y1:T,y2:T+ih,class:"grid"}));
+    s.appendChild(txt(v,x(v),T+ih+20,{"text-anchor":"middle",class:"tick"}));
+  });
+  s.appendChild(txt("DÍAS DE COBERTURA",L+iw/2,H-12,{"text-anchor":"middle",class:"legend"}));
+  rows.forEach((d,i)=>{
+    const cy=T+i*bh+bh/2;
+    s.appendChild(txt(d.sub.replace(/_/g," "),L-14,cy+1,{"text-anchor":"end",class:"lbl-big"}));
+    s.appendChild(el("rect",{x:L,y:cy-9,width:x(d.dias)-L,height:18,fill:"#7FB8D4",opacity:d.dias>76?".55":".26"}));
+    s.appendChild(el("rect",{x:L,y:cy-9,width:x(d.dias)-L,height:18,fill:"none",stroke:"#7FB8D4","stroke-width":1,opacity:".8"}));
+    s.appendChild(txt(d.dias+" d",x(d.dias)+10,cy+1,{class:"dot-lbl"}));
+    s.appendChild(txt("ARS "+fmt(d.stock)+" M inmovilizados",x(d.dias)+52,cy+1,{class:"tick"}));
+  });
+  s.appendChild(el("line",{x1:x(76),x2:x(76),y1:T-10,y2:T+ih+6,stroke:"#E8C547","stroke-width":1.5,"stroke-dasharray":"5 4"}));
+  s.appendChild(txt("PROMEDIO DE LA CADENA · 76 DÍAS",x(76)+8,T-16,{class:"legend",fill:"#E8C547"}));
+  return s;
+}
+
+/* ═══ PANEL 4 · quiénes compran ═══ */
+function plate4(){
+  const W=1180,H=600,T=62,B=44;
+  const s=el("svg",{viewBox:`0 0 ${W} ${H}`,preserveAspectRatio:"xMidYMid meet"});
+  const mid=W/2, gap=330, ih=H-T-B;
+  const rows=D.segmentos, bh=ih/rows.length;
+  const maxN=70, maxF=5000;
+  s.appendChild(txt("CLIENTES DEL PANEL",mid-gap/2-8,T-20,{"text-anchor":"end",class:"legend",fill:"#7FB8D4"}));
+  s.appendChild(txt("FACTURACIÓN ANUAL · ARS MILLONES",mid+gap/2+8,T-20,{class:"legend",fill:"#E8C547"}));
+  rows.forEach((d,i)=>{
+    const cy=T+i*bh+bh/2;
+    const wl=(d.n/maxN)*(mid-gap/2-30), wr=(d.fact/maxF)*(mid-gap/2-30);
+    s.appendChild(el("rect",{x:mid-gap/2-wl,y:cy-15,width:wl,height:30,fill:"#7FB8D4",opacity:".45"}));
+    s.appendChild(el("rect",{x:mid+gap/2,y:cy-15,width:wr,height:30,fill:"#E8C547",opacity:".45"}));
+    s.appendChild(txt(d.seg,mid,cy+1,{"text-anchor":"middle",class:"lbl-big"}));
+    s.appendChild(txt(d.n,mid-gap/2-wl-12,cy+2,{"text-anchor":"end",class:"dot-lbl"}));
+    s.appendChild(txt(fmt(d.fact),mid+gap/2+wr+12,cy+2,{class:"dot-lbl"}));
+  });
+  s.appendChild(el("line",{x1:mid-gap/2,x2:mid-gap/2,y1:T-8,y2:H-B,class:"axis"}));
+  s.appendChild(el("line",{x1:mid+gap/2,x2:mid+gap/2,y1:T-8,y2:H-B,class:"axis"}));
+  s.appendChild(txt("El panel es una muestra de 200 clientes sobre una base de ~40.000. La facturación está extrapolada a la base completa.",
+    mid,H-8,{"text-anchor":"middle",class:"tick",fill:"#54608A"}));
+  return s;
+}
+
+/* ═══ contenido de los cuatro paneles ═══ */
+const PANELS=[
+ {tab:"01 · Resultado",
+  no:"LÁMINA 01 / 04",
+  h:"La tijera",
+  lede:"Ingresos y costos mes a mes. Doce meses de historia y doce de proyección sin cambios de gestión.",
+  chart:plate1,
+  reads:[
+    {k:"EBITDA últimos 12 meses",v:"468",cls:"mint",u:"ARS M",note:"4,3% sobre ventas"},
+    {k:"EBITDA próximos 12 meses",v:"396",cls:"coral",u:"ARS M",note:"3,6% sobre ventas. La facturación crece 1,6%; los costos crecen más rápido."},
+    {k:"Caja al mes 12",v:"269",cls:"sodium",u:"ARS M",note:"Arranca en 380."}
+  ],
+  blind:"No muestra qué producto, qué precio ni qué cliente hay detrás de cada peso."},
+
+ {tab:"02 · Categorías",
+  no:"LÁMINA 02 / 04",
+  h:"Las ocho categorías",
+  lede:"Cuánto factura y cuánto margen deja cada subgrupo del surtido. Trescientos SKUs agrupados en ocho.",
+  chart:plate2,
+  reads:[
+    {k:"Facturación anual",v:"10.900",cls:"",u:"ARS M",note:"300 SKUs activos"},
+    {k:"Margen bruto promedio",v:"28,4",cls:"sodium",u:"%",note:"Entre 18,5% y 44,4% según la categoría."},
+    {k:"Amplitud entre categorías",v:"2,4×",cls:"cyan",u:"",note:"La categoría más rentable deja 44,4% de margen; la menos rentable, 18,5%."}
+  ],
+  blind:"No muestra qué SKU sostiene cada categoría, ni quién la compra."},
+
+ {tab:"03 · Inventario",
+  no:"LÁMINA 03 / 04",
+  h:"El capital dormido",
+  lede:"Días de cobertura por categoría, medidos contra la demanda promedio del último año.",
+  chart:plate3,
+  reads:[
+    {k:"Inventario valorizado",v:"1.637",cls:"sodium",u:"ARS M"},
+    {k:"Cobertura promedio",v:"76",cls:"",u:"días"},
+    {k:"Inversión a financiar",v:"600",cls:"coral",u:"ARS M",note:"Cuatro locales nuevos aprobados por el Directorio, sin tomar deuda."}
+  ],
+  blind:"No muestra en qué mes se vende cada cosa. La cobertura está medida contra un promedio."},
+
+ {tab:"04 · Clientes",
+  no:"LÁMINA 04 / 04",
+  h:"Quiénes compran",
+  lede:"Los cuatro segmentos del modelo RFM vigente: cuántos clientes tiene cada uno y cuánto factura.",
+  chart:plate4,
+  reads:[
+    {k:"Base identificada",v:"~40.000",cls:"",u:"clientes",note:"Programa de fidelidad."},
+    {k:"Presupuesto de campañas",v:"45",cls:"sodium",u:"ARS M",note:"Incremental sobre el marketing ya incluido en el baseline. Máximo 2 campañas simultáneas."},
+    {k:"Segmento VIP",v:"≥ 100",cls:"mint",u:"índice",note:"Su facturación no puede caer respecto de la actual. Es una de las cuatro metas del Comité."}
+  ],
+  blind:"No muestra qué compra cada segmento, ni desde cuándo, ni con qué frecuencia."}
+];
+
+/* ═══ render ═══ */
+const main=document.getElementById("main"), nav=document.getElementById("nav");
+PANELS.forEach((p,i)=>{
+  const sec=document.createElement("section");
+  sec.className="panel"; sec.id="p"+i;
+  sec.innerHTML=`
+    <div class="plateno">${p.no}</div>
+    <h1>${p.h}</h1>
+    <p class="lede">${p.lede}</p>
+    <div class="stage">
+      <div class="canvas"></div>
+      <aside class="side">${p.reads.map(r=>`
+        <div class="read">
+          <span class="k">${r.k}</span>
+          <span class="v ${r.cls}">${r.v}${r.u?`<small>${r.u}</small>`:""}</span>
+          ${r.note?`<p class="note">${r.note}</p>`:""}
+        </div>`).join("")}
+      </aside>
+    </div>
+    <footer>
+      <span class="blind"><b>Lo que esta lámina no dice</b>${p.blind}</span>
+      <span class="src">NEXUS_CASO_INTEGRADOR.xlsx</span>
+    </footer>`;
+  sec.querySelector(".canvas").appendChild(p.chart());
+  main.appendChild(sec);
+
+  const b=document.createElement("button");
+  b.textContent=p.tab; b.onclick=()=>show(i);
+  nav.appendChild(b);
+});
+
+let cur=-1;
+function show(i){
+  cur=i;
+  document.querySelectorAll(".panel").forEach((s,j)=>s.classList.toggle("on",j===i));
+  [...nav.children].forEach((b,j)=>b.setAttribute("aria-current",j===i));
+}
+show(0);
+addEventListener("keydown",e=>{
+  if(e.key==="ArrowRight"||e.key===" ") show(Math.min(cur+1,PANELS.length-1));
+  if(e.key==="ArrowLeft") show(Math.max(cur-1,0));
+  if(/^[1-4]$/.test(e.key)) show(+e.key-1);
+});
+</script>
+</body>
+</html>

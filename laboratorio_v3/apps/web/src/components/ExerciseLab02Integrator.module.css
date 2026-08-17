@@ -1,0 +1,302 @@
+/* ExerciseLab02Integrator.module.css — clases nuevas compartidas por los ejercicios integradores 3 y 4 del Laboratorio 2.
+   No toca el module compartido de ex-01/ex-02/ex-05. */
+
+.tableWrap {
+  overflow-x: auto;
+  margin: 14px 0;
+}
+
+.fillTable {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 6px 4px;
+  font-size: 13px;
+}
+
+.fillTable th {
+  background: transparent;
+  border-bottom: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-align: left;
+  padding: 4px 8px 8px;
+}
+
+.fillTable td {
+  background: transparent;
+  border-bottom: none;
+  padding: 5px 6px;
+  vertical-align: top;
+}
+
+.fillTable tr:nth-child(even) td {
+  background: transparent;
+}
+
+.fillTable tr:nth-child(even) td.fillCell {
+  background: var(--surface);
+}
+
+.fillCell {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  min-width: 80px;
+  height: 38px;
+  padding: 6px 8px;
+}
+
+.fillCell input {
+  width: 100%;
+  height: 100%;
+  border: none;
+  background: transparent;
+  font: inherit;
+  font-size: 13px;
+  padding: 0;
+  color: var(--ink);
+}
+
+.axisGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+  margin-top: 14px;
+}
+
+.axisGrid.cols2 {
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+}
+
+.axisCard {
+  background: var(--surface-muted);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 14px 16px;
+}
+
+.axisCard h3 {
+  font-size: 14px;
+  margin-bottom: 6px;
+}
+
+.axisCard p {
+  color: var(--muted);
+  font-size: 13px;
+  margin: 0;
+}
+
+.axisNum {
+  color: var(--brand);
+  font-weight: 800;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.answerBox {
+  border: 1px dashed var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+  padding: 14px 16px;
+  margin-top: 16px;
+}
+
+.answerLabel {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.answerBox textarea {
+  width: 100%;
+  min-height: 86px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font: inherit;
+  font-size: 13px;
+  resize: vertical;
+  background: var(--surface-muted);
+}
+
+.questionBox {
+  background: var(--surface-muted);
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--brand);
+  border-radius: 10px;
+  padding: 14px 18px;
+  margin: 14px 0;
+}
+
+.questionLabel {
+  color: var(--brand);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.questionBox ul {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.questionBox li {
+  margin-bottom: 4px;
+  font-size: 14px;
+}
+
+.questionBox li:last-child {
+  margin-bottom: 0;
+}
+
+.calloutRule {
+  background: rgba(180, 35, 24, 0.06);
+  border-left: 3px solid var(--danger);
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-top: 14px;
+  font-size: 13.5px;
+}
+
+.calloutSoft {
+  background: rgba(15, 107, 93, 0.06);
+  border-left: 3px solid var(--brand);
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-top: 14px;
+  font-size: 13.5px;
+}
+
+.checkList {
+  counter-reset: c;
+  list-style: none;
+  padding: 0;
+  margin: 12px 0 0;
+}
+
+.checkList li {
+  counter-increment: c;
+  position: relative;
+  padding: 8px 0 8px 30px;
+  font-size: 13.5px;
+  border-bottom: 1px solid var(--line);
+}
+
+.checkList li:last-child {
+  border-bottom: none;
+}
+
+.checkList li::before {
+  content: counter(c);
+  position: absolute;
+  left: 0;
+  top: 8px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--surface-muted);
+  color: var(--brand);
+  font-size: 11px;
+  font-weight: 800;
+  display: grid;
+  place-items: center;
+}
+
+.momentList {
+  counter-reset: m;
+  list-style: none;
+  padding: 0;
+  margin: 14px 0 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 12px;
+}
+
+.momentList li {
+  counter-increment: m;
+  position: relative;
+  background: var(--surface-muted);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 14px 16px;
+}
+
+.momentList li::before {
+  content: counter(m);
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--brand);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 800;
+  margin-bottom: 8px;
+}
+
+.momentList h3 {
+  font-size: 14px;
+  margin: 0 0 4px;
+}
+
+.momentList p {
+  font-size: 13px;
+  color: var(--muted);
+  margin: 0;
+}
+
+.levelGrid {
+  display: grid;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.levelCard {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 14px 16px;
+  background: var(--surface);
+}
+
+.levelCard h3 {
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+
+.levelCard p {
+  font-size: 13px;
+  color: var(--muted);
+  margin: 0;
+}
+
+.levelTag {
+  display: inline-block;
+  background: rgba(15, 107, 93, 0.1);
+  color: var(--brand);
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border-radius: 999px;
+  padding: 3px 9px;
+  margin-bottom: 8px;
+}
+
+.levelCard.l3 {
+  border-color: var(--accent);
+}
+
+.levelCard.l3 .levelTag {
+  background: rgba(191, 111, 40, 0.12);
+  color: var(--accent);
+}

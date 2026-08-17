@@ -146,7 +146,7 @@ export const INITIAL_EXERCISES: ExerciseMeta[] = [
   {
     id: "lab02-ex03",
     labId: "lab-02",
-    title: "Ejercicio 3: Churn Recovery Simulator",
+    title: "Ejercicio 3: Integrador P1",
     path: "/labs/lab-02/exercises/ex-03",
     order: 3,
     status: "active",
@@ -155,18 +155,9 @@ export const INITIAL_EXERCISES: ExerciseMeta[] = [
   {
     id: "lab02-ex04",
     labId: "lab-02",
-    title: "Ejercicio 4: Opportunistic Customer Simulator",
+    title: "Ejercicio 4: Integrador P2",
     path: "/labs/lab-02/exercises/ex-04",
     order: 4,
-    status: "active",
-    version: 1
-  },
-  {
-    id: "lab02-ex05",
-    labId: "lab-02",
-    title: "Ejercicio 5: Marketing ROI Consolidator",
-    path: "/labs/lab-02/exercises/ex-05",
-    order: 5,
     status: "active",
     version: 1
   }
@@ -188,9 +179,14 @@ function ensureExerciseMeta(): ExerciseMeta[] {
     const current = byId.get(initial.id);
     if (!current) {
       byId.set(initial.id, initial);
-    } else if (initial.status === "active") {
-      // Activar ejercicios que deben estar activos por defecto.
-      byId.set(initial.id, { ...current, status: "active" });
+    } else if (current.title !== initial.title || current.path !== initial.path || initial.status === "active") {
+      // Sincronizar título y path; activar ejercicios que deben estar activos por defecto.
+      byId.set(initial.id, {
+        ...current,
+        title: initial.title,
+        path: initial.path,
+        status: initial.status === "active" ? "active" : current.status
+      });
     }
   }
 
